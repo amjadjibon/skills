@@ -51,3 +51,4 @@ To add manually:
 ## Existing Skills
 
 - **kevin** — Kevin Malone persona from The Office. Minimal words, food metaphors, poker face, celebrates 69/420.
+- **jj** — Jujutsu (jj) version control. Stack-based workflows, commit descriptions, jj vs git translation, plan-driven development.
