@@ -24,15 +24,16 @@ Read the entire plan before touching any code. Then:
    - `In progress` → resume (see §5).
    - `Completed` / `Deprecated` → stop and confirm with the user; re-running a finished or abandoned plan is rarely intended.
    - `On Hold` → ask the user to confirm before resuming; it was paused for a reason that may still apply.
-2. **Enforce linear history.** Before starting implementation, run:
+2. **Enforce linear history (only if a remote exists).** Check first: `git remote | head -1`. If a remote is configured, run:
    - `git fetch origin`
    - rebase current branch onto `origin/main` when it exists, otherwise `origin/master`
    - resolve conflicts before continuing; do not create merge commits for sync
+   - If no remote is configured, skip this step entirely.
 3. **Check the working copy is clean enough to start** — uncommitted unrelated changes will get swept into phase commits. If `git status` shows unrelated dirty files, tell the user before proceeding.
 4. **Mark the plan started.** In its own commit, before any implementation:
    - Set frontmatter `status: 'In progress'` and `last_updated: <today>`
    - Update the badge line to `![Status: In progress](https://img.shields.io/badge/status-In%20progress-yellow)`
-   - Commit: `git add -A && git commit -m "docs: start <feature-name> implementation"`
+   - Commit: `git add -u && git commit -m "docs: start <feature-name> implementation"`
 
 ## 3. Phase Execution Protocol
 
@@ -43,7 +44,9 @@ Phases run strictly in order — each phase's commit is the foundation the next 
 2. Execute each task; tick its checkbox immediately after it's done
 3. Verify the phase's completion criteria — actually run the command/test, don't assume
 4. Commit with the phase message from the plan's **git commit** line:
-   git add -A && git commit -m "<type>: <phase summary>"
+   git add -u && git commit -m "<type>: <phase summary>"
+   If new files were intentionally created, stage them explicitly by path:
+   git add path/to/new/file && git add -u && git commit -m "<type>: <phase summary>"
 5. Move to the next phase
 ```
 
@@ -80,7 +83,7 @@ When `status` is `In progress`:
 
 Reality wins over the plan. When implementation reveals the plan is wrong (missed dependency, better approach, changed requirement):
 
-- Update `PLAN.md` to reflect reality **in its own commit**: edit plan → `git add -A && git commit -m "docs: update plan for <feature-name>"` → continue work. Don't bury plan edits inside implementation commits.
+- Update `PLAN.md` to reflect reality **in its own commit**: edit plan → `git add -u && git commit -m "docs: update plan for <feature-name>"` → continue work. Don't bury plan edits inside implementation commits.
 - Edit the affected tasks/phases; add new `TASK-NNN` entries continuing the numbering rather than renumbering existing ones.
 - Bump `last_updated` and the `version` (1.0 → 1.1) in frontmatter.
 - Keep deviations honest: the plan after execution should read as what *was* done, with notes explaining where and why it diverged from version 1.0.
@@ -91,7 +94,7 @@ The plan's `## 6. Testing` section is part of the work, not an afterthought:
 
 - Run/write each `TEST-NNN` item and tick its checkbox like any task.
 - If tests belong naturally to a phase (the phase's completion criteria already cover them), tick them when that phase completes. Otherwise treat testing as the final phase with its own commit:
-  `git add -A && git commit -m "test: <feature-name>"`
+  `git add -u && git commit -m "test: <feature-name>"`
 
 ## 8. Completion
 
@@ -99,7 +102,18 @@ A plan is done only when every `- [ ]` is `- [x]` (or annotated as blocked with 
 
 1. Set frontmatter `status: 'Completed'` and `last_updated: <today>`
 2. Update the badge to `![Status: Completed](https://img.shields.io/badge/status-Completed-brightgreen)`
-3. Commit: `git add -A && git commit -m "docs: complete <feature-name> plan"`
+3. Commit: `git add -u && git commit -m "docs: complete <feature-name> plan"`
+
+Then push and open a PR if a remote exists:
+
+```
+git remote | head -1   # check if remote is configured
+# if remote exists:
+git push -u origin <branch-name>
+gh pr create --fill    # or prompt the user to open a PR manually if gh is not available
+```
+
+If no remote is configured, skip the push and tell the user the branch is ready locally.
 
 Finish with a short report to the user:
 
@@ -108,6 +122,7 @@ Plan complete: docs/<feature-name>/PLAN.md
 Phases: <N> — one git commit each (run `git log --oneline` to review)
 Deviations: <none | list of blocked/changed tasks>
 Verification: <what was run to prove completion criteria, e.g. "test suite passes (42 tests)">
+PR: <URL> | local only (no remote configured)
 ```
 
 If stopping *before* completion (user interrupt, blocker), leave status `In progress`, make sure every finished task is ticked and the current phase's partial work is committed, and summarize where the next session should resume.

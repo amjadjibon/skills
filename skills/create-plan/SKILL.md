@@ -7,7 +7,7 @@ description: Create a new plan file for new features, refactoring existing code 
 
 ## Primary Directive
 
-Create a `docs/<feature-name>/PLAN.md` file that is structured for autonomous execution — by AI agents or humans. The plan uses GitHub-flavored markdown checkboxes so agents can tick tasks as they complete them, and integrates jj commits at phase boundaries to create a clean, reviewable history.
+Create a `docs/<feature-name>/PLAN.md` file that is structured for autonomous execution — by AI agents or humans. The plan uses GitHub-flavored markdown checkboxes so agents can tick tasks as they complete them, and integrates git commits at phase boundaries to create a clean, reviewable history.
 
 ## Output Location & Naming
 
@@ -15,14 +15,14 @@ Create a `docs/<feature-name>/PLAN.md` file that is structured for autonomous ex
 - Example: `docs/rate-limiting/PLAN.md`, `docs/auth-refactor/PLAN.md`, `docs/postgres-upgrade/PLAN.md`
 - Create the directory if it doesn't exist
 
-## jj Integration
+## Git Integration
 
-This skill assumes the repo uses Jujutsu (jj). The agent executing the plan should:
+The agent executing the plan should:
 
-1. **Before creating the plan file**: run `jj describe -m "plan: <feature-name>"` to mark the start of work
-2. **Before each implementation phase**: run `jj new` to open a fresh commit for that phase's work
-3. **After completing each phase**: run `jj describe -m "<type>: <what was done in this phase>"` before moving to the next
-4. **On plan completion**: the commit stack maps 1:1 to the plan phases — each phase is a separate, reviewable commit
+1. **Before creating the plan file**: commit the plan as its own commit: `git add -A && git commit -m "plan: <feature-name>"`
+2. **Before each implementation phase**: ensure the working tree is clean so each phase's work is isolated
+3. **After completing each phase**: run `git add -A && git commit -m "<type>: <what was done in this phase>"` before moving to the next
+4. **On plan completion**: the commit history maps 1:1 to the plan phases — each phase is a separate, reviewable commit
 
 This keeps the plan commit separate from implementation commits, making the history clean and reviewable.
 
@@ -55,12 +55,10 @@ If the user provides a ticket ID or URL, include it everywhere it adds traceabil
 - `[A-Z]+-\d+` but user is on Linear → `https://linear.app/team/issue/<ID>`
 - Full URL → use as-is
 
-**Also include the ticket ID in the jj commit message** for the plan commit:
+**Also include the ticket ID in the git commit message** for the plan commit:
 ```
-jj describe -m "plan: <feature-name> (<ticket-id>)"
+git commit -m "plan: <feature-name> (<ticket-id>)"
 ```
-
-This makes `jj log` searchable by ticket without opening a browser.
 
 ---
 
@@ -106,7 +104,7 @@ Agents MUST update checkboxes to `[x]` as each task is completed — this is the
 
 ## Mandatory Template
 
-Every plan file must use exactly this structure. Populate every section; remove nothing.
+Every plan file must use this structure. Sections marked **[if applicable]** may be omitted when they add no value — e.g., skip "Alternatives Considered" for a straightforward feature with no real design choices, skip "Architecture Diagram" for a small bug fix or config change. Always include sections 1 and 2; include the rest when they reduce ambiguity or risk.
 
 ```markdown
 ---
@@ -117,14 +115,16 @@ last_updated: <YYYY-MM-DD>
 owner: <team or individual>
 status: 'Planned'
 tags: [feature|upgrade|refactor|chore|architecture|migration|bug]
-ticket: <JIRA-123 | LIN-456 | https://app.linear.app/... | https://app.asana.com/...>
+# ticket: <JIRA-123 | LIN-456 | URL>  ← uncomment and fill in only if a tracker ticket exists
 ---
 
 # <Plan Title>
 
 ![Status: Planned](https://img.shields.io/badge/status-Planned-blue)
 
-> **Tracker**: [JIRA-123](https://yourorg.atlassian.net/browse/JIRA-123) <!-- remove if no ticket -->
+<!-- If a tracker ticket exists, add the link here. Otherwise delete this line.
+> **Tracker**: [TICKET-123](https://link-to-ticket)
+-->
 
 <2-3 sentence introduction: what this plan achieves and why it's being done.>
 
@@ -138,7 +138,7 @@ ticket: <JIRA-123 | LIN-456 | https://app.linear.app/... | https://app.asana.com
 
 ## 2. Implementation Steps
 
-> **Agent instructions**: Before each phase, run `jj new`. After completing all tasks in a phase, run `jj describe -m "<type>: <phase summary>"`. Update checkboxes to `[x]` as each task is completed.
+> **Agent instructions**: After completing all tasks in a phase, run `git add -A && git commit -m "<type>: <phase summary>"`. Update checkboxes to `[x]` as each task is completed.
 
 ### Phase 1: <Phase Name>
 
@@ -150,7 +150,7 @@ ticket: <JIRA-123 | LIN-456 | https://app.linear.app/... | https://app.asana.com
 
 **Completion criteria**: <Measurable condition that proves this phase is done, e.g., "all tests pass", "endpoint returns 200", "migration runs without error">
 
-**jj commit**: `jj describe -m "<type>: <phase 1 summary>"`
+**git commit**: `git add -A && git commit -m "<type>: <phase 1 summary>"`
 
 ---
 
@@ -166,42 +166,44 @@ ticket: <JIRA-123 | LIN-456 | https://app.linear.app/... | https://app.asana.com
 
 **Completion criteria**: <Measurable condition.>
 
-**jj commit**: `jj describe -m "<type>: <phase 2 summary>"`
+**git commit**: `git add -A && git commit -m "<type>: <phase 2 summary>"`
 
 ---
 
-## 3. Alternatives Considered
+## 3. Alternatives Considered [if applicable]
+
+> Include when there were real design choices. Skip for straightforward tasks with no meaningful alternatives.
 
 - **ALT-001**: <Alternative approach> — rejected because <reason>
-- **ALT-002**: <Alternative approach> — rejected because <reason>
 
-## 4. Dependencies
+## 4. Dependencies [if applicable]
+
+> Include when external libraries, services, or teams must be in place before work can start.
 
 - **DEP-001**: <Library, service, or component this plan depends on>
-- **DEP-002**: <Another dependency>
 
-## 5. Affected Files
+## 5. Affected Files [if applicable]
+
+> Include for large or cross-cutting changes where the scope isn't obvious from the phases.
 
 - **FILE-001**: `<path/to/file.ext>` — <what changes and why>
-- **FILE-002**: `<path/to/file.ext>` — <what changes and why>
 
 ## 6. Testing
 
 - [ ] TEST-001: <Specific test to write or run, with file path>
 - [ ] TEST-002: <Integration test or manual verification step>
 
-## 7. Risks & Assumptions
+## 7. Risks & Assumptions [if applicable]
+
+> Include when there are non-obvious risks or unverified assumptions that could derail implementation.
 
 - **RISK-001**: <Risk> — mitigation: <how to reduce it>
 - **ASSUMPTION-001**: <Something assumed true that hasn't been verified>
 
-## 8. Architecture Diagram
+## 8. Architecture Diagram [if applicable]
 
-> Include at least one diagram. Use Mermaid for flow/sequence/component diagrams. Use ASCII the diagram is simple enough.
+> Include for new services, significant data-flow changes, or multi-component interactions. Skip for single-file or config-only changes. Use Mermaid for flow/sequence/component diagrams; ASCII for simple layouts.
 
-### Option A — Mermaid
-
-````markdown
 ```mermaid
 graph TD
     A[Client] -->|HTTP| B[API Gateway]
@@ -209,33 +211,12 @@ graph TD
     B --> D[Feature Service]
     D --> E[(Database)]
 ```
-````
 
-Common diagram types:
-- `graph TD` — component/dependency flow (top-down)
-- `graph LR` — left-right flow (better for pipelines)
-- `sequenceDiagram` — request/response between services
-- `erDiagram` — data model / schema
-- `flowchart LR` — decision trees
+Common diagram types: `graph TD/LR` (components), `sequenceDiagram` (request/response), `erDiagram` (schema), `flowchart LR` (decisions).
 
-### Option B — ASCII
-
-```
-┌─────────┐     ┌─────────────┐     ┌──────────┐
-│ Client  │────▶│ API Gateway │────▶│ Service  │
-└─────────┘     └─────────────┘     └────┬─────┘
-                                         │
-                                    ┌────▼─────┐
-                                    │    DB    │
-                                    └──────────┘
-```
-
-Pick the diagram type that best shows **what changes** in this plan — architecture, data flow, or sequence of calls.
-
-## 9. Related Specs & Further Reading
+## 9. Related Specs & Further Reading [if applicable]
 
 - <Link or filename of related plan/doc>
-- <Link to external docs, RFC, or ADR>
 ```
 
 ## Plan Generation Process
@@ -243,22 +224,23 @@ Pick the diagram type that best shows **what changes** in this plan — architec
 When the user asks you to create a plan:
 
 1. **Clarify** (if not obvious): What is the feature/change? What's the scope? Are there known constraints?
-2. **Determine `<feature-name>`** for the output path
-3. **Run jj describe** to create the plan commit: `jj describe -m "plan: <feature-name>"`
+2. **Determine `<feature-name>`** for the output path and branch name
+3. **Create a feature branch**: `git checkout -b <feature-name>`
 4. **Create** `docs/<feature-name>/PLAN.md` using the template above
-5. **Tell the user**: "Plan created at `docs/<feature-name>/PLAN.md`. Use `jj new` before starting Phase 1, and commit after each phase."
+5. **Commit the plan**: `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`
+6. **Tell the user**: "Plan created at `docs/<feature-name>/PLAN.md` on branch `<feature-name>`. Commit after each phase as you implement."
 
 ## Agent Execution Checklist
 
 When an agent is executing a plan from this file, it should follow this protocol for each phase:
 
 ```
-1. jj new                                    # open fresh commit for this phase
+1. Ensure working tree is clean before starting the phase
 2. Read the phase tasks top to bottom
 3. Execute each task
 4. Update checkbox: - [x] TASK-NNN
 5. Verify completion criteria
-6. jj describe -m "<type>: <phase summary>"  # seal the phase commit
+6. git add -A && git commit -m "<type>: <phase summary>"
 7. Move to next phase
 ```
 
@@ -270,9 +252,7 @@ If a task fails or is blocked, add a note inline below the checkbox:
 
 ## Additional Suggestions for Power Users
 
-- **Bookmark per plan**: `jj bookmark create <feature-name>` at the start to track the feature branch
-- **Plan evolution**: If the plan changes mid-execution, update the PLAN.md in a new `jj new` commit with message `docs: update plan for <feature-name>` — don't rewrite history
-- **Parallel tasks**: Tasks within a single phase can be done in parallel. Cross-phase tasks require the prior phase's jj commit to exist first
-- **Stacked review**: Because each phase is a separate jj commit, you can push the stack and get each phase reviewed independently via `jj git push`
-- **Undo a phase**: If a phase goes wrong, `jj op log` shows every operation. `jj abandon <change-id>` removes a bad phase commit cleanly
+- **Plan evolution**: If the plan changes mid-execution, update the PLAN.md in its own commit: `git add docs/<feature-name>/PLAN.md && git commit -m "docs: update plan for <feature-name>"` — don't bury plan edits inside implementation commits
+- **Parallel tasks**: Tasks within a single phase can be done in parallel. Cross-phase tasks require the prior phase's commit to exist first
+- **Stacked review**: Because each phase is a separate git commit, you can push and request review per-phase via PR
 - **Progress at a glance**: `grep -E "\- \[.\]" docs/*/PLAN.md` shows all tasks and their completion state across all plans
