@@ -31,6 +31,23 @@ Work through each category. Not every category will have findings — that's fin
 - Incorrect types, null/undefined not guarded where needed
 - Functions that silently succeed when they should fail
 
+### Async & Concurrency
+- **Unhandled rejections** — `async` functions called without `await` or `.catch()`; errors silently swallowed
+- **Blocking the event loop** — synchronous I/O (`fs.readFileSync`, `time.sleep`) inside async/concurrent code
+- **Missing await** — `await` omitted on an async call whose result is used immediately after; subtle race
+- **Deadlocks** — two coroutines/goroutines/threads each waiting for a lock the other holds
+- **Shared mutable state without synchronisation** — variables written by multiple goroutines/threads without a mutex or channel
+- **Async in constructors** — constructors or `__init__` that start async work with no way to await or cancel it
+- **Fire-and-forget without error handling** — background tasks spawned with no mechanism to surface failures
+
+### Memory & Resource Management
+- **Unclosed resources** — files, DB connections, sockets, streams opened without `with`/`defer`/`finally` to guarantee close
+- **Event listener leaks** — listeners added in a component/hook with no corresponding removal on teardown
+- **Circular references** — objects that reference each other preventing garbage collection (common in caches and graph structures)
+- **Unbounded caches or collections** — maps/lists that grow indefinitely with no eviction or size cap
+- **Large allocations in hot paths** — buffers or slices allocated on every request/loop iteration that could be pooled or reused
+- **Goroutine leaks** (Go) — goroutines that block forever on a channel no one will close
+
 ### Security
 - **Secrets in code**: hardcoded API keys, passwords, tokens — flag immediately, severity Critical
 - **Input validation**: user-controlled data used without validation (paths, queries, shell args); file uploads missing size/type/extension checks
@@ -46,12 +63,34 @@ Work through each category. Not every category will have findings — that's fin
 - **Dependency issues**: obviously outdated or known-vulnerable packages
 - **Sensitive data logged**: passwords, tokens, PII written to logs
 
+### Performance & Database
+- **N+1 queries** — a query inside a loop that could be a single batched query; always a Medium or High depending on scale
+- **Missing indexes** — `WHERE`, `JOIN`, `ORDER BY` on columns with no index and non-trivial table size; flag the column and suggest the index
+- **Full table scans** — `SELECT` without a `WHERE` clause, or a `WHERE` that can't use an index (e.g. `LIKE '%foo'`, function on indexed column)
+- **`SELECT *` in application code** — fetches columns the code never uses; fragile and wasteful
+- **Missing pagination** — queries that can return unbounded rows from user-controlled filters
+- **No transaction on multi-step writes** — partial failure leaves the database in an inconsistent state
+- **Eager loading when lazy is sufficient** — fetching all relations upfront when only a subset is ever accessed
+
 ### Simplicity & Reuse
 - Code that duplicates existing utilities in the codebase
 - Abstractions added for a single use case
 - Functions doing more than one thing
 - Dead code, unused imports, variables introduced but never read
 - Unnecessary complexity that a senior engineer would flatten
+- **Too much verbosity** — multi-line expressions that could be one line without losing clarity; over-commented code that restates what the variable name already says; wrapper functions that add no logic
+- **Missing function/method documentation** — flag when a function's purpose, parameters, or return value are non-obvious and there is no doc comment; do not flag trivially self-explanatory functions
+
+### Test Quality
+Only flag test issues when tests exist in the diff. Don't demand tests for code that doesn't include them — raise that as a Low finding, not a blocker.
+
+- **Tests that always pass** — assertions on constants, `assert True`, mocking the thing under test so nothing real runs
+- **No unhappy-path coverage** — tests cover only the success case; invalid input, missing data, and error responses untested
+- **Brittle assertions** — tests that assert on exact error message strings, timestamps, or auto-generated IDs that will change
+- **Testing implementation, not behaviour** — tests that break when internal variable names or private methods change but the observable output stays the same
+- **Missing boundary tests** — off-by-one inputs, empty collections, zero, null/None, max values — especially for functions with numeric conditions
+- **Test isolation** — tests that depend on execution order, shared mutable state, or external services without mocking
+- **No coverage of the changed code path** — the diff adds a new branch or error handler with no test that exercises it; flag as Medium
 
 ## 4. Severity Levels
 
@@ -124,7 +163,9 @@ verdict: <Approve | Request Changes | Block>
 - [ ] All Critical and High findings resolved
 - [ ] No secrets or credentials in committed files
 - [ ] `.gitignore` covers new artifact/config types introduced
-- [ ] Tests cover the changed behaviour
+- [ ] Tests cover the changed behaviour and at least one unhappy path
+- [ ] All async calls awaited or errors handled
+- [ ] Resources (files, connections, streams) closed in all code paths
 
 **If this touches auth, sessions, or user data:**
 - [ ] Tokens in `httpOnly` cookies, not `localStorage`
