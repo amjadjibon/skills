@@ -54,6 +54,8 @@ Rules that matter:
 
 - **Tick checkboxes one at a time, in the plan file, as each task finishes.** The checkbox edit goes into the same phase commit as the work itself, so every commit shows exactly which tasks it contains. Never tick a box for work you haven't verified.
 - **Use the commit message the plan specifies.** Each phase has a `**git commit**:` line — use it verbatim. If the plan's message no longer describes what you actually did, write an accurate one instead and note the deviation (see §6).
+- **No `Co-authored-by:` trailers.** Never append `Co-authored-by:` or any AI attribution to commit messages. The commit author is the human doing the work.
+- **Check `git status` before staging.** If new untracked files appear that shouldn't be committed (build output, `node_modules`, `.env`), verify `.gitignore` covers them before staging. Don't commit them and don't use `git add -A`.
 - **Completion criteria are gates, not suggestions.** If the criteria say "all tests pass", run the tests and show the output. If criteria fail, fix the phase before committing — don't carry broken work into the next phase.
 - **Tasks within a phase are sequential by default**, but independent tasks (different files, no shared state) may be done in any order.
 - **Keep git history linear.** Sync with upstream via rebase (`fetch` + `rebase`), not merge.
@@ -110,8 +112,14 @@ Then push and open a PR if a remote exists:
 git remote | head -1   # check if remote is configured
 # if remote exists:
 git push -u origin <branch-name>
-gh pr create --fill    # or prompt the user to open a PR manually if gh is not available
+gh pr create \
+  --title "<goal from plan frontmatter>" \
+  --body "$(cat docs/<feature-name>/PLAN.md)"
 ```
+
+Do **not** use `gh pr create --fill` — it uses the last commit message as the body, which is just one phase summary. The PR body should be the PLAN.md content (or a hand-written summary of all phases and deviations). Do **not** add a `Co-authored-by:` trailer to commits or the PR description.
+
+If `gh` is not available, output the push command and tell the user to open the PR manually.
 
 If no remote is configured, skip the push and tell the user the branch is ready locally.
 

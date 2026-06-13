@@ -19,10 +19,15 @@ Create a `docs/<feature-name>/PLAN.md` file that is structured for autonomous ex
 
 The agent executing the plan should:
 
-1. **Before creating the plan file**: commit the plan as its own commit: `git add -A && git commit -m "plan: <feature-name>"`
+1. **Before creating the plan file**: commit the plan as its own commit: `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`
 2. **Before each implementation phase**: ensure the working tree is clean so each phase's work is isolated
-3. **After completing each phase**: run `git add -A && git commit -m "<type>: <what was done in this phase>"` before moving to the next
+3. **After completing each phase**: stage changed tracked files and any intentionally created new files explicitly, then commit before moving to the next phase
 4. **On plan completion**: the commit history maps 1:1 to the plan phases — each phase is a separate, reviewable commit
+
+**Commit hygiene:**
+- Use `git add -u` for modified/deleted tracked files. Stage new files explicitly by path: `git add path/to/new/file`.
+- Never use `git add -A` — it stages untracked files (build artifacts, `.env`, generated code) that don't belong in commits.
+- Never add a `Co-authored-by:` trailer to commits. The commit author is the human doing the work.
 
 This keeps the plan commit separate from implementation commits, making the history clean and reviewable.
 
@@ -91,8 +96,6 @@ These rules apply to every plan you generate. Read them before writing a single 
 
 ---
 
-
-
 Use GitHub-flavored checkboxes for all tasks so agents can update them inline:
 
 ```markdown
@@ -138,7 +141,7 @@ tags: [feature|upgrade|refactor|chore|architecture|migration|bug]
 
 ## 2. Implementation Steps
 
-> **Agent instructions**: After completing all tasks in a phase, run `git add -A && git commit -m "<type>: <phase summary>"`. Update checkboxes to `[x]` as each task is completed.
+> **Agent instructions**: After completing all tasks in a phase, stage with `git add -u` (plus explicit paths for new files) and commit. No `Co-authored-by:` trailers. Update checkboxes to `[x]` as each task is completed.
 
 ### Phase 1: <Phase Name>
 
@@ -150,7 +153,7 @@ tags: [feature|upgrade|refactor|chore|architecture|migration|bug]
 
 **Completion criteria**: <Measurable condition that proves this phase is done, e.g., "all tests pass", "endpoint returns 200", "migration runs without error">
 
-**git commit**: `git add -A && git commit -m "<type>: <phase 1 summary>"`
+**git commit**: `git add -u && git commit -m "<type>: <phase 1 summary>"` — no `Co-authored-by:` trailer
 
 ---
 
@@ -166,7 +169,7 @@ tags: [feature|upgrade|refactor|chore|architecture|migration|bug]
 
 **Completion criteria**: <Measurable condition.>
 
-**git commit**: `git add -A && git commit -m "<type>: <phase 2 summary>"`
+**git commit**: `git add -u && git commit -m "<type>: <phase 2 summary>"` — no `Co-authored-by:` trailer
 
 ---
 
@@ -229,26 +232,6 @@ When the user asks you to create a plan:
 4. **Create** `docs/<feature-name>/PLAN.md` using the template above
 5. **Commit the plan**: `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`
 6. **Tell the user**: "Plan created at `docs/<feature-name>/PLAN.md` on branch `<feature-name>`. Commit after each phase as you implement."
-
-## Agent Execution Checklist
-
-When an agent is executing a plan from this file, it should follow this protocol for each phase:
-
-```
-1. Ensure working tree is clean before starting the phase
-2. Read the phase tasks top to bottom
-3. Execute each task
-4. Update checkbox: - [x] TASK-NNN
-5. Verify completion criteria
-6. git add -A && git commit -m "<type>: <phase summary>"
-7. Move to next phase
-```
-
-If a task fails or is blocked, add a note inline below the checkbox:
-```
-- [x] TASK-005: <description>
-  > Blocked: <reason>. Resolved by: <what was done instead>.
-```
 
 ## Additional Suggestions for Power Users
 
