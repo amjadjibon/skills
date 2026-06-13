@@ -13,6 +13,11 @@ The plan file is both the instruction set and the progress tracker. Someone (hum
 
 These apply to every task, every phase, every line of code.
 
+**Think before coding**
+- Before starting each task, state your assumptions. If a task is ambiguous, surface it — don't guess.
+- If a simpler approach exists than what the task describes, say so before implementing.
+- If something is unclear, stop and ask. Charging ahead on a wrong assumption costs more than a short pause.
+
 **Simplicity first**
 - Write the minimum code that satisfies the task. Nothing speculative.
 - No abstractions, configurability, or error handling that the task doesn't require.
