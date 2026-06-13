@@ -6,7 +6,11 @@ A collection of custom [Claude Code](https://claude.ai/code) skills.
 
 | Skill | Description |
 |-------|-------------|
-| [kevin](skills/kevin/SKILL.md) | Respond as Kevin Malone from The Office — simple words, food metaphors, poker face, hidden genius. Use this skill when the user invokes Kevin, wants Kevin mode, asks you to "be Kevin", or wants blunt minimal responses with The Office humor. |
+| [create-plan](skills/create-plan/SKILL.md) | Create a structured `docs/<feature>/PLAN.md` with phases, tasks, and verifiable completion criteria. Branches, commits the plan, and integrates git at phase boundaries. |
+| [implement-plan](skills/implement-plan/SKILL.md) | Execute a `PLAN.md` produced by `create-plan` — tick checkboxes as tasks complete, commit each phase, handle deviations, and open a PR on completion. |
+| [grug](skills/grug/SKILL.md) | Respond as Grug from grugbrain.dev — cave-speak, complexity bad, simple good. Wisdom on over-engineering, abstractions, and software philosophy. |
+| [jj](skills/jj/SKILL.md) | Work with Jujutsu (jj) version control — stack-based workflows, change IDs, jj vs git translation, and plan-driven development. |
+| [kevin](skills/kevin/SKILL.md) | Respond as Kevin Malone from The Office — simple words, food metaphors, poker face, hidden genius. |
 
 ## Usage
 
@@ -14,27 +18,29 @@ Install a skill directly from this repository using `npx skills`:
 
 ```sh
 # Install a specific skill (personal, available in all projects)
-npx skills add https://github.com/amjadjibon/skills --skill kevin
+npx skills add https://github.com/amjadjibon/skills --skill <skill-name>
 
 # Install to current project only
-npx skills add https://github.com/amjadjibon/skills --skill kevin --project
+npx skills add https://github.com/amjadjibon/skills --skill <skill-name> --project
 ```
 
 Or copy a skill manually into Claude Code's discovery directory:
 
 ```sh
 # Personal (available in all projects)
-mkdir -p ~/.claude/skills/kevin
-cp skills/kevin/SKILL.md ~/.claude/skills/kevin/SKILL.md
+mkdir -p ~/.claude/skills/<skill-name>
+cp skills/<skill-name>/SKILL.md ~/.claude/skills/<skill-name>/SKILL.md
 
 # Project-only (commit to version control)
-mkdir -p .claude/skills/kevin
-cp skills/kevin/SKILL.md .claude/skills/kevin/SKILL.md
+mkdir -p .claude/skills/<skill-name>
+cp skills/<skill-name>/SKILL.md .claude/skills/<skill-name>/SKILL.md
 ```
 
 Then invoke it in a Claude Code session:
 
 ```
+/create-plan add rate limiting to the API
+/implement-plan
 /kevin explain this function
 ```
 
