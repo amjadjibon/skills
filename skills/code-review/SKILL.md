@@ -33,9 +33,15 @@ Work through each category. Not every category will have findings — that's fin
 
 ### Security
 - **Secrets in code**: hardcoded API keys, passwords, tokens — flag immediately, severity Critical
-- **Input validation**: user-controlled data used without validation (paths, queries, shell args)
+- **Input validation**: user-controlled data used without validation (paths, queries, shell args); file uploads missing size/type/extension checks
 - **Command injection**: `shell=True`, string interpolation into shell commands
 - **Path traversal**: user-supplied filenames used without sanitising `..` or absolute paths
+- **Auth token storage**: tokens in `localStorage` or `sessionStorage` are XSS-vulnerable — must use `httpOnly` cookies with `Secure; SameSite=Strict`
+- **CSRF**: state-changing endpoints missing CSRF token verification or `SameSite` cookie protection
+- **Rate limiting**: expensive or sensitive endpoints (login, search, payment) with no rate limiting
+- **XSS**: user-provided HTML rendered without sanitisation; missing Content Security Policy on new endpoints
+- **CORS**: overly permissive `Access-Control-Allow-Origin: *` on credentialed or sensitive endpoints
+- **Missing authorisation checks**: operations that change or expose data without verifying the caller has permission
 - **Error messages leaking internals**: stack traces, credentials, or system paths in responses
 - **Dependency issues**: obviously outdated or known-vulnerable packages
 - **Sensitive data logged**: passwords, tokens, PII written to logs
@@ -114,10 +120,31 @@ verdict: <Approve | Request Changes | Block>
 
 ## Pre-Merge Checklist
 
+**Always:**
 - [ ] All Critical and High findings resolved
 - [ ] No secrets or credentials in committed files
+- [ ] `.gitignore` covers new artifact/config types introduced
 - [ ] Tests cover the changed behaviour
-- [ ] `.gitignore` updated if new artifact types were introduced
+
+**If this touches auth, sessions, or user data:**
+- [ ] Tokens in `httpOnly` cookies, not `localStorage`
+- [ ] CSRF protection on state-changing endpoints
+- [ ] Rate limiting on login, signup, payment, and search endpoints
+- [ ] No sensitive data in error responses or logs
+
+**If this touches file uploads:**
+- [ ] Size limit enforced server-side
+- [ ] MIME type and extension allowlist validated
+- [ ] User-supplied filenames never used directly in storage paths
+
+**If this uses a database (Supabase / SQL):**
+- [ ] Row Level Security enabled on all user-data tables
+- [ ] All queries use parameterised inputs (no string interpolation)
+- [ ] Multi-step writes wrapped in transactions
+
+**If this is blockchain / Solana:**
+- [ ] Wallet signatures verified before trusting identity
+- [ ] Transaction recipient, amount, and balance validated before signing
 ```
 
 **Finding numbering:** Use `CRIT-`, `HIGH-`, `MED-`, `LOW-`, `INFO-` prefixes with zero-padded sequence numbers per severity level. Skip severity sections with no findings.
@@ -176,6 +203,38 @@ Detect the primary language from the diff and apply the relevant standards below
 - Unhandled promise rejections — floating `async` calls without `await` or `.catch()`
 - `eval()` or `new Function()` on user input — Critical
 
+**Auth & session (Next.js / web):**
+- `localStorage.setItem('token', ...)` — XSS-vulnerable, Critical; must use `httpOnly` cookies
+- Missing `HttpOnly; Secure; SameSite=Strict` on session cookies — High
+- No CSRF token on `POST`/`PUT`/`DELETE` routes that change state — High
+- No rate limiting on `/api/auth/*`, `/api/login`, or payment endpoints — High
+
+**XSS & content security:**
+- `dangerouslySetInnerHTML` without `DOMPurify.sanitize()` — Critical
+- Missing or permissive `Content-Security-Policy` header on pages that render user content — Medium
+- Dynamic `<script>` injection or `innerHTML` from user-controlled data — Critical
+
+**Input & file uploads:**
+- File uploads missing size cap, MIME type check, and extension allowlist — High
+- User-supplied filenames used directly in storage paths — High (path traversal)
+- No schema validation (e.g. Zod) on API request bodies — Medium
+
+---
+
+### Supabase
+- Tables without `ENABLE ROW LEVEL SECURITY` — Critical if they hold user data
+- RLS policies that use `auth.uid()` but the table also has a service-role bypass without justification — High
+- Querying with the service role key on the client side — Critical
+- No check that `auth.uid()` matches the resource owner before mutate operations — High
+
+---
+
+### Blockchain / Solana
+- Wallet signatures not verified before trusting claimed identity — Critical
+- Transaction recipient or amount not validated before signing — Critical
+- Balance not checked before initiating a transaction — High
+- Blind `signAllTransactions` without inspecting each transaction's instructions — Critical
+
 ---
 
 ### SQL (any language)
@@ -208,6 +267,12 @@ Apply these regardless of language, in addition to the general checklist:
 - Don't Repeat Yourself — flag copy-pasted logic that belongs in a shared utility
 - Fail fast — functions that accept invalid input and silently produce wrong output
 - Principle of Least Privilege — code requesting broader permissions/access than it needs
+
+**Security test coverage to check for (flag as Medium if missing):**
+- Unauthenticated request to a protected endpoint returns 401
+- Authenticated request without the required role returns 403
+- Invalid input returns 400 with no internal detail leaked
+- Rate-limited endpoint returns 429 after threshold
 
 ## Review Principles
 
