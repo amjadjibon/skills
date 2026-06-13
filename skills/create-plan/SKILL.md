@@ -68,6 +68,18 @@ git commit -m "plan: <feature-name> (<ticket-id>)"
 
 ---
 
+## Planning Principles
+
+**Think before planning**
+- Surface assumptions explicitly. If the feature or scope is ambiguous, ask — don't pick an interpretation silently.
+- If multiple valid approaches exist, name them and state which the plan takes and why (or capture them in "Alternatives Considered").
+- If a simpler solution exists than what was asked for, say so before writing the plan.
+
+**Define verifiable success criteria**
+- Every phase must have a completion criterion that can be checked by running a command, reading output, or observing behaviour — not just "it should work".
+- Weak criteria ("make it work") cause constant clarification loops during execution. Strong criteria let an agent execute and verify independently.
+- Transform vague goals before writing tasks: "add validation" → "invalid inputs return 400 with a descriptive error message (test covers 3 cases)".
+
 ## Plan Writing Rules
 
 These rules apply to every plan you generate. Read them before writing a single line.

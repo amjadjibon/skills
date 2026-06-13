@@ -13,11 +13,6 @@ The plan file is both the instruction set and the progress tracker. Someone (hum
 
 These apply to every task, every phase, every line of code.
 
-**Think before coding**
-- State assumptions explicitly before starting a task. If uncertain, surface it — don't guess silently.
-- If a task has multiple valid interpretations, name them and pick one with a reason, or ask.
-- If a simpler approach exists than what the plan describes, say so before implementing.
-
 **Simplicity first**
 - Write the minimum code that satisfies the task. Nothing speculative.
 - No abstractions, configurability, or error handling that the task doesn't require.
@@ -28,11 +23,6 @@ These apply to every task, every phase, every line of code.
 - Match the existing style even if you'd do it differently.
 - If you notice unrelated dead code, mention it — don't delete it.
 - Every changed line should trace directly to the current task.
-
-**Goal-driven execution**
-- Before implementing each task, define what "done" looks like: a passing test, a command output, an endpoint response.
-- Weak criteria ("make it work") require constant clarification. Strong criteria let you loop independently.
-- Don't tick a checkbox until you've verified the success criterion — actually run it.
 
 ## 1. Locate the Plan
 
