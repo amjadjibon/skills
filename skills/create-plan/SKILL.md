@@ -28,6 +28,7 @@ The agent executing the plan should:
 - Use `git add -u` for modified/deleted tracked files. Stage new files explicitly by path: `git add path/to/new/file`.
 - Never use `git add -A` — it stages untracked files (build artifacts, `.env`, generated code) that don't belong in commits.
 - Never add a `Co-authored-by:` trailer to commits. The commit author is the human doing the work.
+- **Subject line ≤ 72 chars, imperative mood.** Explain *why* the change was made, not what files changed (the diff shows that). A short body (1–3 sentences) is fine for non-obvious motivation; bullet lists of changes are not.
 
 This keeps the plan commit separate from implementation commits, making the history clean and reviewable.
 

@@ -55,6 +55,7 @@ Rules that matter:
 - **Tick checkboxes one at a time, in the plan file, as each task finishes.** The checkbox edit goes into the same phase commit as the work itself, so every commit shows exactly which tasks it contains. Never tick a box for work you haven't verified.
 - **Use the commit message the plan specifies.** Each phase has a `**git commit**:` line — use it verbatim. If the plan's message no longer describes what you actually did, write an accurate one instead and note the deviation (see §6).
 - **No `Co-authored-by:` trailers.** Never append `Co-authored-by:` or any AI attribution to commit messages. The commit author is the human doing the work.
+- **Commit messages: short and why-focused.** Subject line ≤ 72 chars, imperative mood. Explain *why* the change was made — the diff shows what changed. A 1–3 sentence body is fine for non-obvious motivation; bullet lists of changes are not.
 - **Check `git status` before staging.** If new untracked files appear that shouldn't be committed (build output, `node_modules`, `.env`), verify `.gitignore` covers them before staging. Don't commit them and don't use `git add -A`.
 - **Completion criteria are gates, not suggestions.** If the criteria say "all tests pass", run the tests and show the output. If criteria fail, fix the phase before committing — don't carry broken work into the next phase.
 - **Tasks within a phase are sequential by default**, but independent tasks (different files, no shared state) may be done in any order.
