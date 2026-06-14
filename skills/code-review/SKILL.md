@@ -190,9 +190,33 @@ verdict: <Approve | Request Changes | Block>
 
 **Finding numbering:** Use `CRIT-`, `HIGH-`, `MED-`, `LOW-`, `INFO-` prefixes with zero-padded sequence numbers per severity level. Skip severity sections with no findings.
 
-## 6. Report to User
+## 6. Machine-Readable Verdict Block
 
-After writing the file, tell the user:
+**Always** append this block at the very end of `REVIEW.md`. It is parsed by `dev-loop` to make decisions without reading prose.
+
+```markdown
+## Machine-Readable Verdict
+
+```yaml
+verdict: <Approve | Request Changes | Block>
+critical: <N>
+high: <N>
+medium: <N>
+low: <N>
+info: <N>
+blocking_ids: [<CRIT-001>, <HIGH-002>]   # IDs of Critical/High findings; empty list if none
+```
+```
+
+Rules:
+- `verdict: Approve` → no Critical or High findings (Low/Info are fine)
+- `verdict: Request Changes` → one or more Medium findings, no Critical/High
+- `verdict: Block` → one or more Critical or High findings
+- `blocking_ids` lists every Critical and High finding ID so `dev-loop` can reference them when writing fix tasks
+
+## 7. Report to Caller
+
+After writing the file, output:
 
 ```
 Review written to docs/<feature-name>/REVIEW.md
@@ -200,9 +224,9 @@ Verdict: <Approve | Request Changes | Block>
 Findings: <N> critical, <N> high, <N> medium, <N> low
 ```
 
-If there are Critical findings, call them out explicitly in the message — don't bury them in the file.
+If there are Critical findings, call them out explicitly — don't bury them in the file.
 
-## 7. Language-Specific Standards
+## 8. Language-Specific Standards
 
 Detect the primary language from the diff and apply the relevant standards below as an additional lens on top of the general checklist. You don't need to report every violation — use these to calibrate what "good" looks like and raise findings where deviations cause real harm.
 
