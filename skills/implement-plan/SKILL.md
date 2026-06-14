@@ -89,7 +89,7 @@ For each phase:
    git push -u origin <feature-name>/phase-<N>
    gh pr create \
      --base <previous-branch-or-main> \
-     --title "phase <N>: <phase name from PLAN.md>" \
+     --title "<what this phase does, imperative, ≤60 chars — e.g. 'add rate limiting middleware to /api/login'>" \
      --body "<phase Goal + task list + completion criteria from PLAN.md>"
 
 7. Move to the next phase (it will branch off this phase's branch)

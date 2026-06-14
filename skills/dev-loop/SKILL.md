@@ -324,7 +324,7 @@ Wait for explicit approval, then:
    ```bash
    gh pr create \
      --base <previous-phase-branch-or-main> \
-     --title "phase <N>: <phase name>" \
+     --title "<what this phase does, imperative, ≤60 chars>" \
      --body "<phase section from PLAN.md>"
    ```
 5. Report:

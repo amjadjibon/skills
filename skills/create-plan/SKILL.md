@@ -63,7 +63,7 @@ The executing agent must:
 
 **Stacked PR naming:**
 - Branches: `<feature-name>/phase-1`, `<feature-name>/phase-2`, …
-- PR titles: `phase <N>: <phase name from PLAN.md>`
+- PR titles: describe what the phase *does*, imperative mood, ≤60 chars — e.g. `add rate limiting middleware to /api/login`, `migrate users table to UUID primary keys`. Never use `phase N` as a prefix — the branch name already encodes the order.
 - PR body: the phase's Goal + task list + completion criteria from PLAN.md
 
 **Commit hygiene:**
