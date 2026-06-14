@@ -9,6 +9,17 @@ Execute a `PLAN.md` produced by the `create-plan` skill: work through its phases
 
 The plan file is both the instruction set and the progress tracker. Someone (human or agent) interrupted mid-plan must be able to resume from the file alone — that's why checkbox updates and status changes happen *as you go*, never batched at the end.
 
+## References
+
+- [Conventional Commits](https://www.conventionalcommits.org/) — `feat:`, `fix:`, `docs:`, `test:`, `chore:` commit types and imperative-mood rules used in §3
+
+### Pipeline
+- [`create-plan`](../create-plan/SKILL.md) — produces the `PLAN.md` this skill executes
+- [`code-review`](../code-review/SKILL.md) — reviews the output after this skill completes
+- [`dev-loop`](../dev-loop/SKILL.md) — orchestrator that calls this skill in §3A and merges worktrees
+
+---
+
 ## Execution Principles
 
 These apply to every task, every phase, every line of code.
@@ -57,17 +68,31 @@ Read the entire plan before touching any code. Then:
 
 ## 3. Phase Execution Protocol
 
-Phases run strictly in order — each phase's commit is the foundation the next builds on. For each phase:
+Each phase runs on its own branch and gets its own PR that stacks on the previous phase. This keeps PRs small and independently reviewable.
+
+**Branch naming:** `<feature-name>/phase-<N>` — e.g. `rate-limit-login/phase-1`, `rate-limit-login/phase-2`.
+
+For each phase:
 
 ```
-1. Read the phase's tasks top to bottom
-2. Execute each task; tick its checkbox immediately after it's done
-3. Verify the phase's completion criteria — actually run the command/test, don't assume
-4. Commit with the phase message from the plan's **git commit** line:
+1. Create and switch to the phase branch (base = previous phase branch, or main for phase 1):
+   git checkout -b <feature-name>/phase-<N>
+
+2. Read the phase's tasks top to bottom
+3. Execute each task; tick its checkbox immediately after it's done
+4. Verify the phase's completion criteria — actually run the command/test, don't assume
+5. Commit:
    git add -u && git commit -m "<type>: <phase summary>"
-   If new files were intentionally created, stage them explicitly by path:
-   git add path/to/new/file && git add -u && git commit -m "<type>: <phase summary>"
-5. Move to the next phase
+   (new files: git add path/to/new/file && git add -u && git commit -m "...")
+
+6. Push and open a stacked PR:
+   git push -u origin <feature-name>/phase-<N>
+   gh pr create \
+     --base <previous-branch-or-main> \
+     --title "phase <N>: <phase name from PLAN.md>" \
+     --body "<phase Goal + task list + completion criteria from PLAN.md>"
+
+7. Move to the next phase (it will branch off this phase's branch)
 ```
 
 Rules that matter:
@@ -121,37 +146,33 @@ The plan's `## 6. Testing` section is part of the work, not an afterthought:
 
 ## 8. Completion
 
-A plan is done only when every `- [ ]` is `- [x]` (or annotated as blocked with user sign-off). Then, in a final commit:
+A plan is done only when every `- [ ]` is `- [x]` (or annotated as blocked with user sign-off). Then:
 
 1. Set frontmatter `status: 'Completed'` and `last_updated: <today>`
 2. Update the badge to `![Status: Completed](https://img.shields.io/badge/status-Completed-brightgreen)`
-3. Commit: `git add -u && git commit -m "docs: complete <feature-name> plan"`
+3. Commit on the last phase branch: `git add -u && git commit -m "docs: complete <feature-name> plan"`
 
-Then push and open a PR if a remote exists:
+By this point every phase already has its own PR open (created in §3). The stack looks like:
 
 ```
-git remote | head -1   # check if remote is configured
-# if remote exists:
-git push -u origin <branch-name>
-gh pr create \
-  --title "<goal from plan frontmatter>" \
-  --body "$(cat docs/<feature-name>/PLAN.md)"
+main ← phase-1 PR ← phase-2 PR ← phase-3 PR
 ```
 
-Do **not** use `gh pr create --fill` — it uses the last commit message as the body, which is just one phase summary. The PR body should be the PLAN.md content (or a hand-written summary of all phases and deviations). Do **not** add a `Co-authored-by:` trailer to commits or the PR description.
-
-If `gh` is not available, output the push command and tell the user to open the PR manually.
-
-If no remote is configured, skip the push and tell the user the branch is ready locally.
-
-Finish with a short report to the user:
+Report to the user:
 
 ```
 Plan complete: docs/<feature-name>/PLAN.md
-Phases: <N> — one git commit each (run `git log --oneline` to review)
-Deviations: <none | list of blocked/changed tasks>
-Verification: <what was run to prove completion criteria, e.g. "test suite passes (42 tests)">
-PR: <URL> | local only (no remote configured)
+Phases: <N> — one PR per phase, stacked
+PRs:
+  phase-1: <url>  (base: main)
+  phase-2: <url>  (base: phase-1)
+  ...
+Deviations: <none | list>
+Verification: <what was run>
 ```
+
+**Merging order:** Phase PRs must merge in order — phase 1 first. After phase 1 merges, GitHub automatically re-targets phase 2's base to `main`. Tell the user to merge in sequence.
+
+If no remote is configured, skip the push steps in §3 and tell the user the branches are ready locally.
 
 If stopping *before* completion (user interrupt, blocker), leave status `In progress`, make sure every finished task is ticked and the current phase's partial work is committed, and summarize where the next session should resume.

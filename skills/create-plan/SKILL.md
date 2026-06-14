@@ -54,8 +54,17 @@ The executing agent must:
 
 1. **Create a feature branch** before writing the plan: `git checkout -b <feature-name>`
 2. **Commit the plan file** as its own commit: `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`
-3. **After each phase**: stage with `git add -u` (plus explicit paths for new files) and commit
-4. **On plan completion**: commit history maps 1:1 to plan phases
+3. **Each phase gets its own branch and PR** (stacked PRs):
+   - Phase 1 branches off `main`: `git checkout -b <feature-name>/phase-1`
+   - Phase 2 branches off phase 1: `git checkout -b <feature-name>/phase-2`
+   - Each phase opens a PR with `--base <previous-phase-branch-or-main>`
+   - PRs merge in order: phase 1 first; GitHub retargets subsequent bases automatically
+4. **On plan completion**: one PR per phase, stacked — no single big PR
+
+**Stacked PR naming:**
+- Branches: `<feature-name>/phase-1`, `<feature-name>/phase-2`, …
+- PR titles: `phase <N>: <phase name from PLAN.md>`
+- PR body: the phase's Goal + task list + completion criteria from PLAN.md
 
 **Commit hygiene:**
 - `git add -u` for modified/deleted tracked files. New files by explicit path.
@@ -245,6 +254,19 @@ graph TD
 In **interactive mode**: if scope is genuinely ambiguous, ask one focused question before step 1. Otherwise skip straight to research.
 
 In **autonomous mode** (called by `dev-loop`): never ask. Proceed directly, document assumptions in §7.
+
+---
+
+## References
+
+- [Conventional Commits](https://www.conventionalcommits.org/) — `feat:`, `fix:`, `docs:`, `chore:`, `plan:` commit types and imperative-mood rules used in Git Integration
+- [Architecture Decision Records](https://adr.github.io/) — pattern for documenting design choices; maps to §3 Alternatives Considered in the plan template
+- [Shields.io](https://shields.io/) — badge URL generator for the status badges in the plan template
+
+### Pipeline
+- [`implement-plan`](../implement-plan/SKILL.md) — executes the `PLAN.md` this skill produces
+- [`code-review`](../code-review/SKILL.md) — reviews the output of implementation
+- [`dev-loop`](../dev-loop/SKILL.md) — orchestrator that calls this skill in autonomous mode (§1c)
 
 ---
 

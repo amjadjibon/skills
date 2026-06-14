@@ -90,6 +90,12 @@ status: running
 |------|---------|------|------|-----|-----|------------|--------|
 | 1    | —       | —    | —    | —   | —   | —          | start  |
 
+## Stacked PRs
+
+| Phase | Branch | PR URL | Base | Status |
+|-------|--------|--------|------|--------|
+| 1     | `<feature>/phase-1` | — | main | pending |
+
 ## Active Worktrees
 
 | Worktree path | Branch | Purpose | Status |
@@ -310,18 +316,26 @@ Wait for explicit approval, then:
 1. Set `LOOP.md` `status: complete`.
 2. Commit: `git add -u && git commit -m "chore: dev loop complete for <feature-name>"`
 3. Verify no worktrees remain: `git worktree list`
-4. Push and open PR:
+4. Each phase already has its own stacked PR from `implement-plan` §3. Confirm all are open:
    ```bash
-   git push -u origin <feature-name>
+   gh pr list --head "<feature-name>/phase-*"
+   ```
+   If any phase PR is missing (e.g. was opened before stacking was adopted), open it now:
+   ```bash
    gh pr create \
-     --title "<goal from PLAN.md frontmatter>" \
-     --body "$(cat docs/<feature-name>/LOOP.md)"
+     --base <previous-phase-branch-or-main> \
+     --title "phase <N>: <phase name>" \
+     --body "<phase section from PLAN.md>"
    ```
 5. Report:
    ```
    Loop complete: <feature-name>
    Iterations: N  |  Final verdict: Approve
-   PR: <url>
+   Stacked PRs (merge in order):
+     phase-1: <url>  → base: main
+     phase-2: <url>  → base: phase-1
+     ...
+   Merge phase-1 first; GitHub retargets subsequent PRs automatically.
    ```
 
 ### Blocked Exit — Critical finding
@@ -382,6 +396,19 @@ All commits (orchestrator and sub-agents alike) follow these rules:
 | Parallel fix merge | `fix: address High findings from iteration N (parallel)` |
 | Fix phase added to plan | `docs: add fix phase for iteration N findings` |
 | Loop state update | `chore: <action> for <feature-name>` |
+
+---
+
+## References
+
+- [Building effective agents](https://www.anthropic.com/research/building-effective-agents) — Anthropic's canonical guide on orchestrator/subagent patterns, parallelism safety, and when to spawn vs. run inline; directly informs §0 and §3
+- [git-worktree](https://git-scm.com/docs/git-worktree) — official docs for the worktree commands used in §2
+- [Conventional Commits](https://www.conventionalcommits.org/) — `feat:`, `fix:`, `docs:`, `chore:` types and imperative-mood rules referenced in §5
+
+### Pipeline
+- [`create-plan`](../create-plan/SKILL.md) — called in §1c to produce `PLAN.md`
+- [`implement-plan`](../implement-plan/SKILL.md) — called in §3A to execute plan phases
+- [`code-review`](../code-review/SKILL.md) — called in §3B; machine-readable verdict block drives §3C decisions
 
 ---
 
