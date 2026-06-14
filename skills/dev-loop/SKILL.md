@@ -38,6 +38,10 @@ You are the **orchestrator agent**. Given a task description you drive the full 
 
 **Parallelism threshold:** Spawn parallel fix agents only if there are **2 or more** independent finding clusters. One cluster → fix inline.
 
+**Hard limits (read from LOOP.md frontmatter):**
+- `max_agents` (default 3) — if grouping produces more clusters than this, merge the smallest clusters together until the count is within limit.
+- `max_phases` (default 5) — if `implement-plan` would create a phase that exceeds this, stop and tell the user: the plan must be split or simplified before continuing. Do not silently create extra phases.
+
 ---
 
 ## 1. Bootstrap
@@ -73,6 +77,8 @@ task: <original task description>
 branch: <feature-name>
 started: <YYYY-MM-DD>
 max_iterations: 3
+max_phases: 5          # stacked PRs hard limit — plan must not exceed this many phases
+max_agents: 3          # parallel fix agents hard limit per iteration
 current_iteration: 1
 status: running
 last_review_base: ''   # SHA of HEAD at last review; empty until first review runs
@@ -196,6 +202,12 @@ Repeat until an exit condition (§4) is met.
 
 Phases always run sequentially (see §0). Execute each unchecked phase using `implement-plan`:
 
+**Before starting:** count the total phases in `PLAN.md`. If the count exceeds `max_phases`, stop immediately:
+```
+Cannot proceed: PLAN.md has N phases but max_phases is M.
+Action required: split the plan into two features, or increase max_phases in LOOP.md.
+```
+
 For each phase N:
 1. `implement-plan` creates branch `<feature>/phase-N` off the previous phase branch (or `main` for phase 1), implements the tasks, and opens a stacked PR.
 2. After the PR is opened, update `LOOP.md` Stacked PRs table — add a row with the branch, PR URL, and base.
@@ -259,7 +271,9 @@ Group High findings by file ownership:
 - Two findings touch the same file → same group.
 - Two findings in different packages with no shared files → different groups.
 
-For each group:
+If the number of groups exceeds `max_agents`, merge the smallest groups together until within limit.
+
+For each group (up to `max_agents`):
 1. Create a worktree branching off `<feature>/phase-N`: `.worktrees/<feature>-fix-<group-id>`
 2. Spawn an agent assigned to fix that group's finding IDs (see §2 briefing template).
 
@@ -281,7 +295,8 @@ Same as §3.C.2 but merge conflicting findings into one group → one agent. Rem
 
 Use when a finding reveals a missing abstraction, schema migration, or new dependency — not just a targeted code change.
 
-1. On `<feature>/phase-N`, update `PLAN.md`:
+1. Check that adding a phase would not exceed `max_phases`. If it would, fall back to §3.C.2 (direct parallel fix) even if the finding is complex, and note the constraint in LOOP.md.
+2. On `<feature>/phase-N`, update `PLAN.md`:
    - Append `### Phase N+1: <descriptive name of what's being fixed>` with one task per finding:
      ```
      - [ ] TASK-NNN: Fix [HIGH-001] <title> — <one-line description>
