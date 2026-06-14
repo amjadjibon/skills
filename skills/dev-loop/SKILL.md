@@ -25,25 +25,18 @@ You are the **orchestrator agent**. Given a task description you drive the full 
 
 ## 0. Parallelism Rules
 
-Apply these rules at every decision point to decide whether to spawn parallel agents.
+**Phases always run sequentially.** Each phase lives on its own branch stacked on the previous — parallelising phases would break the stack. Independent phases are implemented one at a time; the `Depends on:` field controls order, not parallelism.
 
-### When to parallelise
+**Fix agents may run in parallel.** When multiple High findings touch independent files, each cluster gets its own worktree and agent. They all branch off the same fix base and merge back before re-review.
 
-| Scenario | Condition | Action |
-|----------|-----------|--------|
-| Plan phases | Phase has no `Depends on:` linking it to an earlier phase | Run independent phases in parallel agents |
-| Fix findings | High findings touch non-overlapping files/packages | Fix each cluster in a parallel agent |
-| Plan phase + review | Never — review must see the merged result | Always sequential |
+| Scenario | Rule |
+|----------|------|
+| Plan phases | Always sequential — stacked PR model requires it |
+| Fix findings (High, independent files) | Parallel fix agents via worktrees |
+| Fix findings (touching same file) | Single agent |
+| Phase + review | Always sequential — review must see merged result |
 
-### When to stay sequential
-
-- Phase B lists `Depends on: Phase A` → A must finish before B starts.
-- Two findings touch the same file → assign both to the same agent.
-- Only one phase / one finding → no benefit; run inline.
-
-### Parallelism threshold
-
-Spawn parallel agents only if there are **2 or more** independent units of work. One unit → do it yourself inline.
+**Parallelism threshold:** Spawn parallel fix agents only if there are **2 or more** independent finding clusters. One cluster → fix inline.
 
 ---
 
@@ -82,6 +75,7 @@ started: <YYYY-MM-DD>
 max_iterations: 3
 current_iteration: 1
 status: running
+last_review_base: ''   # SHA of HEAD at last review; empty until first review runs
 ---
 
 # Dev Loop: <feature-name>
@@ -200,41 +194,32 @@ Repeat until an exit condition (§4) is met.
 
 ### Step A — Implement
 
-**Analyse PLAN.md for parallelism:**
+Phases always run sequentially (see §0). Execute each unchecked phase using `implement-plan`:
 
-```
-for each unchecked phase in PLAN.md:
-  if phase has no "Depends on:" → independent
-  if phase lists "Depends on: Phase N" → dependent on N
-```
+For each phase N:
+1. `implement-plan` creates branch `<feature>/phase-N` off the previous phase branch (or `main` for phase 1), implements the tasks, and opens a stacked PR.
+2. After the PR is opened, update `LOOP.md` Stacked PRs table — add a row with the branch, PR URL, and base.
+3. Move to the next phase.
 
-Build a dependency graph. Identify sets of phases that can run concurrently.
-
-**Single phase (or all phases sequential):**
-- Run `implement-plan` inline. No worktree needed.
-
-**Multiple independent phases:**
-1. For each independent phase, create a worktree and spawn an agent (§2).
-2. Run all agents **in parallel** — spawn them all before waiting for any.
-3. Wait for all agents to report completion.
-4. Merge each worktree back into the feature branch in dependency order.
-5. Remove all worktrees.
-6. Run dependent phases sequentially after their dependencies are merged.
-
-Update `LOOP.md`:
-- Fill in the `Active Worktrees` table during execution.
-- Tick `- [x] implement-plan` after all merges complete.
-- Record `Mode: parallel (N agents)` or `Mode: sequential` in the iteration table.
+After all phases are done:
+- Tick `- [x] implement-plan` in the log.
+- Record `Mode: sequential` in the iteration table.
+- Record the current HEAD SHA as `last_review_base` in LOOP.md frontmatter — the review diff will start here.
 
 ### Step B — Review
 
-Run the `code-review` skill on `git diff main...HEAD`. It writes `docs/<feature-name>/REVIEW.md`.
+Determine the diff base:
+- **Iteration 1**: `git diff main...HEAD`
+- **Iteration 2+**: `git diff <last_review_base>...HEAD` — review only what changed since the last review, not the full branch
 
-Parse the `## Machine-Readable Verdict` block to extract `verdict`, `critical`, `high`, `medium`, `low`, and `blocking_ids`.
+Run the `code-review` skill on that diff. It writes `docs/<feature-name>/REVIEW.md` and appends a `## Machine-Readable Verdict` YAML block.
+
+Parse that block to extract `verdict`, `critical`, `high`, `medium`, `low`, and `blocking_ids`.
 
 Update `LOOP.md`:
 - Tick `- [x] code-review`.
 - Fill in the verdict and finding counts in the iteration table.
+- Update `last_review_base` to the current HEAD SHA.
 
 ### Step C — Decide
 
@@ -242,59 +227,70 @@ Update `LOOP.md`:
 |-----------|--------|
 | `verdict: Approve` OR only Low/Info findings | → §4 Clean Exit |
 | Medium findings only (no Crit/High) | → §3.C.1 Direct fix |
-| High findings, all independent | → §3.C.2 Parallel fix agents |
-| High findings, some overlapping | → §3.C.3 Clustered fix agents |
+| High findings, all independent files | → §3.C.2 Parallel fix agents |
+| High findings, some overlapping files | → §3.C.3 Clustered fix agents |
 | Any Critical finding | → §4 Blocked Exit |
 | `current_iteration` = `max_iterations` | → §4 Max Iterations Exit |
 
+**After any fix path:** increment `current_iteration` in LOOP.md frontmatter and append a new log block:
+```markdown
+### Iteration N+1
+- [ ] implement-plan (or "fix only — no re-implement")
+- [ ] code-review
+- [ ] decide
+```
+
 ---
 
-**§3.C.1 — Direct fix (Medium/Low only, ≤ 3 findings):**
-- Fix each finding inline. Do not update `PLAN.md`.
+**§3.C.1 — Direct fix (Medium/Low only):**
+- Determine the current working branch: the last phase branch (`<feature>/phase-N` where N is the highest phase).
+- Fix each finding on that branch. Do not update `PLAN.md`.
 - Commit: `git add -u && git commit -m "fix: address review findings from iteration N"`
-- Tick `- [x] decide`.
-- New iteration: append log block, increment `current_iteration`, go to Step B (re-review only).
+- Push: `git push origin <feature>/phase-N` — the existing stacked PR updates automatically.
+- Tick `- [x] decide`. Increment iteration. Go to Step B (re-review only — skip Step A).
 
 ---
 
 **§3.C.2 — Parallel fix agents (High findings, independent files):**
+
+The fix base is the last phase branch (`<feature>/phase-N`). All fix worktrees branch off it and merge back to it.
 
 Group High findings by file ownership:
 - Two findings touch the same file → same group.
 - Two findings in different packages with no shared files → different groups.
 
 For each group:
-1. Create a worktree: `.worktrees/<feature-name>-fix-<group-id>`
-2. Spawn an agent assigned to fix that group's finding IDs.
+1. Create a worktree branching off `<feature>/phase-N`: `.worktrees/<feature>-fix-<group-id>`
+2. Spawn an agent assigned to fix that group's finding IDs (see §2 briefing template).
 
 Run all fix agents in parallel. After all complete:
-1. Merge each worktree back.
+1. Merge each worktree back to `<feature>/phase-N`.
 2. Remove worktrees.
-3. Commit: `git add -u && git commit -m "fix: address High findings from iteration N (parallel)"`
-4. Tick `- [x] decide`.
-5. New iteration: append log block, increment `current_iteration`, go to Step B.
+3. Push: `git push origin <feature>/phase-N` — existing stacked PR updates automatically.
+4. Tick `- [x] decide`. Increment iteration. Go to Step B.
 
 ---
 
 **§3.C.3 — Clustered fix agents (some overlapping High findings):**
 
-Same as §3.C.2 but merge conflicting findings into one group → one agent. Remaining independent groups each get their own agent. Run in parallel.
+Same as §3.C.2 but merge conflicting findings into one group → one agent. Remaining independent groups each get their own agent. All branch off and merge back to `<feature>/phase-N`.
 
 ---
 
-**§3.C.4 — Fix phase in PLAN.md (High findings, complex changes needing plan structure):**
+**§3.C.4 — Fix phase in PLAN.md (High findings too large for a patch):**
 
-Use this when a High finding requires more than a targeted code patch — e.g. it reveals a missing abstraction, a schema migration, or a new dependency.
+Use when a finding reveals a missing abstraction, schema migration, or new dependency — not just a targeted code change.
 
-- Append `### Phase N+1: Fix review findings (Iteration N)` to `PLAN.md`. Each finding is one task:
-  ```
-  - [ ] TASK-NNN: Fix [HIGH-001] <title> — <one-line description>
-  ```
-- Bump `PLAN.md` `version` (e.g. `1.1 → 1.2`), update `last_updated`.
-- Commit: `git add -u && git commit -m "docs: add fix phase for iteration N findings"`
-- New iteration: go to Step A (re-plan, then implement and review).
+1. On `<feature>/phase-N`, update `PLAN.md`:
+   - Append `### Phase N+1: <descriptive name of what's being fixed>` with one task per finding:
+     ```
+     - [ ] TASK-NNN: Fix [HIGH-001] <title> — <one-line description>
+     ```
+   - Bump `version` (e.g. `1.1 → 1.2`) and `last_updated`.
+   - Commit: `git add -u && git commit -m "docs: add fix phase for iteration N findings"`
+2. Tick `- [x] decide`. Increment iteration. Go to Step A — `implement-plan` will pick up the new phase and open a new stacked PR (`<feature>/phase-N+1`) on top of the existing stack.
 
-**Default to §3.C.2 for most High findings.** Use §3.C.4 only when a finding reveals a gap too large for a targeted patch.
+**Default to §3.C.2 for most High findings.** Use §3.C.4 only when a targeted patch isn't enough.
 
 ---
 
