@@ -244,7 +244,6 @@ Detect the primary language from the diff and apply the relevant standards below
 - Unused imports left in — dead code
 
 **Python security additions:**
-- `subprocess` with `shell=True` — command injection, flag Critical
 - `pickle.loads` on untrusted data — arbitrary code execution, flag Critical
 - `eval()`/`exec()` on user input — Critical
 - File paths from user input without `Path.resolve()` and base-dir check — High
@@ -313,31 +312,46 @@ Detect the primary language from the diff and apply the relevant standards below
 - Variables unquoted in expansions (`$var` vs `"$var"`) — word splitting bug
 - `rm -rf` with a variable path without null-guard — data loss risk, High
 - Pipelines that swallow exit codes — `set -o pipefail` missing
-- Hardcoded credentials anywhere in scripts — Critical
 
 ---
 
 ### Universal (all languages)
-Apply these regardless of language, in addition to the general checklist:
 
-**OWASP Top 10 (most commonly surfaced in review):**
-- A01 Broken Access Control — endpoints or functions missing auth/permission checks
-- A02 Cryptographic Failures — sensitive data unencrypted at rest or in transit, weak algorithms (MD5, SHA1 for security purposes)
-- A03 Injection — SQL, shell, LDAP, template injection via unsanitised input
-- A07 Identification and Authentication Failures — tokens stored insecurely, sessions not invalidated
-- A09 Security Logging Failures — sensitive operations not logged, or secrets logged
+**Cryptographic failures** (OWASP A02) — sensitive data unencrypted at rest or in transit; weak algorithms (MD5, SHA1) used for security purposes. See References for the full OWASP Top 10.
 
-**General principles (language-agnostic):**
-- Single Responsibility — flag functions that do unrelated things
-- Don't Repeat Yourself — flag copy-pasted logic that belongs in a shared utility
-- Fail fast — functions that accept invalid input and silently produce wrong output
-- Principle of Least Privilege — code requesting broader permissions/access than it needs
+**Fail fast** — functions that accept invalid input and silently produce wrong output.
 
-**Security test coverage to check for (flag as Medium if missing):**
+**Principle of Least Privilege** — code requesting broader permissions or access than it needs; service accounts or API keys with more scope than required.
+
+**Security test coverage** — flag as Medium if missing:
 - Unauthenticated request to a protected endpoint returns 401
 - Authenticated request without the required role returns 403
 - Invalid input returns 400 with no internal detail leaked
 - Rate-limited endpoint returns 429 after threshold
+
+## References
+
+### Security
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/) — ten most critical web application risks; A01–A10 map to findings in §3 Security
+- [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/) — per-topic fix recipes (XSS Prevention, SQL Injection Prevention, Authentication, etc.); use for the **Fix** field in findings
+- [CWE Top 25](https://cwe.mitre.org/top25/) — implementation-level weaknesses (buffer overflows, integer errors, use-after-free); supplements OWASP for systems/low-level code
+
+### Language standards
+- [PEP 8](https://peps.python.org/pep-0008/) — Python style guide
+- [PEP 20](https://peps.python.org/pep-0020/) — The Zen of Python
+- [Effective Go](https://go.dev/doc/effective_go) — Go idioms and best practices
+- [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments) — common reviewer notes for Go
+- [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript) — TypeScript/JavaScript conventions referenced in §8
+
+### Git
+- [Conventional Commits](https://www.conventionalcommits.org/) — `feat:`, `fix:`, `docs:`, `chore:` commit types used in this skill pipeline
+
+### Pipeline
+- [`create-plan`](../create-plan/SKILL.md) — produces the plan this skill reviews against
+- [`implement-plan`](../implement-plan/SKILL.md) — executes phases; this skill reviews its output
+- [`dev-loop`](../dev-loop/SKILL.md) — orchestrator that calls this skill and parses the machine-readable verdict
+
+---
 
 ## Review Principles
 
