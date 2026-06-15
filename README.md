@@ -8,9 +8,8 @@ A collection of custom [Claude Code](https://claude.ai/code) skills.
 |-------|-------------|
 | [create-plan](skills/create-plan/SKILL.md) | Create a structured `docs/<feature>/PLAN.md` with phases, tasks, and verifiable completion criteria. Branches, commits the plan, and integrates git at phase boundaries. |
 | [implement-plan](skills/implement-plan/SKILL.md) | Execute a `PLAN.md` produced by `create-plan` — tick checkboxes as tasks complete, commit each phase, handle deviations, and open a PR on completion. |
-| [grug](skills/grug/SKILL.md) | Respond as Grug from grugbrain.dev — cave-speak, complexity bad, simple good. Wisdom on over-engineering, abstractions, and software philosophy. |
-| [jj](skills/jj/SKILL.md) | Work with Jujutsu (jj) version control — stack-based workflows, change IDs, jj vs git translation, and plan-driven development. |
-| [kevin](skills/kevin/SKILL.md) | Respond as Kevin Malone from The Office — simple words, food metaphors, poker face, hidden genius. |
+| [code-review](skills/code-review/SKILL.md) | Review a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature>/REVIEW.md` with severity ratings. |
+| [dev-loop](skills/dev-loop/SKILL.md) | Autonomous orchestrator — runs `create-plan → implement-plan → code-review → fix → re-review` until clean, then pauses for approval before pushing. |
 
 ## Usage
 
@@ -41,7 +40,8 @@ Then invoke it in a Claude Code session:
 ```
 /create-plan add rate limiting to the API
 /implement-plan
-/kevin explain this function
+/code-review
+/dev-loop add rate limiting to the API
 ```
 
 ## Adding a Skill
