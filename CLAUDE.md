@@ -57,6 +57,7 @@ To add manually:
 - **dev-loop** — Orchestrates the full `create-plan → implement-plan → code-review → fix → re-review` cycle autonomously, spawning parallel agents in isolated worktrees and pausing only for user approval before pushing.
 - **refactor** — Restructures code without changing behavior. Establishes a test baseline, applies changes in small verifiable steps, commits each step.
 - **debug** — Reproduce → isolate → fix → verify loop. Commits the failing test before the fix for traceable history.
+- **perf** — Measure baseline → profile → optimize one bottleneck at a time → benchmark. Includes before/after numbers in commit messages.
 
 ## Skill Pipeline
 
