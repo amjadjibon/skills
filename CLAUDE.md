@@ -50,5 +50,31 @@ To add manually:
 
 ## Existing Skills
 
-- **kevin** — Kevin Malone persona from The Office. Minimal words, food metaphors, poker face, celebrates 69/420.
-- **jj** — Jujutsu (jj) version control. Stack-based workflows, commit descriptions, jj vs git translation, plan-driven development.
+- **create-plan** — Writes `docs/<feature-name>/PLAN.md` with phased, checkbox-driven steps ready for autonomous execution.
+- **implement-plan** — Executes a `PLAN.md` produced by `create-plan`, ticking checkboxes and committing each phase.
+- **code-review** — Reviews a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature-name>/REVIEW.md`.
+- **dev-loop** — Orchestrates the full `create-plan → implement-plan → code-review → fix → re-review` cycle autonomously, spawning parallel agents in isolated worktrees and pausing only for user approval before pushing.
+
+## Skill Pipeline
+
+Skills are designed to compose:
+
+```
+dev-loop
+  └─ create-plan  →  implement-plan  →  code-review
+                            ↑                  │
+                            └── fix agents ────┘ (parallel, per-finding)
+```
+
+Plans live in `docs/<feature-name>/PLAN.md`; reviews in `docs/<feature-name>/REVIEW.md`.
+
+## docs/ Artifacts
+
+Artifacts produced during a dev-loop session accumulate under `docs/`. Each feature gets its own subdirectory:
+
+```
+docs/
+  <feature-name>/
+    PLAN.md     # created by create-plan, mutated by implement-plan
+    REVIEW.md   # created/overwritten each review pass by code-review
+```
