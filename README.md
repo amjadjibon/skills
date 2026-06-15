@@ -11,6 +11,7 @@ A collection of custom [Claude Code](https://claude.ai/code) skills.
 | [code-review](skills/code-review/SKILL.md) | Review a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature>/REVIEW.md` with severity ratings. |
 | [dev-loop](skills/dev-loop/SKILL.md) | Autonomous orchestrator — runs `create-plan → implement-plan → code-review → fix → re-review` until clean, then pauses for approval before pushing. |
 | [refactor](skills/refactor/SKILL.md) | Refactor code without changing behavior — extract functions, reduce duplication, simplify logic, improve naming. Verifies tests pass before and after each step. |
+| [debug](skills/debug/SKILL.md) | Systematically debug a failing test, error, or unexpected behavior — reproduce, isolate root cause, fix minimally, verify, add a regression test. |
 
 ## Usage
 
