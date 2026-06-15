@@ -68,47 +68,12 @@ Run the `create-plan` skill in autonomous mode. It creates `docs/<feature-name>/
 
 ### 1d. Initialise LOOP.md
 
-Create `docs/<feature-name>/LOOP.md`:
-
-```markdown
----
-feature: <feature-name>
-task: <original task description>
-branch: <feature-name>
-started: <YYYY-MM-DD>
-max_iterations: 3
-max_phases: 5          # stacked PRs hard limit — plan must not exceed this many phases
-max_agents: 3          # parallel fix agents hard limit per iteration
-current_iteration: 1
-status: running
-last_review_base: ''   # SHA of HEAD at last review; empty until first review runs
----
-
-# Dev Loop: <feature-name>
-
-| Iter | Verdict | Crit | High | Med | Low | Mode       | Action |
-|------|---------|------|------|-----|-----|------------|--------|
-| 1    | —       | —    | —    | —   | —   | —          | start  |
-
-## Stacked PRs
-
-| Phase | Branch | PR URL | Base | Status |
-|-------|--------|--------|------|--------|
-| 1     | `<feature>/phase-1` | — | main | pending |
-
-## Active Worktrees
-
-| Worktree path | Branch | Purpose | Status |
-|---------------|--------|---------|--------|
-| (none)        |        |         |        |
-
-## Log
-
-### Iteration 1
-- [ ] implement-plan
-- [ ] code-review
-- [ ] decide
-```
+Create `docs/<feature-name>/LOOP.md` with:
+- Frontmatter: `feature`, `task`, `branch`, `started`, `max_iterations: 3`, `max_phases: 5`, `max_agents: 3`, `current_iteration: 1`, `status: running`, `last_review_base: ''`
+- Iteration table (cols: Iter / Verdict / Crit / High / Med / Low / Mode / Action) — row 1 all `—`
+- Stacked PRs table (cols: Phase / Branch / PR URL / Base / Status) — one row per phase, Status: `pending`
+- Active Worktrees table (cols: Worktree path / Branch / Purpose / Status) — initially empty
+- Log section with `### Iteration 1` containing three unchecked items: `implement-plan`, `code-review`, `decide`
 
 Commit: `git add docs/<feature-name>/LOOP.md && git commit -m "chore: init dev loop for <feature-name>"`
 
@@ -410,18 +375,6 @@ All commits (orchestrator and sub-agents alike) follow these rules:
 
 ---
 
-## References
-
-- [Building effective agents](https://www.anthropic.com/research/building-effective-agents) — Anthropic's canonical guide on orchestrator/subagent patterns, parallelism safety, and when to spawn vs. run inline; directly informs §0 and §3
-- [git-worktree](https://git-scm.com/docs/git-worktree) — official docs for the worktree commands used in §2
-- [Conventional Commits](https://www.conventionalcommits.org/) — `feat:`, `fix:`, `docs:`, `chore:` types and imperative-mood rules referenced in §5
-
-### Pipeline
-- [`create-plan`](../create-plan/SKILL.md) — called in §1c to produce `PLAN.md`
-- [`implement-plan`](../implement-plan/SKILL.md) — called in §3A to execute plan phases
-- [`code-review`](../code-review/SKILL.md) — called in §3B; machine-readable verdict block drives §3C decisions
-
----
 
 ## 6. Principles
 

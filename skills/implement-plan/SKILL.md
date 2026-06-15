@@ -9,16 +9,6 @@ Execute a `PLAN.md` produced by the `create-plan` skill: work through its phases
 
 The plan file is both the instruction set and the progress tracker. Someone (human or agent) interrupted mid-plan must be able to resume from the file alone — that's why checkbox updates and status changes happen *as you go*, never batched at the end.
 
-## References
-
-- [Conventional Commits](https://www.conventionalcommits.org/) — `feat:`, `fix:`, `docs:`, `test:`, `chore:` commit types and imperative-mood rules used in §3
-
-### Pipeline
-- [`create-plan`](../create-plan/SKILL.md) — produces the `PLAN.md` this skill executes
-- [`code-review`](../code-review/SKILL.md) — reviews the output after this skill completes
-- [`dev-loop`](../dev-loop/SKILL.md) — orchestrator that calls this skill in §3A and merges worktrees
-
----
 
 ## Execution Principles
 

@@ -193,51 +193,19 @@ tags: [feature|upgrade|refactor|chore|architecture|migration|bug]
 
 ---
 
-## 3. Alternatives Considered [if applicable]
-
-> Include when there were real design choices. Skip for straightforward tasks.
-
-- **ALT-001**: <Alternative approach> — rejected because <reason>
-
-## 4. Dependencies [if applicable]
-
-> Include when external libraries, services, or teams must be in place first.
-
-- **DEP-001**: <Library, service, or component this plan depends on>
-
-## 5. Affected Files [if applicable]
-
-> Include for large or cross-cutting changes where scope isn't obvious from the phases.
-
-- **FILE-001**: `<path/to/file.ext>` — <what changes and why>
-
-## 6. Testing
+## 3. Testing
 
 - [ ] TEST-001: <Specific test to write or run, with file path>
 - [ ] TEST-002: <Integration test or manual verification step>
 
-## 7. Risks & Assumptions
+## 4. Risks & Assumptions
 
 > Always include in autonomous mode. State what was assumed rather than asked.
 
 - **RISK-001**: <Risk> — mitigation: <how to reduce it>
 - **ASSUMPTION-001**: <Something assumed true that was not confirmed with the user>
 
-## 8. Architecture Diagram [if applicable]
-
-> Include for new services, data-flow changes, or multi-component interactions. Use Mermaid for flow/sequence; ASCII for simple layouts.
-
-```mermaid
-graph TD
-    A[Client] -->|HTTP| B[API Gateway]
-    B --> C[Auth Service]
-    B --> D[Feature Service]
-    D --> E[(Database)]
-```
-
-## 9. Related Specs & Further Reading [if applicable]
-
-- <Link or filename of related plan/doc>
+> Include if applicable: Alternatives Considered, Dependencies, Affected Files, Architecture Diagram (Mermaid), Related Specs.
 ```
 
 ---
@@ -253,25 +221,5 @@ graph TD
 
 In **interactive mode**: if scope is genuinely ambiguous, ask one focused question before step 1. Otherwise skip straight to research.
 
-In **autonomous mode** (called by `dev-loop`): never ask. Proceed directly, document assumptions in §7.
+In **autonomous mode** (called by `dev-loop`): never ask. Proceed directly, document assumptions in §4.
 
----
-
-## References
-
-- [Conventional Commits](https://www.conventionalcommits.org/) — `feat:`, `fix:`, `docs:`, `chore:`, `plan:` commit types and imperative-mood rules used in Git Integration
-- [Architecture Decision Records](https://adr.github.io/) — pattern for documenting design choices; maps to §3 Alternatives Considered in the plan template
-- [Shields.io](https://shields.io/) — badge URL generator for the status badges in the plan template
-
-### Pipeline
-- [`implement-plan`](../implement-plan/SKILL.md) — executes the `PLAN.md` this skill produces
-- [`code-review`](../code-review/SKILL.md) — reviews the output of implementation
-- [`dev-loop`](../dev-loop/SKILL.md) — orchestrator that calls this skill in autonomous mode (§1c)
-
----
-
-## Power User Notes
-
-- **Plan evolution**: if scope changes mid-execution, update PLAN.md in its own commit: `git commit -m "docs: update plan for <feature-name>"` — never bury plan edits inside implementation commits
-- **Parallel tasks**: tasks within a phase can run in parallel; cross-phase tasks require the prior phase's commit
-- **Progress at a glance**: `grep -E "\- \[.\]" docs/*/PLAN.md` shows all task states across plans
