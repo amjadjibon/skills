@@ -55,6 +55,7 @@ To add manually:
 - **implement-plan** — Executes a `PLAN.md` produced by `create-plan`, ticking checkboxes and committing each phase.
 - **code-review** — Reviews a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature-name>/REVIEW.md`.
 - **dev-loop** — Orchestrates the full `create-plan → implement-plan → code-review → fix → re-review` cycle autonomously, spawning parallel agents in isolated worktrees and pausing only for user approval before pushing.
+- **refactor** — Restructures code without changing behavior. Establishes a test baseline, applies changes in small verifiable steps, commits each step.
 
 ## Skill Pipeline
 

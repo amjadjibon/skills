@@ -10,6 +10,7 @@ A collection of custom [Claude Code](https://claude.ai/code) skills.
 | [implement-plan](skills/implement-plan/SKILL.md) | Execute a `PLAN.md` produced by `create-plan` — tick checkboxes as tasks complete, commit each phase, handle deviations, and open a PR on completion. |
 | [code-review](skills/code-review/SKILL.md) | Review a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature>/REVIEW.md` with severity ratings. |
 | [dev-loop](skills/dev-loop/SKILL.md) | Autonomous orchestrator — runs `create-plan → implement-plan → code-review → fix → re-review` until clean, then pauses for approval before pushing. |
+| [refactor](skills/refactor/SKILL.md) | Refactor code without changing behavior — extract functions, reduce duplication, simplify logic, improve naming. Verifies tests pass before and after each step. |
 
 ## Usage
 
