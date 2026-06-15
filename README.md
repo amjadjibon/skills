@@ -5,7 +5,7 @@ A collection of custom [Claude Code](https://claude.ai/code) skills.
 ## Skills
 
 | Skill | Description |
-|-------|-------------|
+| ----- | ----------- |
 | [create-plan](skills/create-plan/SKILL.md) | Create a structured `docs/<feature>/PLAN.md` with phases, tasks, and verifiable completion criteria. Branches, commits the plan, and integrates git at phase boundaries. |
 | [implement-plan](skills/implement-plan/SKILL.md) | Execute a `PLAN.md` produced by `create-plan` — tick checkboxes as tasks complete, commit each phase, handle deviations, and open a PR on completion. |
 | [code-review](skills/code-review/SKILL.md) | Review a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature>/REVIEW.md` with severity ratings. |
@@ -37,27 +37,39 @@ cp skills/<skill-name>/SKILL.md .claude/skills/<skill-name>/SKILL.md
 
 Then invoke it in a Claude Code session:
 
-```
+```text
 /create-plan add rate limiting to the API
 /implement-plan
 /code-review
 /dev-loop add rate limiting to the API
 ```
 
+## How Skills Compose
+
+```text
+dev-loop
+  └─ create-plan  →  implement-plan  →  code-review
+                            ↑                  │
+                            └── fix agents ────┘ (parallel, per-finding)
+```
+
+Output artifacts land in `docs/<feature>/`: `PLAN.md` (created by `create-plan`, updated by `implement-plan`) and `REVIEW.md` (written each pass by `code-review`).
+
 ## Adding a Skill
 
 Use the `skill-creator` skill to build and iterate on new skills with guided evals:
 
-```
+```text
 /skill-creator
 ```
 
-Or create one manually — make a new directory under `skills/` with a `SKILL.md` file:
+Or create one manually — make a new directory under `skills/skills/` with a `SKILL.md` file:
 
-```
+```text
 skills/
-  <skill-name>/
-    SKILL.md
+  skills/
+    <skill-name>/
+      SKILL.md
 ```
 
 Each `SKILL.md` requires a YAML frontmatter header:

@@ -8,7 +8,7 @@ This is a collection of custom Claude Code skills. Skills are persona or behavio
 
 ## Structure
 
-```
+```text
 skills/
   skills/
     <skill-name>/
@@ -36,13 +36,14 @@ The `description` field is critical — it's what Claude Code uses to match user
 
 Use the `skill-creator` skill to create and iterate on new skills:
 
-```
+```text
 /skill-creator
 ```
 
 It will guide you through drafting the skill, writing test cases, running evals, and refining based on results.
 
 To add manually:
+
 1. Create `skills/skills/<skill-name>/SKILL.md`
 2. Add the YAML frontmatter (`name`, `description`)
 3. Write the skill instructions in the body — be explicit about voice, rules, and examples
@@ -59,7 +60,7 @@ To add manually:
 
 Skills are designed to compose:
 
-```
+```text
 dev-loop
   └─ create-plan  →  implement-plan  →  code-review
                             ↑                  │
@@ -72,7 +73,7 @@ Plans live in `docs/<feature-name>/PLAN.md`; reviews in `docs/<feature-name>/REV
 
 Artifacts produced during a dev-loop session accumulate under `docs/`. Each feature gets its own subdirectory:
 
-```
+```text
 docs/
   <feature-name>/
     PLAN.md     # created by create-plan, mutated by implement-plan
