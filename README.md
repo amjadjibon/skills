@@ -13,6 +13,7 @@ A collection of custom [Claude Code](https://claude.ai/code) skills.
 | [refactor](skills/refactor/SKILL.md) | Refactor code without changing behavior — extract functions, reduce duplication, simplify logic, improve naming. Verifies tests pass before and after each step. |
 | [debug](skills/debug/SKILL.md) | Systematically debug a failing test, error, or unexpected behavior — reproduce, isolate root cause, fix minimally, verify, add a regression test. |
 | [perf](skills/perf/SKILL.md) | Profile, optimize, and benchmark — measure baseline first, find the real bottleneck, optimize one thing at a time, confirm improvement with numbers. |
+| [clean-up](skills/clean-up/SKILL.md) | Housekeeping — remove merged local and remote branches, prune stale tracking refs, close resolved GitHub issues and merged PRs, clean up leftover worktrees. |
 
 ## Usage
 

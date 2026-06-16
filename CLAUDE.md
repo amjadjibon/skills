@@ -58,6 +58,7 @@ To add manually:
 - **refactor** — Restructures code without changing behavior. Establishes a test baseline, applies changes in small verifiable steps, commits each step.
 - **debug** — Reproduce → isolate → fix → verify loop. Commits the failing test before the fix for traceable history.
 - **perf** — Measure baseline → profile → optimize one bottleneck at a time → benchmark. Includes before/after numbers in commit messages.
+- **clean-up** — Housekeeping: remove merged local/remote branches, prune stale tracking refs, close resolved issues and merged PRs, remove leftover worktrees. Audits before acting.
 
 ## Skill Pipeline
 

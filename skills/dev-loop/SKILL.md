@@ -303,7 +303,8 @@ Wait for explicit approval, then:
      --title "<what this phase does, imperative, ≤60 chars>" \
      --body "<phase section from PLAN.md>"
    ```
-5. Report:
+5. Run the `clean-up` skill to remove merged branches, prune stale remote refs, and close resolved issues linked to this feature.
+6. Report:
    ```
    Loop complete: <feature-name>
    Iterations: N  |  Final verdict: Approve
