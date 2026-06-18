@@ -58,6 +58,8 @@ To add manually:
 - **refactor** — Restructures code without changing behavior. Establishes a test baseline, applies changes in small verifiable steps, commits each step.
 - **debug** — Reproduce → isolate → fix → verify loop. Commits the failing test before the fix for traceable history.
 - **perf** — Measure baseline → profile → optimize one bottleneck at a time → benchmark. Includes before/after numbers in commit messages.
+- **review-plan** — Reviews a PLAN.md before implementation for vague tasks, missing criteria, bad phase ordering, and scope issues. Writes `docs/<feature-name>/PLAN-REVIEW.md` with a machine-readable verdict.
+- **qa** — Measures test coverage, identifies untested paths, writes missing tests, and produces `docs/<feature-name>/QA.md` with before/after coverage numbers.
 - **clean-up** — Housekeeping: remove merged local/remote branches, prune stale tracking refs, close resolved issues and merged PRs, remove leftover worktrees. Audits before acting.
 
 ## Skill Pipeline
@@ -66,9 +68,9 @@ Skills are designed to compose:
 
 ```text
 dev-loop
-  └─ create-plan  →  implement-plan  →  code-review
-                            ↑                  │
-                            └── fix agents ────┘ (parallel, per-finding)
+  └─ create-plan  →  review-plan  →  implement-plan  →  qa  →  code-review
+                                            ↑                         │
+                                            └──── fix agents ─────────┘ (parallel, per-finding)
 ```
 
 Plans live in `docs/<feature-name>/PLAN.md`; reviews in `docs/<feature-name>/REVIEW.md`.

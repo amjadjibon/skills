@@ -66,6 +66,13 @@ Read 3–5 key files to understand existing patterns (routing, middleware, error
 
 Run the `create-plan` skill in autonomous mode. It creates `docs/<feature-name>/PLAN.md` and commits it on a new feature branch `<feature-name>`.
 
+### 1c.5. Review the plan
+
+Run the `review-plan` skill on the plan just created. Parse the machine-readable verdict:
+- `Ready` → proceed to §1d
+- `Needs Revision` → apply all Revise findings to `PLAN.md` in a single commit (`git commit -m "docs: revise plan based on review"`), then proceed
+- `Blocked` → stop and report the blocking findings to the user; do not proceed until resolved
+
 ### 1d. Initialise LOOP.md
 
 Create `docs/<feature-name>/LOOP.md` with:
@@ -73,7 +80,7 @@ Create `docs/<feature-name>/LOOP.md` with:
 - Iteration table (cols: Iter / Verdict / Crit / High / Med / Low / Mode / Action) — row 1 all `—`
 - Stacked PRs table (cols: Phase / Branch / PR URL / Base / Status) — one row per phase, Status: `pending`
 - Active Worktrees table (cols: Worktree path / Branch / Purpose / Status) — initially empty
-- Log section with `### Iteration 1` containing three unchecked items: `implement-plan`, `code-review`, `decide`
+- Log section with `### Iteration 1` containing four unchecked items: `implement-plan`, `qa`, `code-review`, `decide`
 
 Commit: `git add docs/<feature-name>/LOOP.md && git commit -m "chore: init dev loop for <feature-name>"`
 
@@ -181,7 +188,14 @@ For each phase N:
 After all phases are done:
 - Tick `- [x] implement-plan` in the log.
 - Record `Mode: sequential` in the iteration table.
-- Record the current HEAD SHA as `last_review_base` in LOOP.md frontmatter — the review diff will start here.
+
+### Step A.5 — QA (iteration 1 only)
+
+Run the `qa` skill on the feature branch. It measures coverage, writes missing tests, and produces `docs/<feature-name>/QA.md`.
+
+- QA runs once, after the first full implementation — not on fix iterations (coverage gaps from a fix are caught by `code-review`).
+- Any tests written by QA are committed on the last phase branch before the review diff is captured.
+- After QA commits: record the current HEAD SHA as `last_review_base` in LOOP.md frontmatter — the review diff starts here, including QA's test additions.
 
 ### Step B — Review
 
