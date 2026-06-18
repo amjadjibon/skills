@@ -114,6 +114,9 @@ Include ticket ID in the plan commit: `git commit -m "plan: <feature-name> (<tic
 - Surface assumptions explicitly rather than asking. If scope is ambiguous in interactive mode, ask one focused question only.
 - If multiple valid approaches exist, name them and state which the plan takes and why.
 - If a simpler solution exists than what was requested, say so in a single sentence in the intro — then plan it.
+- **Question whether each phase needs to exist.** Speculative phases ("we might need X later") are cut. YAGNI applies to plans too.
+- **Stdlib and platform features before new dependencies.** If the language or framework already solves it, the plan says so instead of adding a task to install a library.
+- **Fewer phases is better.** Merge phases that share a goal. A 2-phase plan that ships is better than a 5-phase plan that gold-plates.
 
 **Verifiable success criteria**
 - Every phase must have a completion criterion runnable by a command or observable behaviour — not "it should work".

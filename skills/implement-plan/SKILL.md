@@ -19,10 +19,24 @@ These apply to every task, every phase, every line of code.
 - If a simpler approach exists than what the task describes, say so before implementing.
 - If something is unclear, stop and ask. Charging ahead on a wrong assumption costs more than a short pause.
 
-**Simplicity first**
-- Write the minimum code that satisfies the task. Nothing speculative.
-- No abstractions, configurability, or error handling that the task doesn't require.
-- If you write 200 lines and it could be 50, rewrite it.
+**Simplicity first — the ladder**
+Stop at the first rung that satisfies the task:
+1. Does this need to exist at all? Speculative need → skip it, note why.
+2. Stdlib or platform feature covers it? Use it.
+3. Already-installed dependency solves it? Use it. Never add a new one for what a few lines can do.
+4. Can it be one function or one line? Do that.
+5. Only then: the minimum custom code that works.
+
+- No abstractions, configurability, or error handling the task doesn't require.
+- No boilerplate "for later" — later can add it when it's needed.
+- Shortest working diff wins. If you write 200 lines and it could be 50, rewrite it.
+
+**Defensive error handling — never simplify this away**
+- Every error must be handled or explicitly propagated. No silent swallows (`catch {}`, `_ = err`, `except: pass`).
+- Validate at trust boundaries: user input, external API responses, file I/O, env vars. Never assume the shape is correct.
+- Fail fast and loud. A function that receives invalid input should error immediately, not silently produce a wrong result downstream.
+- Resources (files, connections, streams) must close in all paths — not just the happy path.
+- The simplicity ladder applies to features, not to error handling. Cutting boilerplate is good; cutting error handling creates incidents.
 
 **Surgical changes**
 - Touch only what the task requires. Don't improve adjacent code, comments, or formatting.
