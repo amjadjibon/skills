@@ -27,16 +27,17 @@ You are the **orchestrator agent**. Given a task description you drive the full 
 
 **Phases always run sequentially.** Each phase lives on its own branch stacked on the previous — parallelising phases would break the stack. Independent phases are implemented one at a time; the `Depends on:` field controls order, not parallelism.
 
-**Fix agents may run in parallel.** When multiple High findings touch independent files, each cluster gets its own worktree and agent. They all branch off the same fix base and merge back before re-review.
+**Fix agents may run in parallel only when work domains are genuinely independent.** "Different files" is not enough — the work must be in distinct domains that cannot interfere (e.g. backend API + frontend UI, database migration + documentation, auth service + notification service). If the fixes share a type, interface, config, or test fixture, they are not independent — use a single agent.
 
 | Scenario | Rule |
 |----------|------|
 | Plan phases | Always sequential — stacked PR model requires it |
-| Fix findings (High, independent files) | Parallel fix agents via worktrees |
-| Fix findings (touching same file) | Single agent |
+| Fix findings in independent domains (e.g. backend + frontend) | Parallel fix agents via worktrees |
+| Fix findings in the same domain, even different files | Single agent |
+| Fix findings sharing a type, interface, or config | Single agent |
 | Phase + review | Always sequential — review must see merged result |
 
-**Parallelism threshold:** Spawn parallel fix agents only if there are **2 or more** independent finding clusters. One cluster → fix inline.
+**Parallelism threshold:** Spawn parallel fix agents only if there are **2 or more** findings in genuinely independent domains. When in doubt, use a single agent — a bad parallel split causes merge conflicts and costs more than going sequential.
 
 **Hard limits (read from LOOP.md frontmatter):**
 - `max_agents` (default 3) — if grouping produces more clusters than this, merge the smallest clusters together until the count is within limit.
@@ -242,13 +243,14 @@ Update `LOOP.md`:
 
 ---
 
-**§3.C.2 — Parallel fix agents (High findings, independent files):**
+**§3.C.2 — Parallel fix agents (High findings, independent domains):**
 
 The fix base is the last phase branch (`<feature>/phase-N`). All fix worktrees branch off it and merge back to it.
 
-Group High findings by file ownership:
-- Two findings touch the same file → same group.
-- Two findings in different packages with no shared files → different groups.
+Group High findings by work domain — not just by file:
+- Same domain (e.g. two backend handlers, two DB queries) → same group, single agent.
+- Genuinely independent domains (e.g. backend API fix + frontend rendering fix, auth service + email service) → separate groups, parallel agents.
+- Findings that share a type, interface, config file, or test fixture → same group regardless of which files they're in.
 
 If the number of groups exceeds `max_agents`, merge the smallest groups together until within limit.
 
