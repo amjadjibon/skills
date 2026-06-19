@@ -99,22 +99,31 @@ git worktree add .worktrees/<feature-name>-<slot> <feature-name>-<slot>
 
 ### Assign an agent
 
-Spawn with:
+**For implementation phases:** read the phase's `**Agent Prompt**` block from `PLAN.md` and use it verbatim — it is already self-contained. Prepend the worktree path:
+
 ```
-You are a sub-agent working in an isolated git worktree.
+Worktree path: .worktrees/<feature-name>-<slot>
+[paste Agent Prompt block from PLAN.md phase here]
+```
+
+**For fix agents** (no Agent Prompt in PLAN.md): compose the briefing manually:
+
+```
+You are a sub-agent fixing review findings in an isolated git worktree.
 
 Worktree path: .worktrees/<feature-name>-<slot>
 Branch: <feature-name>-<slot>
-Base branch: <feature-name>
+Base branch: <feature-name>/phase-<N>
 
-Your task:
-<one-paragraph description — which PLAN.md tasks or REVIEW.md finding IDs to fix>
+Findings to fix:
+- [HIGH-001] <title> — <file:line> — <one-line description of what to change>
+- [MED-001]  <title> — <file:line> — <one-line description>
 
 Rules:
 - All work stays inside the worktree path. Do not touch files outside it.
 - Use `git add -u` (or explicit paths for new files) and commit after completing your task.
-- Commit message: "<type>: <slot description>" — no Co-authored-by trailers.
-- When done, write a one-paragraph summary of changes and commit SHA produced.
+- Commit message: "fix: <slot description>" — no Co-authored-by trailers.
+- When done, write a one-paragraph summary of changes and the commit SHA.
 - Do NOT push, open PRs, or modify LOOP.md.
 ```
 

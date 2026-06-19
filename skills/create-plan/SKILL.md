@@ -5,84 +5,57 @@ description: Create a new plan file for new features, refactoring existing code 
 
 # Create Implementation Plan
 
-Create `docs/<feature-name>/PLAN.md` structured for autonomous execution by agents or humans.
+Create `docs/<feature-name>/PLAN.md` for autonomous execution by agents or humans.
 
-**Two modes:**
+**Interactive mode** (user runs `/create-plan`): ask one focused question if scope is truly ambiguous; otherwise proceed.
+**Autonomous mode** (called by `dev-loop`): never ask — research, assume, document.
 
-| Mode | When | Behaviour |
-|------|------|-----------|
-| **Interactive** | User runs `/create-plan` | Ask one focused question if scope is truly ambiguous; otherwise proceed |
-| **Autonomous** | Called by `dev-loop` | Never ask. Research codebase, state assumptions in §4, proceed |
-
----
-
-## Step 0 — Research Before Planning
+## Step 0 — Research First
 
 ```bash
 git branch --show-current
-find . -type f -name "*.go" | head -30   # or *.ts, *.py
+find . -type f -name "*.go" | head -20   # or *.ts, *.py
 ls docs/ 2>/dev/null
 ```
 
-Read 3–5 key files to understand: routing, middleware, error handling, testing patterns. Record findings as `ASSUMPTION-*` in §4. Do not ask — assume and document.
+Read 3–5 key files (routing, middleware, error handling, tests). Record findings as `ASSUMPTION-*` in §4.
 
----
+## Git
 
-## Output Location
+1. `git checkout -b <feature-name>`
+2. Commit plan: `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`
+3. Stacked PRs: phase 1 off `main`, phase N off phase N-1. PR titles: imperative ≤60 chars, never prefix with `phase N`.
+4. Branches: `<feature-name>/phase-1`, `<feature-name>/phase-2`, …
 
-`docs/<feature-name>/PLAN.md` — kebab-case slug. Examples: `docs/rate-limit-login/PLAN.md`.
+Commit hygiene: `git add -u` for tracked files, explicit paths for new. Never `git add -A`. No `Co-authored-by:`. Subject ≤72 chars.
 
----
+## Status badges
 
-## Git Integration
+`Planned` → blue · `In progress` → yellow · `Completed` → brightgreen · `On Hold` → orange · `Deprecated` → red
 
-1. **Create feature branch**: `git checkout -b <feature-name>`
-2. **Commit the plan**: `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`
-3. **Stacked PRs per phase**: phase 1 off `main`, phase 2 off phase 1, etc. Each opens a PR with `--base <previous>`.
-4. **Branch naming**: `<feature-name>/phase-1`, `<feature-name>/phase-2`, …
-5. **PR titles**: imperative, ≤60 chars, describe what the phase *does* — e.g. `add rate limiting middleware to /api/login`. Never prefix with `phase N`.
+`https://img.shields.io/badge/status-<status>-<color>` (spaces → `%20`)
 
-**Commit hygiene:** `git add -u` for tracked files, explicit paths for new. Never `git add -A`. No `Co-authored-by:`. Subject ≤72 chars, imperative, explain why not what.
+## Tracker IDs
 
----
-
-## Status Values
-
-| Status | Badge Color |
-|--------|-------------|
-| `Planned` | blue |
-| `In progress` | yellow |
-| `Completed` | brightgreen |
-| `On Hold` | orange |
-| `Deprecated` | red |
-
-Badge: `https://img.shields.io/badge/status-<status>-<color>` (spaces → `%20`)
-
----
-
-## Tracker ID Handling
-
-If user provides a ticket ID or URL: add `ticket:` to frontmatter and a blockquote link under the badge.
-
-- `[A-Z]+-\d+` → Jira: `https://<org>.atlassian.net/browse/<ID>`
-- `LIN-456` → `https://linear.app/team/issue/<ID>`
-- Full URL → use as-is
-
-Include ticket ID in commit: `plan: <feature-name> (<ticket-id>)`. Omit if no ticket.
-
----
+If user provides a ticket: add `ticket:` to frontmatter + blockquote link under badge.
+`[A-Z]+-\d+` → Jira · `LIN-\d+` → Linear · full URL → use as-is. Include in commit: `plan: <feature-name> (<id>)`.
 
 ## Planning Principles
 
-- Surface assumptions rather than asking. One focused question maximum in interactive mode.
-- Name alternatives and state the chosen approach and why.
-- **Cut speculative phases** — YAGNI applies to plans. Fewer phases is better.
-- **Stdlib and platform before new dependencies.**
-- Every phase must have a completion criterion runnable by command or observable behaviour — not "it should work".
-- Each task: one sentence of what, one of why (if non-obvious). Nothing else.
-- One phase = one coherent goal. "And also…" → new phase.
+- Assume, don't ask. Name the chosen approach and why.
+- Cut speculative phases — YAGNI. Fewer phases is better.
+- Stdlib/platform before new dependencies.
+- Completion criteria must be a runnable command or observable behaviour, not "it should work".
+- Each task: one sentence of what, one of why (if non-obvious).
+- One phase = one goal. "And also…" → new phase.
 
----
+## Agent Prompt Rules
+
+Every phase must include a self-contained `**Agent Prompt**` block — the orchestrator hands it to a sub-agent with no other context.
+
+- No "as discussed" — the agent starts cold
+- Include: goal, branch, base branch, exact tasks, key files (specific paths from Step 0 research), completion criteria, git instructions
+- Agent must not push, open PRs, or modify PLAN.md
 
 ## Mandatory Template
 
@@ -102,8 +75,6 @@ tags: [feature|upgrade|refactor|chore|architecture|migration|bug]
 
 ![Status: Planned](https://img.shields.io/badge/status-Planned-blue)
 
-<!-- If a ticket exists: > **Tracker**: [TICKET-123](https://link-to-ticket) -->
-
 <2-3 sentences: what this achieves and why.>
 
 ## 1. Requirements & Constraints
@@ -111,11 +82,10 @@ tags: [feature|upgrade|refactor|chore|architecture|migration|bug]
 - **REQ-001**: <Functional requirement>
 - **SEC-001**: <Security requirement>
 - **CON-001**: <Constraint>
-- **GUD-001**: <Guideline>
 
 ## 2. Implementation Steps
 
-> **Agent instructions**: After completing all tasks in a phase, `git add -u` (plus explicit paths for new files) and commit. No `Co-authored-by:` trailers. Tick `[x]` as each task completes.
+> After completing all tasks in a phase, `git add -u` and commit. No `Co-authored-by:`. Tick `[x]` as each task completes.
 
 ### Phase 1: <Phase Name>
 
@@ -124,47 +94,84 @@ tags: [feature|upgrade|refactor|chore|architecture|migration|bug]
 - [ ] TASK-001: <Exact action with file path, function, or command.>
 - [ ] TASK-002: <Exact action.>
 
-**Completion criteria**: <Measurable condition — e.g. "all tests pass", "endpoint returns 200">
+**Completion criteria**: <Measurable condition>
 
-**git commit**: `git add -u && git commit -m "<type>: <phase 1 summary>"` — no `Co-authored-by:` trailer
+**git commit**: `git add -u && git commit -m "<type>: <phase 1 summary>"`
+
+**Agent Prompt**:
+```
+You are a sub-agent implementing Phase 1 of <feature-name>.
+
+Context: <1-2 sentences: what the feature does and what this phase contributes.>
+
+Branch: <feature-name>/phase-1  |  Base: main
+
+Tasks:
+- TASK-001: <exact description>
+- TASK-002: <exact description>
+
+Key files:
+- <path/to/file.ext> — <what to do>
+
+Completion criteria: <verbatim from above>
+
+When done: git add -u && git commit -m "<type>: <phase 1 summary>" — no Co-authored-by
+Write a one-paragraph summary of changes and commit SHA.
+Do NOT push, open PRs, or modify PLAN.md.
+```
 
 ---
 
-### Phase 2: <Phase Name>
+### Phase N: <Phase Name>
 
 **Goal**: <What this phase achieves.>
 
-**Depends on**: Phase 1 complete
+**Depends on**: Phase N-1 complete
 
-- [ ] TASK-003: <Exact action.>
+- [ ] TASK-00X: <Exact action.>
 
-**Completion criteria**: <Measurable condition.>
+**Completion criteria**: <Measurable condition>
 
-**git commit**: `git add -u && git commit -m "<type>: <phase 2 summary>"`
+**git commit**: `git add -u && git commit -m "<type>: <phase N summary>"`
+
+**Agent Prompt**:
+```
+You are a sub-agent implementing Phase N of <feature-name>.
+
+Context: <1-2 sentences.>
+
+Branch: <feature-name>/phase-N  |  Base: <feature-name>/phase-N-1
+
+Tasks:
+- TASK-00X: <exact description>
+
+Key files:
+- <path/to/file.ext> — <what to do>
+
+Completion criteria: <verbatim from above>
+
+When done: git add -u && git commit -m "<type>: <phase N summary>" — no Co-authored-by
+Write a one-paragraph summary of changes and commit SHA.
+Do NOT push, open PRs, or modify PLAN.md.
+```
 
 ---
 
 ## 3. Testing
 
-- [ ] TEST-001: <Specific test to write or run, with file path>
-- [ ] TEST-002: <Integration test or manual verification>
+- [ ] TEST-001: <Specific test with file path>
+- [ ] TEST-002: <Integration test or manual step>
 
 ## 4. Risks & Assumptions
 
-- **RISK-001**: <Risk> — mitigation: <how to reduce it>
+- **RISK-001**: <Risk> — mitigation: <how>
 - **ASSUMPTION-001**: <Assumed true without user confirmation>
 ```
 
----
+## Process
 
-## Plan Generation Process
-
-1. Research (Step 0) — read codebase silently
-2. Determine `<feature-name>`
-3. `git checkout -b <feature-name>`
-4. Write `docs/<feature-name>/PLAN.md`
-5. `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`
-6. Tell the caller: "Plan created at `docs/<feature-name>/PLAN.md` on branch `<feature-name>`."
-
-**Interactive mode:** ask one focused question if scope is genuinely ambiguous before step 1.
-**Autonomous mode:** proceed directly, document assumptions in §4.
+1. Research (Step 0)
+2. `git checkout -b <feature-name>`
+3. Write `docs/<feature-name>/PLAN.md` using the template above — include Agent Prompt for every phase
+4. `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`
+5. Tell the caller: "Plan created at `docs/<feature-name>/PLAN.md` on branch `<feature-name>`."
