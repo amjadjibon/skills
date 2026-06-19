@@ -9,12 +9,52 @@ Review code changes — correctness, security, simplicity — and write findings
 
 ## 1. Identify What to Review
 
-- **Branch diff**: `git diff main...HEAD` (or `git diff <base>...<head>`)
-- **Staged**: `git diff --cached`
-- **Specific files**: read named files
-- **PR**: `gh pr diff <number>`
+Review **one file at a time** — never load the full diff in one shot.
 
-If scope is ambiguous, ask before reviewing.
+**Step 1 — stat the diff:**
+
+```bash
+git diff main...HEAD --stat
+# or: git diff --cached --stat
+# or: gh pr diff <number> --stat
+```
+
+This gives a size overview with no diff content loaded yet.
+
+**Step 2 — filter out noise files:**
+
+Exclude generated, vendored, and dependency files — they are not worth reviewing:
+
+```bash
+git diff main...HEAD --name-only | grep -vE \
+  'go\.sum|go\.mod|package-lock\.json|yarn\.lock|pnpm-lock\.yaml|vendor/|\.pb\.go|\.pb\.ts|_generated\.|/__generated__/|dist/|\.min\.js'
+```
+
+**Step 3 — prioritise by risk:**
+
+Review in this order — stop when time/context is limited:
+
+| Priority | Path patterns |
+|----------|--------------|
+| 1 — Critical | auth, middleware, payment, crypto, permissions, migrations |
+| 2 — High | API handlers, DB queries, background jobs, config loading |
+| 3 — Medium | business logic, services, models |
+| 4 — Low | utilities, helpers, tests, docs |
+
+**Step 4 — review each file with reduced context lines:**
+
+```bash
+git diff main...HEAD --unified=3 -- <file>
+# or: git diff --cached --unified=3 -- <file>
+```
+
+`--unified=3` loads 3 context lines per hunk instead of the default 10 — cuts diff size by ~30% on average.
+
+Read, record findings, move to the next file. Do not load the next file until findings for the current one are noted.
+
+**Step 5 — handle oversized files:** If a single file's diff still exceeds ~300 lines, review hunk by hunk using `git diff --unified=3 -- <file> | head -300` then `| tail -n +301`.
+
+If scope is ambiguous (no branch, no PR number, no files named), ask before proceeding.
 
 ## 2. Determine the Feature Name
 
