@@ -10,12 +10,11 @@ This is a collection of custom Claude Code skills. Skills are persona or behavio
 
 ```text
 skills/
-  skills/
-    <skill-name>/
-      SKILL.md     # The skill definition
+  <skill-name>/
+    SKILL.md     # The skill definition
 ```
 
-Each skill lives in its own directory under `skills/skills/`. The directory name is the skill's identifier used to invoke it.
+Each skill lives in its own directory under `skills/`. The directory name is the skill's identifier used to invoke it.
 
 ## SKILL.md Format
 
@@ -44,7 +43,7 @@ It will guide you through drafting the skill, writing test cases, running evals,
 
 To add manually:
 
-1. Create `skills/skills/<skill-name>/SKILL.md`
+1. Create `skills/<skill-name>/SKILL.md`
 2. Add the YAML frontmatter (`name`, `description`)
 3. Write the skill instructions in the body — be explicit about voice, rules, and examples
 4. The description should capture trigger phrases and use cases precisely
