@@ -220,7 +220,7 @@ After all complete: merge all worktrees to `<feature>/phase-N`, remove worktrees
 
 ---
 
-**§3.C.4 — Fix phase in PLAN.md (High findings too large for a patch):**
+**§3.C.3 — Fix phase in PLAN.md (High findings too large for a patch):**
 
 Use when a finding reveals a missing abstraction or schema migration — not a targeted code change. First check adding a phase won't exceed `max_phases`; if it would, fall back to §3.C.2.
 
@@ -231,7 +231,7 @@ On `<feature>/phase-N`, append to `PLAN.md`:
 ```
 Bump `version` and `last_updated`. Commit: `docs: add fix phase for iteration N findings`. Tick decide, increment, go to Step A.
 
-**Default to §3.C.2.** Use §3.C.4 only when a patch isn't sufficient.
+**Default to §3.C.2.** Use §3.C.3 only when a patch isn't sufficient.
 
 ---
 
