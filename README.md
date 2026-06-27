@@ -59,7 +59,7 @@ dev-loop
                             └── fix agents ────┘ (parallel, per-finding)
 ```
 
-Output artifacts land in `docs/<feature>/`: `PLAN.md` (created by `create-plan`, updated by `implement-plan`) and `REVIEW.md` (written each pass by `code-review`).
+Output artifacts land in `docs/<feature>/`: `PLAN.md` (created by `create-plan`, updated by `implement-plan`), `PLAN-REVIEW.md` (`review-plan`), `QA.md` (`qa`), `REVIEW.md` (written each pass by `code-review`), and `LOOP.md` (dev-loop state).
 
 ## Adding a Skill
 
