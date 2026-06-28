@@ -69,13 +69,12 @@ Use the `skill-creator` skill to build and iterate on new skills with guided eva
 /skill-creator
 ```
 
-Or create one manually — make a new directory under `skills/skills/` with a `SKILL.md` file:
+Or create one manually — make a new directory under `skills/` with a `SKILL.md` file:
 
 ```text
 skills/
-  skills/
-    <skill-name>/
-      SKILL.md
+  <skill-name>/
+    SKILL.md
 ```
 
 Each `SKILL.md` requires a YAML frontmatter header:
