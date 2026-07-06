@@ -50,18 +50,16 @@ Review in this order — stop when time/context is limited:
 | 3 — Medium | business logic, services, models |
 | 4 — Low | utilities, helpers, tests, docs |
 
-**Step 4 — review each file with reduced context lines:**
+**Step 4 — review each file:**
 
 ```bash
-git diff main...HEAD --unified=3 -- <file>
-# or: git diff --cached --unified=3 -- <file>
+git diff main...HEAD -- <file>
+# or: git diff --cached -- <file>
 ```
-
-`--unified=3` loads 3 context lines per hunk instead of the default 10 — cuts diff size by ~30% on average.
 
 Read, record findings, move to the next file. Do not load the next file until findings for the current one are noted.
 
-**Step 5 — handle oversized files:** If a single file's diff still exceeds ~300 lines, review hunk by hunk using `git diff --unified=3 -- <file> | head -300` then `| tail -n +301`.
+**Step 5 — handle oversized files:** If a single file's diff still exceeds ~300 lines, review hunk by hunk using `git diff -- <file> | head -300` then `| tail -n +301`.
 
 If scope is ambiguous (no branch, no PR number, no files named), ask before proceeding.
 

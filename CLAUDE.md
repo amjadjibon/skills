@@ -59,7 +59,7 @@ To add manually:
 - **dev-perf** — Measure baseline → profile → optimize one bottleneck at a time → benchmark. Includes before/after numbers in commit messages.
 - **dev-review-plan** — Reviews a PLAN.md before implementation for vague tasks, missing criteria, bad phase ordering, and scope issues. Writes `docs/<feature-name>/PLAN-REVIEW.md` with a machine-readable verdict.
 - **dev-qa** — Measures test coverage, identifies untested paths, writes missing tests, and produces `docs/<feature-name>/QA.md` with before/after coverage numbers.
-- **dev-clean-up** — Housekeeping: remove merged local/remote branches, prune stale tracking refs, close resolved issues and merged PRs, remove leftover worktrees. Audits before acting.
+- **dev-clean-up** — Housekeeping: remove merged local/remote branches, prune stale tracking refs, close resolved issues, remove leftover worktrees. Audits before acting.
 
 ## Skill Pipeline
 

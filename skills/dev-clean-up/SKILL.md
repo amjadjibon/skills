@@ -1,6 +1,6 @@
 ---
 name: dev-clean-up
-description: Housekeeping — remove merged local and remote branches, prune stale remote tracking refs, close resolved GitHub issues and merged PRs, clean up leftover worktrees. Use when the user says "clean up", "cleanup", "prune branches", "remove merged branches", "close issues", "tidy up", "housekeeping", or "delete old branches".
+description: Housekeeping — remove merged local and remote branches, prune stale remote tracking refs, close resolved GitHub issues, clean up leftover worktrees. Use when the user says "clean up", "cleanup", "prune branches", "remove merged branches", "close issues", "tidy up", "housekeeping", or "delete old branches".
 argument-hint: "[lite|full|ultra]"
 ---
 
@@ -10,8 +10,8 @@ Audit first, act second. Always show what will be removed before removing it.
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
-- `lite` (default) — branches only: audit branches (the branch/ref commands in §1), then §2–§4. Skip worktrees, PRs, and issues.
-- `full` — everything in §1–§7 as written.
+- `lite` (default) — branches only: audit branches (the branch/ref commands in §1), then §2–§4. Skip worktrees and issues.
+- `full` — everything in §1–§6 as written.
 - `ultra` — same as `full`; there's nothing here to parallelize into worktrees — this skill is what removes them.
 
 ## 1. Audit
@@ -27,9 +27,6 @@ git remote prune origin --dry-run
 
 # Leftover worktrees
 git worktree list
-
-# Merged PRs (open on GitHub but already merged)
-gh pr list --state merged --limit 20
 
 # Open issues that reference a merged PR or are labelled "resolved"
 gh issue list --state open --label resolved 2>/dev/null || true
@@ -81,17 +78,7 @@ git branch -d <branch>
 
 If the worktree has uncommitted changes, warn the user — do not remove it without explicit confirmation.
 
-## 6. Close Merged PRs
-
-```bash
-# List merged PRs still showing as open
-gh pr list --state merged
-
-# Close any that are still open
-gh pr close <number>
-```
-
-## 7. Close Resolved Issues
+## 6. Close Resolved Issues
 
 ```bash
 # Close issues linked to merged PRs or explicitly marked resolved
@@ -100,7 +87,7 @@ gh issue close <number> --comment "Resolved — closing."
 
 Only close issues where the resolution is clear: the linked PR merged, the issue is labelled `resolved`/`wontfix`, or the user says to close it. Do not close issues speculatively.
 
-## 8. Report
+## 7. Report
 
 ```
 Cleaned up:
@@ -108,6 +95,5 @@ Cleaned up:
   Remote branches deleted: <list or "none">
   Remote refs pruned:      <N>
   Worktrees removed:       <list or "none">
-  PRs closed:              <list or "none">
   Issues closed:           <list or "none">
 ```

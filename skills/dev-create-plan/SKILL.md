@@ -66,7 +66,7 @@ Every phase must include a self-contained `**Agent Prompt**` block — the orche
 
 ## Mandatory Template
 
-```markdown
+````markdown
 ---
 goal: <Concise title>
 version: 1.0
@@ -140,7 +140,7 @@ Do NOT push, open PRs, or modify PLAN.md.
 
 - **RISK-001**: <Risk> — mitigation: <how>
 - **ASSUMPTION-001**: <Assumed true without user confirmation>
-```
+````
 
 ## Process
 

@@ -89,12 +89,18 @@ Commit: `git add docs/<feature-name>/LOOP.md && git commit -m "chore: init dev l
 
 All worktrees live under `.worktrees/`. The orchestrator owns all creation, tracking, and removal.
 
+Before creating the first worktree, make sure `.worktrees/` is gitignored (once per repo):
+
+```bash
+grep -qx '.worktrees/' .gitignore 2>/dev/null || { echo '.worktrees/' >> .gitignore && git add .gitignore && git commit -m "chore: gitignore .worktrees"; }
+```
+
 ### Create a worktree
 
 ```bash
-git checkout <feature-name>
-git checkout -b <feature-name>-<slot>        # e.g. rate-limit-login-phase-2
-git worktree add .worktrees/<feature-name>-<slot> <feature-name>-<slot>
+# creates the branch and checks it out in the worktree in one step —
+# checking the branch out first would make `git worktree add` fail with "already checked out"
+git worktree add .worktrees/<feature-name>-<slot> -b <feature-name>-<slot> <feature-name>
 ```
 
 `<slot>` is descriptive: `phase-2`, `fix-HIGH-001`, `fix-cluster-auth`. Add a row to LOOP.md "Active Worktrees" before handing off. Track status: `assigned → running → merged → removed`.
@@ -115,7 +121,7 @@ You are a sub-agent fixing review findings in an isolated git worktree.
 
 Worktree path: .worktrees/<feature-name>-<slot>
 Branch: <feature-name>-<slot>
-Base branch: <feature-name>/phase-<N>
+Base branch: <work-branch>
 
 Findings to fix:
 - [HIGH-001] <title> — <file:line> — <one-line description of what to change>

@@ -84,6 +84,8 @@ git push -u origin <feature-name>   # skip if no remote
 gh pr create --base main --title "test: add QA coverage for <feature>" --body "<summary of gaps closed>"
 ```
 
+**Called by `dev-loop`:** commit only — no push, no PR. The loop pushes and opens the PR at Clean Exit after user approval.
+
 **`full`:** for each module/gap category, on its own branch stacked off the previous one:
 ```bash
 git checkout -b <feature-name>/qa-<module>   # base = previous qa branch or main

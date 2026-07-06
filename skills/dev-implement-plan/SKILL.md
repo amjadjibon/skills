@@ -10,7 +10,7 @@ Execute a `PLAN.md` produced by `dev-create-plan`: work through phases in order,
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
-- `lite` (default) — ignore phase boundaries: one branch, one commit, one PR at the end covering every task.
+- `lite` (default) — ignore phase boundaries: one branch, one implementation commit (plus the plan-status docs commits from §2/§8), one PR at the end covering every task.
 - `full` — current behavior: §3 as written, one branch + one stacked PR per phase.
 - `ultra` — phases marked `**Parallel**: yes` (no shared deps) build in separate git worktrees off `main`/the previous phase at the same time; merge each into the stack once its tasks and completion criteria pass, then continue stacking the sequential phases.
 
