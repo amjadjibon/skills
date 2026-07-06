@@ -8,10 +8,10 @@ argument-hint: "[lite|full|ultra]"
 
 Measure → profile → optimize → verify. Never optimize without a measured baseline.
 
-## Delivery Mode (`lite | full | ultra`, default `full`)
+## Delivery Mode (`lite | full | ultra`, default `lite`)
 
-- `lite` — one commit covering every optimization.
-- `full` (default) — §4/§6 as written: one commit per bottleneck fixed, same branch.
+- `lite` (default) — one commit covering every optimization.
+- `full` — §4/§6 as written: one commit per bottleneck fixed, same branch.
 - `ultra` — independent optimization candidates get their own worktree/branch, benchmarked in parallel; merge only the ones that clear the improvement bar.
 
 ## 1. Define the Target

@@ -8,10 +8,10 @@ argument-hint: "[lite|full|ultra]"
 
 Reproduce → isolate → fix → verify. Never guess at a fix before reproducing the problem.
 
-## Delivery Mode (`lite | full | ultra`, default `full`)
+## Delivery Mode (`lite | full | ultra`, default `lite`)
 
-- `lite` — one commit for test + fix together.
-- `full` (default) — §5 as written: regression test committed separately before the fix.
+- `lite` (default) — one commit for test + fix together.
+- `full` — §5 as written: regression test committed separately before the fix.
 - `ultra` — reproduce and fix in an isolated worktree/branch when the bug requires touching shared or risky state; merge once verified.
 
 ## 1. Reproduce

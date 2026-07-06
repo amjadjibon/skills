@@ -24,10 +24,10 @@ You are the **orchestrator agent**. Given a task description, drive the full cyc
 
 ---
 
-## Delivery Mode (`lite | full | ultra`, default `full`)
+## Delivery Mode (`lite | full | ultra`, default `lite`)
 
-- `lite` — single branch `<feature-name>`, no phase branches, one PR at the end.
-- `full` (default) — phases run sequentially on stacked branches/PRs, as in §0–§4 below.
+- `lite` (default) — single branch `<feature-name>`, no phase branches, one PR at the end.
+- `full` — phases run sequentially on stacked branches/PRs, as in §0–§4 below.
 - `ultra` — phases with no shared dependencies get their own worktree off `main` and build in parallel (extends §2 Worktree Management beyond fix agents to implementation phases); merge each into the stack once done.
 
 ---
