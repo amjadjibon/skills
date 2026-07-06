@@ -1,6 +1,41 @@
 # skills
 
-A collection of custom [Claude Code](https://claude.ai/code) skills.
+A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin.
+
+## Installing the Plugin
+
+Requires the [Claude Code CLI](https://claude.ai/code).
+
+1. Add this repo as a marketplace:
+   ```text
+   /plugin marketplace add https://github.com/amjadjibon/skills
+   ```
+2. Install the plugin:
+   ```text
+   /plugin install dev-skills
+   ```
+3. Verify it's installed:
+   ```sh
+   claude plugin list
+   ```
+4. Invoke any skill with the `dev-skills:` namespace:
+   ```text
+   /dev-skills:dev-create-plan add rate limiting to the API
+   /dev-skills:dev-loop add rate limiting to the API
+   ```
+
+**Try before installing** — load it for one session with no marketplace/install step, from a local clone:
+```sh
+claude --plugin-dir /path/to/skills
+```
+
+**Update or remove:**
+```text
+/plugin update dev-skills
+/plugin uninstall dev-skills
+```
+
+If a skill doesn't show up after install, run `/reload-plugins` (or restart the session) and re-check with `claude plugin list`.
 
 ## Skills
 
@@ -19,26 +54,11 @@ A collection of custom [Claude Code](https://claude.ai/code) skills.
 
 ## Usage
 
-### As a plugin (recommended)
-
-This repo is a Claude Code plugin (`.claude-plugin/plugin.json`, name `dev-skills`). Install it from a marketplace:
-
-```text
-/plugin marketplace add https://github.com/amjadjibon/skills
-/plugin install dev-skills
-```
-
-Or load it straight from a local clone, no install needed:
-
-```sh
-claude --plugin-dir /path/to/skills
-```
-
-Skills from a plugin are namespaced: invoke as `/dev-skills:dev-create-plan`, `/dev-skills:dev-loop`, etc.
+See [Installing the Plugin](#installing-the-plugin) above for the recommended path (namespaced as `/dev-skills:<skill-name>`).
 
 ### As standalone skills
 
-Install a single skill directly from this repository using `npx skills`:
+Prefer a single skill without the plugin namespace? Install it directly from this repository using `npx skills`:
 
 ```sh
 # Install a specific skill (personal, available in all projects)
