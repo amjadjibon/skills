@@ -34,18 +34,9 @@ You are the **orchestrator agent**. Given a task description, drive the full cyc
 
 ## 0. Parallelism Rules
 
-**Phases always run sequentially** — stacked PRs require it. (`ultra` mode is the exception — see Delivery Mode above.)
+**Phases always run sequentially** — stacked PRs require it. (`ultra` mode is the exception — see Delivery Mode above.) Phase + review is always sequential too.
 
-**Fix agents run in parallel only when domains are genuinely independent** — different service boundaries (backend API + frontend UI, auth + notifications), not just different files. If fixes share a type, interface, config, or test fixture → single agent.
-
-| Scenario | Rule |
-|----------|------|
-| Plan phases | Always sequential |
-| Fix findings in independent domains | Parallel fix agents via worktrees |
-| Fix findings in the same domain / sharing types | Single agent |
-| Phase + review | Always sequential |
-
-**Parallelism threshold:** Spawn parallel agents only for 2+ findings in genuinely independent domains. When in doubt, use a single agent.
+**Fix agents run in parallel only when domains are genuinely independent** — different service boundaries (backend API + frontend UI, auth + notifications), not just different files. If fixes share a type, interface, config, or test fixture → single agent. Spawn parallel agents only for 2+ findings in genuinely independent domains; when in doubt, use one agent.
 
 **Hard limits (from LOOP.md frontmatter):**
 - `max_agents` (default 3) — merge smallest clusters until within limit
@@ -246,9 +237,11 @@ Bump `version` and `last_updated`. Commit: `docs: add fix phase for iteration N 
 
 ## 4. Exit Conditions
 
+Every exit but Clean starts with cleaning up worktrees (`git worktree list` → remove any remaining).
+
 ### Clean Exit
 
-Present:
+Present, then wait for approval:
 ```
 Review passed (Iteration N).
 Verdict: Approve
@@ -272,9 +265,8 @@ Stacked PRs (merge in order):
   phase-2: <url>  → base: phase-1
 ```
 
-### Blocked Exit
+### Blocked Exit — set `status: blocked`
 
-Clean up worktrees, set `status: blocked`, report:
 ```
 Loop blocked on Critical finding (Iteration N).
 Finding: [CRIT-001] <title>
@@ -284,18 +276,16 @@ Branch: <feature-name> (not pushed)
 Action required: resolve manually, then resume with /dev-loop.
 ```
 
-### Max Iterations Exit
+### Max Iterations Exit — set `status: abandoned`
 
-Clean up worktrees, set `status: abandoned`:
 ```
 Loop stopped: max iterations (N) reached with findings unresolved.
 Unresolved: <CRIT/HIGH finding IDs>
 Branch: <feature-name> (not pushed)
 ```
 
-### User Interrupt
+### User Interrupt — set `status: abandoned`
 
-Clean up worktrees. Set `status: abandoned`:
 ```
 Loop interrupted at iteration N, Step <A|B|C>.
 Branch: <feature-name>  |  Last commit: <git log -1 --oneline>
@@ -324,9 +314,6 @@ Resume any time with /dev-loop.
 
 ## 6. Principles
 
-- **Assume and proceed.** Unknown constraints → state assumption, proceed, let review catch it.
-- **Default to parallel.** Two+ independent units → agents. One unit → inline.
-- **Orchestrator owns worktrees.** Sub-agents work inside their worktree only.
+- **Assume and proceed.** Unknown constraints → state assumption, let review catch it.
 - **Don't over-plan small fixes.** A missing index doesn't need a fix phase — fix it directly (§3.C.1).
-- **Low/Info never block.** If only Low/Info remain, the review passes.
 - **Resumability over speed.** Tick LOOP.md checkboxes before moving on — an interrupted loop must resume from file state alone.

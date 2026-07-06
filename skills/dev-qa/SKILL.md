@@ -25,20 +25,10 @@ If scope is ambiguous, ask before proceeding.
 ## 2. Measure Current Coverage
 
 ```bash
-# Go
-go test ./... -coverprofile=coverage.out
-go tool cover -func=coverage.out | tail -1
-
-# Node/TS
-npx jest --coverage --coverageReporters=text-summary
-# or
-npx vitest run --coverage
-
-# Python
-pytest --cov=. --cov-report=term-missing
-
-# Show uncovered lines for specific files
-go tool cover -html=coverage.out   # Go — opens browser
+go test ./... -coverprofile=coverage.out && go tool cover -func=coverage.out | tail -1  # Go
+npx vitest run --coverage                                                               # Node/TS
+pytest --cov=. --cov-report=term-missing                                                # Python
+go tool cover -html=coverage.out   # Go — opens browser with per-line coverage
 ```
 
 Record: **overall %**, and the specific **files/functions with the lowest coverage**. Don't write tests until you know where the gaps are.

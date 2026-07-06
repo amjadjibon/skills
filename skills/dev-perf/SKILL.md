@@ -23,20 +23,10 @@ Before measuring, agree on what "fast enough" means: current observed behavior, 
 Run a reproducible benchmark before touching code. Record exact numbers.
 
 ```bash
-# Go
-go test -bench=. -benchmem ./...
-
-# Node/TS
-npx clinic flame -- node server.js
-autocannon -c 100 -d 10 http://localhost:3000/endpoint
-
-# Python
-pytest --benchmark-only
-python -m cProfile -s cumtime script.py
-
-# HTTP (any stack)
-hey -n 10000 -c 100 http://localhost:3000/endpoint
-curl -o /dev/null -s -w "%{time_total}\n" http://localhost:3000/endpoint
+go test -bench=. -benchmem ./...                                    # Go
+npx clinic flame -- node server.js                                  # Node/TS
+pytest --benchmark-only                                             # Python
+hey -n 10000 -c 100 http://localhost:3000/endpoint                  # HTTP, any stack
 ```
 
 Record: **p50, p95, p99 latency** or **ops/sec** and **memory**. A single average hides tail latency.
@@ -46,19 +36,10 @@ Record: **p50, p95, p99 latency** or **ops/sec** and **memory**. A single averag
 Do not optimize based on intuition. Profile first.
 
 ```bash
-# Go — interactive flame graph
-go test -bench=BenchmarkFoo -cpuprofile=cpu.prof
-go tool pprof -http=:8080 cpu.prof
-
-# Node
-npx clinic flame -- node server.js
-
-# Python
-py-spy record -o flame.svg -- python script.py && open flame.svg
-python -m cProfile -s cumtime script.py | head -30
-
-# Linux (any language)
-perf record -F 99 -g -- <command>
+go test -bench=BenchmarkFoo -cpuprofile=cpu.prof && go tool pprof -http=:8080 cpu.prof  # Go
+npx clinic flame -- node server.js                                                     # Node
+py-spy record -o flame.svg -- python script.py && open flame.svg                       # Python
+perf record -F 99 -g -- <command>                                                      # Linux, any language
 ```
 
 State the bottleneck explicitly before writing any code:

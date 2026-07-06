@@ -94,48 +94,13 @@ tags: [feature|upgrade|refactor|chore|architecture|migration|bug]
 
 > After completing all tasks in a phase, `git add -u` and commit. No `Co-authored-by:`. Tick `[x]` as each task completes.
 
-### Phase 1: <Phase Name>
-
-**Goal**: <What this phase achieves and why it comes first.>
-
-- [ ] TASK-001: <Exact action with file path, function, or command.>
-- [ ] TASK-002: <Exact action.>
-
-**Completion criteria**: <Measurable condition>
-
-**git commit**: `git add -u && git commit -m "<type>: <phase 1 summary>"`
-
-**Agent Prompt**:
-```
-You are a sub-agent implementing Phase 1 of <feature-name>.
-
-Context: <1-2 sentences: what the feature does and what this phase contributes.>
-
-Branch: <feature-name>/phase-1  |  Base: main
-
-Tasks:
-- TASK-001: <exact description>
-- TASK-002: <exact description>
-
-Key files:
-- <path/to/file.ext> — <what to do>
-
-Completion criteria: <verbatim from above>
-
-When done: git add -u && git commit -m "<type>: <phase 1 summary>" — no Co-authored-by
-Write a one-paragraph summary of changes and commit SHA.
-Do NOT push, open PRs, or modify PLAN.md.
-```
-
----
-
 ### Phase N: <Phase Name>
 
-**Goal**: <What this phase achieves.>
+**Goal**: <What this phase achieves and why it's ordered here.>
 
-**Depends on**: Phase N-1 complete
+**Depends on**: Phase N-1 complete (omit for Phase 1)
 
-- [ ] TASK-00X: <Exact action.>
+- [ ] TASK-00X: <Exact action with file path, function, or command.>
 
 **Completion criteria**: <Measurable condition>
 
@@ -145,9 +110,9 @@ Do NOT push, open PRs, or modify PLAN.md.
 ```
 You are a sub-agent implementing Phase N of <feature-name>.
 
-Context: <1-2 sentences.>
+Context: <1-2 sentences: what the feature does and what this phase contributes.>
 
-Branch: <feature-name>/phase-N  |  Base: <feature-name>/phase-N-1
+Branch: <feature-name>/phase-N  |  Base: <feature-name>/phase-N-1 (main for Phase 1)
 
 Tasks:
 - TASK-00X: <exact description>
@@ -161,6 +126,8 @@ When done: git add -u && git commit -m "<type>: <phase N summary>" — no Co-aut
 Write a one-paragraph summary of changes and commit SHA.
 Do NOT push, open PRs, or modify PLAN.md.
 ```
+
+Repeat this block per phase.
 
 ---
 
