@@ -71,6 +71,7 @@ To add manually:
 - **dev-review-plan** — Reviews a PLAN.md before implementation for vague tasks, missing criteria, bad phase ordering, and scope issues. Writes `docs/<feature-name>/PLAN-REVIEW.md` with a machine-readable verdict.
 - **dev-qa** — Measures test coverage, identifies untested paths, writes missing tests, and produces `docs/<feature-name>/QA.md` with before/after coverage numbers.
 - **dev-clean-up** — Housekeeping: remove merged local/remote branches, prune stale tracking refs, close resolved issues, remove leftover worktrees. Audits before acting.
+- **dev-release** — Cuts a release after PRs merge: derives the version bump from conventional commits, generates a changelog, bumps version files, tags, and publishes a GitHub release. Pauses for approval before tagging.
 
 ## Skill Pipeline
 
