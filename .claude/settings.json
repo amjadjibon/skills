@@ -33,7 +33,6 @@
       "Bash(gh issue view:*)",
       "Bash(gh run list:*)",
       "Bash(gh run watch:*)",
-      "Bash(python3 scripts/validate.py)"
     ],
     "deny": [
       "Bash(git push --force:*)",
