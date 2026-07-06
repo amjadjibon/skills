@@ -30,6 +30,8 @@ You are the **orchestrator agent**. Given a task description, drive the full cyc
 - `full` — phases run sequentially on stacked branches/PRs, as in §0–§4 below.
 - `ultra` — phases with no shared dependencies get their own worktree off `main` and build in parallel (extends §2 Worktree Management beyond fix agents to implementation phases); merge each into the stack once done.
 
+**Pass the loop's mode straight through** to every sub-skill it calls — `dev-create-plan`, `dev-implement-plan`, `dev-qa`, `dev-code-review` — they all honor the same `lite`/`full`/`ultra` semantics. Below, `<work-branch>` means `<feature-name>` in `lite`, or the current phase's `<feature>/phase-N` in `full`/`ultra`.
+
 ---
 
 ## 0. Parallelism Rules
@@ -154,8 +156,6 @@ Cannot proceed: PLAN.md has N phases but max_phases is M.
 Action required: split the plan or increase max_phases in LOOP.md.
 ```
 
-Pass the loop's delivery mode straight through to `dev-create-plan`/`dev-implement-plan` — they honor the same `lite`/`full`/`ultra` semantics.
-
 Phases run sequentially. For each phase N:
 1. `dev-implement-plan` — `full`: creates branch `<feature>/phase-N`, implements tasks, opens stacked PR. `lite` (default): stays on branch `<feature-name>`, implements tasks, no PR yet (opened once at Clean Exit).
 2. `full` only: update LOOP.md Stacked PRs table (branch, PR URL, base)
@@ -164,7 +164,7 @@ After all phases: tick `- [x] dev-implement-plan`, record `Mode: sequential` in 
 
 ### Step A.5 — QA (iteration 1 only)
 
-Run `dev-qa` on the feature branch → `docs/<feature-name>/QA.md`. QA runs once after first implementation only. Commit QA tests, then record HEAD SHA as `last_review_base` in LOOP.md.
+Run `dev-qa` (same mode) on `<work-branch>` → `docs/<feature-name>/QA.md`. QA runs once after first implementation only. Commit QA tests, then record HEAD SHA as `last_review_base` in LOOP.md.
 
 ### Step B — Review
 
@@ -172,7 +172,7 @@ Diff base:
 - Iteration 1: `git diff main...HEAD`
 - Iteration 2+: `git diff <last_review_base>...HEAD`
 
-Run `dev-code-review` → `docs/<feature-name>/REVIEW.md`. Parse `## Machine-Readable Verdict` YAML for `verdict`, `critical`, `high`, `medium`, `low`, `blocking_ids`.
+Run `dev-code-review` (same mode) → `docs/<feature-name>/REVIEW.md`. Parse `## Machine-Readable Verdict` YAML for `verdict`, `critical`, `high`, `medium`, `low`, `blocking_ids`.
 
 Update LOOP.md: tick `- [x] dev-code-review`, fill iteration table, update `last_review_base` to current HEAD.
 
@@ -199,10 +199,10 @@ After any fix path: increment `current_iteration` in LOOP.md, append:
 
 **§3.C.1 — Direct fix (Medium/Low only):**
 
-Fix on the last phase branch (`<feature>/phase-N`). Do not update `PLAN.md`.
+Fix on `<work-branch>`. Do not update `PLAN.md`.
 ```bash
 git add -u && git commit -m "fix: address review findings from iteration N"
-git push origin <feature>/phase-N
+git push origin <work-branch>
 ```
 Tick `- [x] decide`. Increment iteration. Go to Step B (skip Step A).
 
@@ -210,23 +210,23 @@ Tick `- [x] decide`. Increment iteration. Go to Step B (skip Step A).
 
 **§3.C.2 — Parallel fix agents (High findings):**
 
-Fix base is `<feature>/phase-N`. Group findings by work domain — same domain (e.g. two backend handlers) → one group; genuinely independent domains (backend + frontend) → separate groups. Findings sharing a type, interface, config, or test fixture → same group.
+Fix base is `<work-branch>`. Group findings by work domain — same domain (e.g. two backend handlers) → one group; genuinely independent domains (backend + frontend) → separate groups. Findings sharing a type, interface, config, or test fixture → same group.
 
 If groups exceed `max_agents`, merge smallest until within limit.
 
 For each group:
-1. Create worktree off `<feature>/phase-N`: `.worktrees/<feature>-fix-<group-id>`
+1. Create worktree off `<work-branch>`: `.worktrees/<feature>-fix-<group-id>`
 2. Spawn agent for that group's finding IDs
 
-After all complete: merge all worktrees to `<feature>/phase-N`, remove worktrees, push. Tick `- [x] decide`. Increment iteration. Go to Step B.
+After all complete: merge all worktrees to `<work-branch>`, remove worktrees, push. Tick `- [x] decide`. Increment iteration. Go to Step B.
 
 ---
 
 **§3.C.3 — Fix phase in PLAN.md (High findings too large for a patch):**
 
-Use when a finding reveals a missing abstraction or schema migration — not a targeted code change. First check adding a phase won't exceed `max_phases`; if it would, fall back to §3.C.2.
+Use when a finding reveals a missing abstraction or schema migration — not a targeted code change. First check adding a phase won't exceed `max_phases`; if it would, fall back to §3.C.2. `lite` has no phases to add to — fall back to §3.C.2 there too.
 
-On `<feature>/phase-N`, append to `PLAN.md`:
+On `<work-branch>`, append to `PLAN.md`:
 ```
 ### Phase N+1: <descriptive name>
 - [ ] TASK-NNN: Fix [HIGH-001] <title> — <one-line description>
