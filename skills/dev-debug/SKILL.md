@@ -10,6 +10,8 @@ Reproduce → isolate → fix → verify. Never guess at a fix before reproducin
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
+Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
+
 - `lite` (default) — one commit for test + fix together.
 - `full` — §5 as written: regression test committed separately before the fix.
 - `ultra` — reproduce and fix in an isolated worktree/branch when the bug requires touching shared or risky state; merge once verified.
@@ -58,6 +60,8 @@ If the full suite reveals new failures your fix introduced, address them before 
 ## 5. Regression Test
 
 If no test caught this bug, add one that would have.
+
+Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
 
 **`lite` (default):**
 ```bash

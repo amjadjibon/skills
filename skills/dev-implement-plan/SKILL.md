@@ -10,6 +10,8 @@ Execute a `PLAN.md` produced by `dev-create-plan`: work through phases in order,
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
+Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
+
 - `lite` (default) — ignore phase boundaries: one branch, one implementation commit (plus the plan-status docs commits from §2/§8), one PR at the end covering every task.
 - `full` — current behavior: §3 as written, one branch + one stacked PR per phase.
 - `ultra` — phases marked `**Parallel**: yes` (no shared deps) build in separate git worktrees off `main`/the previous phase at the same time; merge each into the stack once its tasks and completion criteria pass, then continue stacking the sequential phases.
@@ -40,7 +42,7 @@ Execute a `PLAN.md` produced by `dev-create-plan`: work through phases in order,
 Read the entire plan before touching code.
 
 1. **Check `status`:** `Planned` → fresh start. `In progress` → resume (§5). `Completed`/`Deprecated` → stop and confirm. `On Hold` → ask before resuming.
-2. **Sync (only if remote exists).** `git remote | head -1`. If configured: `git fetch origin`, rebase onto `origin/main` (or `origin/master`). Skip if no remote.
+2. **Sync (only if remote exists).** `git remote | head -1`. If configured: `git fetch origin`, rebase onto `origin/main` (or `origin/master`). Skip if no remote. **Never rebase when phase branches are already pushed** (`git ls-remote --heads origin '<feature-name>/phase-*'` returns anything) — rebasing rewrites the stacked PRs' history; warn and continue unrebased instead.
 3. **Check working copy** is clean — uncommitted unrelated changes will contaminate phase commits. Warn user if found.
 4. **Mark started.** Own commit before any implementation: set `status: 'In progress'`, `last_updated: <today>`, update badge. Commit: `docs: start <feature-name> implementation`
 
@@ -76,9 +78,8 @@ For each phase (`full`):
 Rules:
 - **Tick checkboxes one at a time** in the plan file as each task finishes. The checkbox edit goes into the same phase commit. Never tick a box for unverified work.
 - **Use the commit message the plan specifies.** If the plan's message no longer fits, write an accurate one and note the deviation (§6).
-- **No `Co-authored-by:` trailers.**
-- **Commit messages: ≤72 chars, imperative, why-focused.**
-- **Check `git status` before staging** — don't commit build output or `.env`. Never `git add -A`.
+- Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
+- **Check `git status` before staging** — don't commit build output or `.env`.
 - **Completion criteria are gates.** If they fail, fix the phase before committing.
 - **Tasks within a phase are sequential** unless genuinely independent domains (backend + frontend, service A + service B) with no shared types or fixtures.
 - **Keep history linear.** Sync via rebase, not merge.

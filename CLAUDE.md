@@ -31,6 +31,16 @@ description: <one-line description used for skill discovery and triggering>
 
 The `description` field is critical — it's what Claude Code uses to match user intent to the skill and decide when to invoke it automatically.
 
+## Validation
+
+After editing any SKILL.md, CLAUDE.md, or README.md, run:
+
+```bash
+python3 scripts/validate.py
+```
+
+It checks frontmatter, code-fence nesting, cross-skill references, doc coverage, and the canonical convention lines (commit hygiene, mode parsing). Must pass before committing.
+
 ## Adding a New Skill
 
 Use the `skill-creator` skill to create and iterate on new skills:

@@ -10,6 +10,8 @@ Establish confidence in a feature or codebase through systematic test coverage a
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
+Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
+
 - `lite` (default) — §6 as written: one commit, one branch, one PR for all new tests.
 - `full` — one branch per module/gap category (`<feature-name>/qa-<module>`), each with its own commit and stacked PR.
 - `ultra` — independent test suites written in parallel worktrees, merged and reported together.
@@ -76,6 +78,8 @@ After:  78% overall  |  auth/handler.go: 89%
 If a gap remains, note why (e.g. "dead code path", "requires live Stripe webhook — marked as manual test").
 
 ## 6. Commit
+
+Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
 
 **`lite` (default):**
 ```bash

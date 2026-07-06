@@ -13,6 +13,8 @@ Create `docs/<feature-name>/PLAN.md` for autonomous execution by agents or human
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
+Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
+
 - `lite` (default) — one phase, one branch, single PR at the end. Collapse the template into a single "Phase 1".
 - `full` — current behavior: one phase per unit of work, stacked branches (`<feature>/phase-N` off `phase-N-1`), one PR per phase.
 - `ultra` — like `full`, but mark phases with no shared dependencies `**Parallel**: yes` so `dev-implement-plan`/`dev-loop` can build them in separate worktrees off `main` instead of stacking.
@@ -38,7 +40,7 @@ If `docs/<feature-name>/RESEARCH.md` exists, read it — the plan follows its re
 3. `lite` (default): single phase, single branch `<feature-name>`, one PR at the end. `full`: stacked PRs — phase 1 off `main`, phase N off phase N-1, branches `<feature-name>/phase-1`, `<feature-name>/phase-2`, …
 4. PR titles: imperative ≤60 chars, never prefix with `phase N`.
 
-Commit hygiene: `git add -u` for tracked files, explicit paths for new. Never `git add -A`. No `Co-authored-by:`. Subject ≤72 chars.
+Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
 
 ## Status badges
 

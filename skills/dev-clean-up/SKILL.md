@@ -10,6 +10,8 @@ Audit first, act second. Always show what will be removed before removing it.
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
+Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
+
 - `lite` (default) — branches only: audit branches (the branch/ref commands in §1), then §2–§4. Skip worktrees and issues.
 - `full` — everything in §1–§6 as written.
 - `ultra` — same as `full`; there's nothing here to parallelize into worktrees — this skill is what removes them.

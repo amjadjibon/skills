@@ -26,6 +26,8 @@ You are the **orchestrator agent**. Given a task description, drive the full cyc
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
+Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
+
 - `lite` (default) — single branch `<feature-name>`, no phase branches, one PR at the end.
 - `full` — phases run sequentially on stacked branches/PRs, as in §0–§4 below.
 - `ultra` — phases with no shared dependencies get their own worktree off `main` and build in parallel (extends §2 Worktree Management beyond fix agents to implementation phases); merge each into the stack once done.
@@ -76,12 +78,51 @@ Run `dev-review-plan`. Parse the verdict:
 
 ### 1d. Initialise LOOP.md
 
-Create `docs/<feature-name>/LOOP.md` with:
-- Frontmatter: `feature`, `task`, `branch`, `started`, `max_iterations: 3`, `max_phases: 5`, `max_agents: 3`, `current_iteration: 1`, `status: running`, `last_review_base: ''`
-- Iteration table (cols: Iter / Verdict / Crit / High / Med / Low / Mode / Action) — row 1 all `—`
-- Stacked PRs table (cols: Phase / Branch / PR URL / Base / Status) — one row per phase, Status: `pending`
-- Active Worktrees table (cols: Worktree path / Branch / Purpose / Status) — initially empty
-- Log section: `### Iteration 1` with four unchecked items: `dev-implement-plan`, `dev-qa`, `dev-code-review`, `decide`
+Create `docs/<feature-name>/LOOP.md` from this template — the loop parses it to resume, so keep the structure exact:
+
+````markdown
+---
+feature: <feature-name>
+task: <original task description>
+branch: <feature-name>
+started: <YYYY-MM-DD>
+max_iterations: 3
+max_phases: 5
+max_agents: 3
+current_iteration: 1
+status: running
+last_review_base: ''
+---
+
+# Dev Loop: <feature-name>
+
+## Iterations
+
+| Iter | Verdict | Crit | High | Med | Low | Mode | Action |
+|------|---------|------|------|-----|-----|------|--------|
+| 1    | —       | —    | —    | —   | —   | —    | —      |
+
+## Stacked PRs
+
+| Phase | Branch | PR URL | Base | Status |
+|-------|--------|--------|------|--------|
+| 1     | <feature-name>/phase-1 | — | main | pending |
+
+<!-- one row per phase from PLAN.md; `lite` mode: single row, branch <feature-name> -->
+
+## Active Worktrees
+
+| Worktree path | Branch | Purpose | Status |
+|---------------|--------|---------|--------|
+
+## Log
+
+### Iteration 1
+- [ ] dev-implement-plan
+- [ ] dev-qa
+- [ ] dev-code-review
+- [ ] decide
+````
 
 Commit: `git add docs/<feature-name>/LOOP.md && git commit -m "chore: init dev loop for <feature-name>"`
 
@@ -312,9 +353,7 @@ Resume any time with /dev-loop.
 
 ## 5. Commit Discipline
 
-- `git add -u` for tracked files; explicit paths for new files. Never `git add -A`
-- No `Co-authored-by:` trailers
-- Subject ≤ 72 chars, imperative mood, explain why not what
+Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
 
 | Commit source | Message pattern |
 |---------------|----------------|

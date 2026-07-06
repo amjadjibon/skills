@@ -10,6 +10,8 @@ Improve code structure without changing observable behavior. Tests must pass bef
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
+Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
+
 - `lite` (default) — squash all steps into one commit on the current branch.
 - `full` — §3 as written: one commit per step, same branch.
 - `ultra` — independent refactor targets (no shared files/types) each get their own branch + worktree, committed and PR'd separately, merged after tests pass.
@@ -65,6 +67,8 @@ Apply these when the code shows the smell — don't apply them speculatively.
 
 ## 5. Commit & Report
 
+Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
+
 `lite` (default): `git add -u && git commit -m "refactor: <summary of all steps>"` — one commit for everything. `full`: already committed per step in §3; nothing left to commit here.
 
 ```
@@ -75,4 +79,4 @@ Changes: <bullet list of what was restructured>
 Behavior unchanged: <yes | note any edge cases you couldn't verify>
 ```
 
-If no remote is configured, skip push. Otherwise: `git push origin <branch>`.
+Push: only if a remote is configured and you're on a feature branch — `git push origin <branch>`. On `main`/`master`, ask before pushing. When called by `dev-loop`: don't push, the loop pushes after user approval.

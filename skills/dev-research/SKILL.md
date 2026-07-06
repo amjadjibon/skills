@@ -12,9 +12,11 @@ Research is read-mostly. The only code written is throwaway spikes, and they nev
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
+Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
+
 - `lite` (default) — answer from reading code and docs; no spikes unless a claim can't be verified any other way.
 - `full` — evaluate each candidate approach with a small runnable spike; keep the spikes in `docs/<feature-name>/spikes/` for reference.
-- `ultra` — one research agent per independent question or candidate, in parallel worktrees; the orchestrator merges findings into a single RESEARCH.md.
+- `ultra` — one research agent per independent question or candidate, in parallel; research is read-mostly, so plain sub-agents suffice — use a worktree only for a candidate that needs a spike. The orchestrator merges findings into a single RESEARCH.md.
 
 ## 1. Frame the Question
 
@@ -128,6 +130,8 @@ Reply with: the answer (2-3 sentences), the file path, sources, remaining assump
 ```
 
 ## 7. Commit & Report
+
+Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
 
 ```bash
 git add docs/<feature-name>/RESEARCH.md && git commit -m "research: <feature-name>"

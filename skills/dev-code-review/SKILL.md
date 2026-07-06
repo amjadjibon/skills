@@ -10,6 +10,8 @@ Review code changes — correctness, security, simplicity — and write findings
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
+Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
+
 Applies only if asked to also apply fixes — the review pass itself is unaffected.
 
 - `lite` (default) — apply fixes on the current branch, one commit.
@@ -150,7 +152,7 @@ Only flag when tests exist in the diff. Missing tests → Low finding, not a blo
 
 ## 5. Write REVIEW.md
 
-Save to `docs/<feature-name>/REVIEW.md`:
+Save to `docs/<feature-name>/REVIEW.md`. Overwriting a previous pass is intentional — REVIEW.md always reflects the latest review; per-iteration history lives in dev-loop's LOOP.md iteration table.
 
 ```markdown
 ---

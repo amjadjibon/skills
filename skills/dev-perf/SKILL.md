@@ -10,6 +10,8 @@ Measure → profile → optimize → verify. Never optimize without a measured b
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
+Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
+
 - `lite` (default) — one commit covering every optimization.
 - `full` — §4/§6 as written: one commit per bottleneck fixed, same branch.
 - `ultra` — independent optimization candidates get their own worktree/branch, benchmarked in parallel; merge only the ones that clear the improvement bar.
@@ -78,6 +80,8 @@ Delta:  -92% p50   -94% p99
 If improvement is below 10%, revert and look elsewhere.
 
 ## 6. Commit
+
+Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
 
 ```bash
 git add -u && git commit -m "perf: <what changed> — p99 2100ms → 120ms"
