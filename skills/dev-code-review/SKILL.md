@@ -1,5 +1,5 @@
 ---
-name: code-review
+name: dev-code-review
 description: Review code changes for correctness bugs, security issues, and simplification opportunities, then write findings to docs/<feature-name>/REVIEW.md. Use this skill whenever the user says "review this", "code review", "review my PR", "check this code", "security review", "audit this", or asks for feedback on a diff, branch, or set of files. Also trigger when the user has just finished implementing something and wants a quality check before merging.
 argument-hint: "[lite|full|ultra]"
 ---

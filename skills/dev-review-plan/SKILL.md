@@ -1,5 +1,5 @@
 ---
-name: review-plan
+name: dev-review-plan
 description: Review a PLAN.md before implementation — check for vague tasks, missing completion criteria, risky assumptions, incorrect phase ordering, and scope issues. Write findings to docs/<feature-name>/PLAN-REVIEW.md with a verdict. Use when the user says "review the plan", "check the plan", "is this plan ready", "validate the plan", or before running implement-plan on a new plan.
 argument-hint: "[lite|full|ultra]"
 ---
@@ -18,7 +18,7 @@ Catch problems before implementation begins. A bad plan found now costs minutes;
 
 - Named feature → `docs/<feature-name>/PLAN.md`
 - Otherwise → `ls docs/*/PLAN.md`; prefer `status: Planned` over `In progress`
-- If none found, say so and offer to create one with `create-plan`
+- If none found, say so and offer to create one with `dev-create-plan`
 
 ## 2. Review Checklist
 

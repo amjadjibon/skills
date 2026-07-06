@@ -50,16 +50,16 @@ To add manually:
 
 ## Existing Skills
 
-- **create-plan** — Writes `docs/<feature-name>/PLAN.md` with phased, checkbox-driven steps ready for autonomous execution.
-- **implement-plan** — Executes a `PLAN.md` produced by `create-plan`, ticking checkboxes and committing each phase.
-- **code-review** — Reviews a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature-name>/REVIEW.md`.
-- **dev-loop** — Orchestrates the full `create-plan → implement-plan → code-review → fix → re-review` cycle autonomously, spawning parallel agents in isolated worktrees and pausing only for user approval before pushing.
-- **refactor** — Restructures code without changing behavior. Establishes a test baseline, applies changes in small verifiable steps, commits each step.
-- **debug** — Reproduce → isolate → fix → verify loop. Commits the failing test before the fix for traceable history.
-- **perf** — Measure baseline → profile → optimize one bottleneck at a time → benchmark. Includes before/after numbers in commit messages.
-- **review-plan** — Reviews a PLAN.md before implementation for vague tasks, missing criteria, bad phase ordering, and scope issues. Writes `docs/<feature-name>/PLAN-REVIEW.md` with a machine-readable verdict.
-- **qa** — Measures test coverage, identifies untested paths, writes missing tests, and produces `docs/<feature-name>/QA.md` with before/after coverage numbers.
-- **clean-up** — Housekeeping: remove merged local/remote branches, prune stale tracking refs, close resolved issues and merged PRs, remove leftover worktrees. Audits before acting.
+- **dev-create-plan** — Writes `docs/<feature-name>/PLAN.md` with phased, checkbox-driven steps ready for autonomous execution.
+- **dev-implement-plan** — Executes a `PLAN.md` produced by `dev-create-plan`, ticking checkboxes and committing each phase.
+- **dev-code-review** — Reviews a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature-name>/REVIEW.md`.
+- **dev-loop** — Orchestrates the full `dev-create-plan → dev-implement-plan → dev-code-review → fix → re-review` cycle autonomously, spawning parallel agents in isolated worktrees and pausing only for user approval before pushing.
+- **dev-refactor** — Restructures code without changing behavior. Establishes a test baseline, applies changes in small verifiable steps, commits each step.
+- **dev-debug** — Reproduce → isolate → fix → verify loop. Commits the failing test before the fix for traceable history.
+- **dev-perf** — Measure baseline → profile → optimize one bottleneck at a time → benchmark. Includes before/after numbers in commit messages.
+- **dev-review-plan** — Reviews a PLAN.md before implementation for vague tasks, missing criteria, bad phase ordering, and scope issues. Writes `docs/<feature-name>/PLAN-REVIEW.md` with a machine-readable verdict.
+- **dev-qa** — Measures test coverage, identifies untested paths, writes missing tests, and produces `docs/<feature-name>/QA.md` with before/after coverage numbers.
+- **dev-clean-up** — Housekeeping: remove merged local/remote branches, prune stale tracking refs, close resolved issues and merged PRs, remove leftover worktrees. Audits before acting.
 
 ## Skill Pipeline
 
@@ -67,9 +67,9 @@ Skills are designed to compose:
 
 ```text
 dev-loop
-  └─ create-plan  →  review-plan  →  implement-plan  →  qa  →  code-review
-                                            ↑                         │
-                                            └──── fix agents ─────────┘ (parallel, per-finding)
+  └─ dev-create-plan  →  dev-review-plan  →  dev-implement-plan  →  dev-qa  →  dev-code-review
+                                                    ↑                                 │
+                                                    └──── fix agents ─────────────────┘ (parallel, per-finding)
 ```
 
 Plans live in `docs/<feature-name>/PLAN.md`; reviews in `docs/<feature-name>/REVIEW.md`.
@@ -81,6 +81,6 @@ Artifacts produced during a dev-loop session accumulate under `docs/`. Each feat
 ```text
 docs/
   <feature-name>/
-    PLAN.md     # created by create-plan, mutated by implement-plan
-    REVIEW.md   # created/overwritten each review pass by code-review
+    PLAN.md     # created by dev-create-plan, mutated by dev-implement-plan
+    REVIEW.md   # created/overwritten each review pass by dev-code-review
 ```

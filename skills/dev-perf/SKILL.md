@@ -1,5 +1,5 @@
 ---
-name: perf
+name: dev-perf
 description: Profile, optimize, and benchmark code performance — measure baseline first, find the real bottleneck, optimize one thing at a time, confirm improvement with numbers. Use when the user says "it's slow", "optimize this", "improve performance", "reduce latency", "profile this", "it's taking too long", or shares timing/benchmark output.
 argument-hint: "[lite|full|ultra]"
 ---

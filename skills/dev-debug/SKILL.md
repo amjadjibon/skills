@@ -1,5 +1,5 @@
 ---
-name: debug
+name: dev-debug
 description: Systematically debug a failing test, error, or unexpected behavior — reproduce, isolate root cause, fix minimally, verify. Use when the user says "debug", "fix this bug", "it's broken", "this is failing", "why is this happening", or shares an error message, stack trace, or failing test output.
 argument-hint: "[lite|full|ultra]"
 ---
@@ -40,7 +40,7 @@ State your hypothesis explicitly before writing any fix:
 ## 3. Fix Minimally
 
 - Change only what's needed to fix the root cause
-- Don't refactor, rename, or clean up adjacent code while fixing — that's a separate `refactor` session
+- Don't refactor, rename, or clean up adjacent code while fixing — that's a separate `dev-refactor` session
 - If the fix requires a larger structural change, note it and fix the symptom for now
 
 ## 4. Verify

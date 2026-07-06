@@ -1,5 +1,5 @@
 ---
-name: create-plan
+name: dev-create-plan
 description: Create a new plan file for new features, refactoring existing code or upgrading packages, design, architecture or infrastructure. Trigger when the user says "create a plan", "make an implementation plan", "plan for this feature", "write a plan before we start", "plan this refactor", "plan this upgrade", or any request to document steps before starting work. Also trigger when the user mentions wanting a structured approach, phased rollout, or task checklist for a coding task. Use this skill proactively whenever implementation complexity warrants a written plan before jumping into code.
 argument-hint: "[lite|full|ultra]"
 ---
@@ -15,7 +15,7 @@ Create `docs/<feature-name>/PLAN.md` for autonomous execution by agents or human
 
 - `lite` — one phase, one branch, single PR at the end. Collapse the template into a single "Phase 1".
 - `full` (default) — current behavior: one phase per unit of work, stacked branches (`<feature>/phase-N` off `phase-N-1`), one PR per phase.
-- `ultra` — like `full`, but mark phases with no shared dependencies `**Parallel**: yes` so `implement-plan`/`dev-loop` can build them in separate worktrees off `main` instead of stacking.
+- `ultra` — like `full`, but mark phases with no shared dependencies `**Parallel**: yes` so `dev-implement-plan`/`dev-loop` can build them in separate worktrees off `main` instead of stacking.
 
 ## Step 0 — Research First
 

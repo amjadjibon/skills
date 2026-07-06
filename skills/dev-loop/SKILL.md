@@ -9,7 +9,7 @@ argument-hint: "[lite|full|ultra]"
 You are the **orchestrator agent**. Given a task description, drive the full cycle:
 
 ```
-[task] → create-plan → implement (agents) → code-review
+[task] → dev-create-plan → implement (agents) → dev-code-review
                             ↑                      |
             merge worktrees |       ┌──────────────┘
                             └──── fix agents (parallel)
@@ -70,11 +70,11 @@ Read 3–5 key files to understand existing patterns. State assumptions in the p
 
 ### 1c. Create the plan
 
-Run `create-plan` in autonomous mode → `docs/<feature-name>/PLAN.md` on branch `<feature-name>`.
+Run `dev-create-plan` in autonomous mode → `docs/<feature-name>/PLAN.md` on branch `<feature-name>`.
 
 ### 1c.5. Review the plan
 
-Run `review-plan`. Parse the verdict:
+Run `dev-review-plan`. Parse the verdict:
 - `Ready` → proceed to §1d
 - `Needs Revision` → apply all Revise findings in a single commit (`docs: revise plan based on review`), then proceed
 - `Blocked` → stop, report blocking findings; do not proceed
@@ -86,7 +86,7 @@ Create `docs/<feature-name>/LOOP.md` with:
 - Iteration table (cols: Iter / Verdict / Crit / High / Med / Low / Mode / Action) — row 1 all `—`
 - Stacked PRs table (cols: Phase / Branch / PR URL / Base / Status) — one row per phase, Status: `pending`
 - Active Worktrees table (cols: Worktree path / Branch / Purpose / Status) — initially empty
-- Log section: `### Iteration 1` with four unchecked items: `implement-plan`, `qa`, `code-review`, `decide`
+- Log section: `### Iteration 1` with four unchecked items: `dev-implement-plan`, `dev-qa`, `dev-code-review`, `decide`
 
 Commit: `git add docs/<feature-name>/LOOP.md && git commit -m "chore: init dev loop for <feature-name>"`
 
@@ -164,14 +164,14 @@ Action required: split the plan or increase max_phases in LOOP.md.
 ```
 
 Phases run sequentially. For each phase N:
-1. `implement-plan` creates branch `<feature>/phase-N`, implements tasks, opens stacked PR
+1. `dev-implement-plan` creates branch `<feature>/phase-N`, implements tasks, opens stacked PR
 2. Update LOOP.md Stacked PRs table (branch, PR URL, base)
 
-After all phases: tick `- [x] implement-plan`, record `Mode: sequential` in iteration table.
+After all phases: tick `- [x] dev-implement-plan`, record `Mode: sequential` in iteration table.
 
 ### Step A.5 — QA (iteration 1 only)
 
-Run `qa` on the feature branch → `docs/<feature-name>/QA.md`. QA runs once after first implementation only. Commit QA tests, then record HEAD SHA as `last_review_base` in LOOP.md.
+Run `dev-qa` on the feature branch → `docs/<feature-name>/QA.md`. QA runs once after first implementation only. Commit QA tests, then record HEAD SHA as `last_review_base` in LOOP.md.
 
 ### Step B — Review
 
@@ -179,9 +179,9 @@ Diff base:
 - Iteration 1: `git diff main...HEAD`
 - Iteration 2+: `git diff <last_review_base>...HEAD`
 
-Run `code-review` → `docs/<feature-name>/REVIEW.md`. Parse `## Machine-Readable Verdict` YAML for `verdict`, `critical`, `high`, `medium`, `low`, `blocking_ids`.
+Run `dev-code-review` → `docs/<feature-name>/REVIEW.md`. Parse `## Machine-Readable Verdict` YAML for `verdict`, `critical`, `high`, `medium`, `low`, `blocking_ids`.
 
-Update LOOP.md: tick `- [x] code-review`, fill iteration table, update `last_review_base` to current HEAD.
+Update LOOP.md: tick `- [x] dev-code-review`, fill iteration table, update `last_review_base` to current HEAD.
 
 ### Step C — Decide
 
@@ -197,8 +197,8 @@ Update LOOP.md: tick `- [x] code-review`, fill iteration table, update `last_rev
 After any fix path: increment `current_iteration` in LOOP.md, append:
 ```markdown
 ### Iteration N+1
-- [ ] implement-plan (or "fix only — no re-implement")
-- [ ] code-review
+- [ ] dev-implement-plan (or "fix only — no re-implement")
+- [ ] dev-code-review
 - [ ] decide
 ```
 
@@ -262,7 +262,7 @@ On approval:
 1. Set LOOP.md `status: complete`; commit: `chore: dev loop complete for <feature-name>`
 2. Verify `git worktree list` is clean
 3. Confirm all phase PRs are open: `gh pr list --head "<feature-name>/phase-*"`. Open any missing ones
-4. Run `clean-up`
+4. Run `dev-clean-up`
 5. Report:
 ```
 Loop complete: <feature-name>

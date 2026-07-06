@@ -1,5 +1,5 @@
 ---
-name: clean-up
+name: dev-clean-up
 description: Housekeeping — remove merged local and remote branches, prune stale remote tracking refs, close resolved GitHub issues and merged PRs, clean up leftover worktrees. Use when the user says "clean up", "cleanup", "prune branches", "remove merged branches", "close issues", "tidy up", "housekeeping", or "delete old branches".
 argument-hint: "[lite|full|ultra]"
 ---
