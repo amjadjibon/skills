@@ -19,7 +19,26 @@ A collection of custom [Claude Code](https://claude.ai/code) skills.
 
 ## Usage
 
-Install a skill directly from this repository using `npx skills`:
+### As a plugin (recommended)
+
+This repo is a Claude Code plugin (`.claude-plugin/plugin.json`, name `dev-skills`). Install it from a marketplace:
+
+```text
+/plugin marketplace add https://github.com/amjadjibon/skills
+/plugin install dev-skills
+```
+
+Or load it straight from a local clone, no install needed:
+
+```sh
+claude --plugin-dir /path/to/skills
+```
+
+Skills from a plugin are namespaced: invoke as `/dev-skills:dev-create-plan`, `/dev-skills:dev-loop`, etc.
+
+### As standalone skills
+
+Install a single skill directly from this repository using `npx skills`:
 
 ```sh
 # Install a specific skill (personal, available in all projects)
@@ -41,7 +60,7 @@ mkdir -p .claude/skills/<skill-name>
 cp skills/<skill-name>/SKILL.md .claude/skills/<skill-name>/SKILL.md
 ```
 
-Then invoke it in a Claude Code session:
+Then invoke it in a Claude Code session (drop the `dev-skills:` prefix when installed standalone):
 
 ```text
 /dev-create-plan add rate limiting to the API
