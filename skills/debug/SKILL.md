@@ -1,11 +1,18 @@
 ---
 name: debug
 description: Systematically debug a failing test, error, or unexpected behavior — reproduce, isolate root cause, fix minimally, verify. Use when the user says "debug", "fix this bug", "it's broken", "this is failing", "why is this happening", or shares an error message, stack trace, or failing test output.
+argument-hint: "[lite|full|ultra]"
 ---
 
 # Debug
 
 Reproduce → isolate → fix → verify. Never guess at a fix before reproducing the problem.
+
+## Delivery Mode (`lite | full | ultra`, default `full`)
+
+- `lite` — one commit for test + fix together.
+- `full` (default) — §5 as written: regression test committed separately before the fix.
+- `ultra` — reproduce and fix in an isolated worktree/branch when the bug requires touching shared or risky state; merge once verified.
 
 ## 1. Reproduce
 

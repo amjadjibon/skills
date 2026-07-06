@@ -1,11 +1,18 @@
 ---
 name: implement-plan
 description: Execute an implementation plan from a docs/<feature-name>/PLAN.md file created by the create-plan skill. Trigger when the user says "implement the plan", "execute the plan", "run the plan", "work through the plan", "continue the plan", "resume the plan", "start phase 1", or points at any PLAN.md file and asks to build it. Also trigger when the user references a planned feature by name and wants implementation to begin, or when a plan was just created and the user says "go", "start", or "implement it". Use this skill whenever there is a PLAN.md to execute, even if the user doesn't say the word "plan".
+argument-hint: "[lite|full|ultra]"
 ---
 
 # Implement Plan
 
 Execute a `PLAN.md` produced by `create-plan`: work through phases in order, tick checkboxes as tasks complete, commit each phase, and keep the plan file an accurate progress record. Someone interrupted mid-plan must be able to resume from the file alone.
+
+## Delivery Mode (`lite | full | ultra`, default `full`)
+
+- `lite` — ignore phase boundaries: one branch, one commit, one PR at the end covering every task.
+- `full` (default) — current behavior: §3 as written, one branch + one stacked PR per phase.
+- `ultra` — phases marked `**Parallel**: yes` (no shared deps) build in separate git worktrees off `main`/the previous phase at the same time; merge each into the stack once its tasks and completion criteria pass, then continue stacking the sequential phases.
 
 ## Execution Principles
 

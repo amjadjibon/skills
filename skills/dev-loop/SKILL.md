@@ -1,6 +1,7 @@
 ---
 name: dev-loop
 description: Run an autonomous plan → implement → review loop for a feature. Iterates until the code review passes, fixing findings between iterations and pausing for user approval before closing. Use when the user says "loop on this", "keep going until it passes review", "autonomous dev loop", "plan implement and review", or wants a self-correcting agent workflow for a feature.
+argument-hint: "[lite|full|ultra]"
 ---
 
 # Dev Loop — Autonomous Multi-Agent Orchestrator
@@ -23,9 +24,17 @@ You are the **orchestrator agent**. Given a task description, drive the full cyc
 
 ---
 
+## Delivery Mode (`lite | full | ultra`, default `full`)
+
+- `lite` — single branch `<feature-name>`, no phase branches, one PR at the end.
+- `full` (default) — phases run sequentially on stacked branches/PRs, as in §0–§4 below.
+- `ultra` — phases with no shared dependencies get their own worktree off `main` and build in parallel (extends §2 Worktree Management beyond fix agents to implementation phases); merge each into the stack once done.
+
+---
+
 ## 0. Parallelism Rules
 
-**Phases always run sequentially** — stacked PRs require it.
+**Phases always run sequentially** — stacked PRs require it. (`ultra` mode is the exception — see Delivery Mode above.)
 
 **Fix agents run in parallel only when domains are genuinely independent** — different service boundaries (backend API + frontend UI, auth + notifications), not just different files. If fixes share a type, interface, config, or test fixture → single agent.
 

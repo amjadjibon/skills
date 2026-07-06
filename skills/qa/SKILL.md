@@ -1,11 +1,18 @@
 ---
 name: qa
 description: Quality assurance for a feature or codebase — analyse test coverage, identify untested paths, write missing tests (unit, integration, e2e), and produce a QA report. Use when the user says "QA this", "write tests", "improve test coverage", "add tests for", "test this feature", "what's not tested", or wants a quality gate before release.
+argument-hint: "[lite|full|ultra]"
 ---
 
 # QA
 
 Establish confidence in a feature or codebase through systematic test coverage analysis and test writing. Distinct from `debug` (which adds a regression test for a known bug) and `code-review` (which flags missing tests as findings) — QA actively writes the missing tests.
+
+## Delivery Mode (`lite | full | ultra`, default `lite`)
+
+- `lite` (default) — §6 as written: one commit, one PR for all new tests.
+- `full` — split tests by module/gap category into separate commits on stacked branches/PRs.
+- `ultra` — independent test suites written in parallel worktrees, merged and reported together.
 
 ## 1. Define Scope
 

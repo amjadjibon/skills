@@ -1,11 +1,20 @@
 ---
 name: code-review
 description: Review code changes for correctness bugs, security issues, and simplification opportunities, then write findings to docs/<feature-name>/REVIEW.md. Use this skill whenever the user says "review this", "code review", "review my PR", "check this code", "security review", "audit this", or asks for feedback on a diff, branch, or set of files. Also trigger when the user has just finished implementing something and wants a quality check before merging.
+argument-hint: "[lite|full|ultra]"
 ---
 
 # Code Review
 
 Review code changes — correctness, security, simplicity — and write findings to `docs/<feature-name>/REVIEW.md`.
+
+## Delivery Mode (`lite | full | ultra`, default `lite`)
+
+Applies only if asked to also apply fixes — the review pass itself is unaffected.
+
+- `lite` (default) — apply fixes on the current branch, one commit.
+- `full` — group fixes by category (security, correctness, simplicity) into separate stacked branches/PRs.
+- `ultra` — spawn one fix agent per independent finding cluster in its own worktree, in parallel (the mechanism `dev-loop` §3.C.2 uses), merge after.
 
 ## 1. Identify What to Review
 

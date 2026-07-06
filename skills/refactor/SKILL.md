@@ -1,11 +1,18 @@
 ---
 name: refactor
 description: Refactor existing code without changing behavior — extract functions, reduce duplication, simplify logic, improve naming. Establishes a test baseline before touching anything and verifies equivalence after each change. Use when the user says "refactor this", "clean up", "simplify", "extract", "reduce duplication", "improve naming", or points at code and asks for structural improvement without new features.
+argument-hint: "[lite|full|ultra]"
 ---
 
 # Refactor
 
 Improve code structure without changing observable behavior. Tests must pass before and after every change.
+
+## Delivery Mode (`lite | full | ultra`, default `full`)
+
+- `lite` — squash all steps into one commit on the current branch.
+- `full` (default) — §3 as written: one commit per step, same branch.
+- `ultra` — independent refactor targets (no shared files/types) each get their own branch + worktree, committed and PR'd separately, merged after tests pass.
 
 ## 1. Identify Scope
 

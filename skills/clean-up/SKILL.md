@@ -1,11 +1,18 @@
 ---
 name: clean-up
 description: Housekeeping — remove merged local and remote branches, prune stale remote tracking refs, close resolved GitHub issues and merged PRs, clean up leftover worktrees. Use when the user says "clean up", "cleanup", "prune branches", "remove merged branches", "close issues", "tidy up", "housekeeping", or "delete old branches".
+argument-hint: "[lite|full|ultra]"
 ---
 
 # Clean Up
 
 Audit first, act second. Always show what will be removed before removing it.
+
+## Delivery Mode (`lite | full | ultra`, default `full`)
+
+- `lite` — branches only: §2–§4.
+- `full` (default) — everything in §1–§7 as written.
+- `ultra` — same as `full`; there's nothing here to parallelize into worktrees — this skill is what removes them.
 
 ## 1. Audit
 
