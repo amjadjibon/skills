@@ -10,8 +10,8 @@ Establish confidence in a feature or codebase through systematic test coverage a
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
-- `lite` (default) — §6 as written: one commit, one PR for all new tests.
-- `full` — split tests by module/gap category into separate commits on stacked branches/PRs.
+- `lite` (default) — §6 as written: one commit, one branch, one PR for all new tests.
+- `full` — one branch per module/gap category (`<feature-name>/qa-<module>`), each with its own commit and stacked PR.
 - `ultra` — independent test suites written in parallel worktrees, merged and reported together.
 
 ## 1. Define Scope
@@ -77,8 +77,19 @@ If a gap remains, note why (e.g. "dead code path", "requires live Stripe webhook
 
 ## 6. Commit
 
+**`lite` (default):**
 ```bash
 git add <test files> && git commit -m "test: add QA coverage for <feature>"
+git push -u origin <feature-name>   # skip if no remote
+gh pr create --base main --title "test: add QA coverage for <feature>" --body "<summary of gaps closed>"
+```
+
+**`full`:** for each module/gap category, on its own branch stacked off the previous one:
+```bash
+git checkout -b <feature-name>/qa-<module>   # base = previous qa branch or main
+git add <test files for this module> && git commit -m "test: add QA coverage for <module>"
+git push -u origin <feature-name>/qa-<module>
+gh pr create --base <previous-branch-or-main> --title "test: add QA coverage for <module>" --body "<gaps closed in this module>"
 ```
 
 ## 7. QA Report
@@ -124,4 +135,5 @@ QA complete: <feature-name>
 Coverage: <before>% → <after>%
 Tests added: <N>
 Remaining gaps: <N> (see QA.md)
+PR: <url> (lite) | PRs: <url per module, stacked> (full)
 ```
