@@ -33,6 +33,8 @@
       "Bash(gh issue view:*)",
       "Bash(gh run list:*)",
       "Bash(gh run watch:*)",
+      "WebSearch",
+      "WebFetch"
     ],
     "deny": [
       "Bash(git push --force:*)",
