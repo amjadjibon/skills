@@ -51,6 +51,7 @@
       "Bash(jq:*)",
       "Bash(which:*)",
       "Bash(echo:*)",
+      "Bash(python3 -c:*)",
       "WebSearch",
       "WebFetch"
     ],
