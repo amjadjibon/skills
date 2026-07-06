@@ -50,6 +50,7 @@ To add manually:
 
 ## Existing Skills
 
+- **dev-research** — Investigates a codebase, approach, or technology before planning; compares candidates, verifies claims with spikes, writes `docs/<feature-name>/RESEARCH.md` with a recommendation.
 - **dev-create-plan** — Writes `docs/<feature-name>/PLAN.md` with phased, checkbox-driven steps ready for autonomous execution.
 - **dev-implement-plan** — Executes a `PLAN.md` produced by `dev-create-plan`, ticking checkboxes and committing each phase.
 - **dev-code-review** — Reviews a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature-name>/REVIEW.md`.
@@ -67,9 +68,9 @@ Skills are designed to compose:
 
 ```text
 dev-loop
-  └─ dev-create-plan  →  dev-review-plan  →  dev-implement-plan  →  dev-qa  →  dev-code-review
-                                                    ↑                                 │
-                                                    └──── fix agents ─────────────────┘ (parallel, per-finding)
+  └─ dev-research  →  dev-create-plan  →  dev-review-plan  →  dev-implement-plan  →  dev-qa  →  dev-code-review
+     (optional)                                                       ↑                                 │
+                                                                      └──── fix agents ─────────────────┘ (parallel, per-finding)
 ```
 
 Plans live in `docs/<feature-name>/PLAN.md`; reviews in `docs/<feature-name>/REVIEW.md`.
@@ -81,6 +82,7 @@ Artifacts produced during a dev-loop session accumulate under `docs/`. Each feat
 ```text
 docs/
   <feature-name>/
+    RESEARCH.md # created by dev-research (optional, pre-plan)
     PLAN.md     # created by dev-create-plan, mutated by dev-implement-plan
     REVIEW.md   # created/overwritten each review pass by dev-code-review
 ```

@@ -50,6 +50,7 @@ If a skill doesn't show up after install, run `/reload-plugins` (or restart the 
 
 | Skill | Description |
 | ----- | ----------- |
+| [dev-research](skills/dev-research/SKILL.md) | Research a codebase, approach, or technology before planning — compare candidates, verify claims with runnable spikes, write `docs/<feature>/RESEARCH.md` with a recommendation. |
 | [dev-create-plan](skills/dev-create-plan/SKILL.md) | Create a structured `docs/<feature>/PLAN.md` with phases, tasks, and verifiable completion criteria. Branches, commits the plan, and integrates git at phase boundaries. |
 | [dev-implement-plan](skills/dev-implement-plan/SKILL.md) | Execute a `PLAN.md` produced by `dev-create-plan` — tick checkboxes as tasks complete, commit each phase, handle deviations, and open a PR on completion. |
 | [dev-code-review](skills/dev-code-review/SKILL.md) | Review a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature>/REVIEW.md` with severity ratings. |
@@ -59,7 +60,7 @@ If a skill doesn't show up after install, run `/reload-plugins` (or restart the 
 | [dev-perf](skills/dev-perf/SKILL.md) | Profile, optimize, and benchmark — measure baseline first, find the real bottleneck, optimize one thing at a time, confirm improvement with numbers. |
 | [dev-review-plan](skills/dev-review-plan/SKILL.md) | Review a PLAN.md before implementation — catch vague tasks, missing completion criteria, risky assumptions, and scope issues. Writes findings to `docs/<feature>/PLAN-REVIEW.md`. |
 | [dev-qa](skills/dev-qa/SKILL.md) | Quality assurance — measure test coverage, identify untested paths, write missing unit/integration/e2e tests, produce a QA report with before/after coverage numbers. |
-| [dev-clean-up](skills/dev-clean-up/SKILL.md) | Housekeeping — remove merged local and remote branches, prune stale tracking refs, close resolved GitHub issues and merged PRs, clean up leftover worktrees. |
+| [dev-clean-up](skills/dev-clean-up/SKILL.md) | Housekeeping — remove merged local and remote branches, prune stale tracking refs, close resolved GitHub issues, clean up leftover worktrees. |
 
 ## Usage
 
@@ -102,12 +103,12 @@ Then invoke it in a Claude Code session (drop the `dev-skills:` prefix when inst
 
 ```text
 dev-loop
-  └─ dev-create-plan  →  dev-implement-plan  →  dev-code-review
-                                ↑                       │
-                                └── fix agents ──────────┘ (parallel, per-finding)
+  └─ dev-research  →  dev-create-plan  →  dev-implement-plan  →  dev-code-review
+     (optional)                                 ↑                       │
+                                                └── fix agents ──────────┘ (parallel, per-finding)
 ```
 
-Output artifacts land in `docs/<feature>/`: `PLAN.md` (created by `dev-create-plan`, updated by `dev-implement-plan`), `PLAN-REVIEW.md` (`dev-review-plan`), `QA.md` (`dev-qa`), `REVIEW.md` (written each pass by `dev-code-review`), and `LOOP.md` (dev-loop state).
+Output artifacts land in `docs/<feature>/`: `RESEARCH.md` (`dev-research`, optional pre-plan), `PLAN.md` (created by `dev-create-plan`, updated by `dev-implement-plan`), `PLAN-REVIEW.md` (`dev-review-plan`), `QA.md` (`dev-qa`), `REVIEW.md` (written each pass by `dev-code-review`), and `LOOP.md` (dev-loop state).
 
 ## Adding a Skill
 
