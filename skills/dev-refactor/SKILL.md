@@ -41,7 +41,7 @@ For each step:
 1. Make the change
 2. Run tests — must still pass
 3. If tests break, revert the step and explain why the refactor isn't safe as written
-4. Commit: `git add -u && git commit -m "refactor: <what changed and why>"`
+4. Commit — `full`: `git add -u && git commit -m "refactor: <what changed and why>"` after this step. `lite` (default): don't commit yet, continue to the next step; commit once at the end (§5) covering all steps.
 
 **Rules:**
 - Touch only what's needed for the refactor. Don't fix unrelated bugs or add features.
@@ -65,11 +65,11 @@ Apply these when the code shows the smell — don't apply them speculatively.
 
 ## 5. Commit & Report
 
-After all steps:
+`lite` (default): `git add -u && git commit -m "refactor: <summary of all steps>"` — one commit for everything. `full`: already committed per step in §3; nothing left to commit here.
 
 ```
 Refactor complete: <target>
-Steps: <N> commits
+Steps: <N> (1 commit | N commits)
 Tests: passing
 Changes: <bullet list of what was restructured>
 Behavior unchanged: <yes | note any edge cases you couldn't verify>

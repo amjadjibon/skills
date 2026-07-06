@@ -10,7 +10,7 @@ Audit first, act second. Always show what will be removed before removing it.
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
-- `lite` (default) — branches only: §2–§4.
+- `lite` (default) — branches only: audit branches (the branch/ref commands in §1), then §2–§4. Skip worktrees, PRs, and issues.
 - `full` — everything in §1–§7 as written.
 - `ultra` — same as `full`; there's nothing here to parallelize into worktrees — this skill is what removes them.
 

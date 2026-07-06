@@ -63,6 +63,8 @@ Fix the top bottleneck only. Re-measure before moving to the next — earlier fi
 
 Rules: touch only the hot path; keep the change small enough that before/after is obvious in the diff; tests must still pass.
 
+`full` mode: re-measure and commit (§5/§6) after each bottleneck, then repeat §3–§6 for the next one. `lite` mode (default): repeat §3–§5 for each bottleneck internally, but hold the commit until every bottleneck is fixed — §6 becomes one commit at the end.
+
 ## 5. Measure Again
 
 Re-run the exact same benchmark from §2:
@@ -81,7 +83,7 @@ If improvement is below 10%, revert and look elsewhere.
 git add -u && git commit -m "perf: <what changed> — p99 2100ms → 120ms"
 ```
 
-Include before/after numbers in the commit message.
+`lite`: one commit listing every optimization and its combined before/after numbers. `full`: one commit per bottleneck, each with its own before/after numbers.
 
 ## 7. Report
 

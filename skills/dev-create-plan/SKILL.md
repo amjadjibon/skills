@@ -31,8 +31,8 @@ Read 3–5 key files (routing, middleware, error handling, tests). Record findin
 
 1. `git checkout -b <feature-name>`
 2. Commit plan: `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`
-3. Stacked PRs: phase 1 off `main`, phase N off phase N-1. PR titles: imperative ≤60 chars, never prefix with `phase N`.
-4. Branches: `<feature-name>/phase-1`, `<feature-name>/phase-2`, …
+3. `lite` (default): single phase, single branch `<feature-name>`, one PR at the end. `full`: stacked PRs — phase 1 off `main`, phase N off phase N-1, branches `<feature-name>/phase-1`, `<feature-name>/phase-2`, …
+4. PR titles: imperative ≤60 chars, never prefix with `phase N`.
 
 Commit hygiene: `git add -u` for tracked files, explicit paths for new. Never `git add -A`. No `Co-authored-by:`. Subject ≤72 chars.
 
@@ -127,7 +127,7 @@ Write a one-paragraph summary of changes and commit SHA.
 Do NOT push, open PRs, or modify PLAN.md.
 ```
 
-Repeat this block per phase.
+`lite` (default): write one "Phase 1" covering the whole feature — don't repeat this block. `full`/`ultra`: repeat this block per phase.
 
 ---
 

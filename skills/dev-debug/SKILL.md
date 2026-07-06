@@ -57,13 +57,19 @@ If the full suite reveals new failures your fix introduced, address them before 
 
 ## 5. Regression Test
 
-If no test caught this bug, add one that would have:
+If no test caught this bug, add one that would have.
 
+**`lite` (default):**
+```bash
+git add <test file> && git add -u && git commit -m "fix: <root cause summary> (with regression test)"
+```
+One commit for test + fix together.
+
+**`full`:**
 ```bash
 git add <test file> && git add -u && git commit -m "test: reproduce <bug summary>"
 git add -u && git commit -m "fix: <root cause summary>"
 ```
-
 Commit the failing test first (as a separate commit), then the fix. This makes the cause visible in history.
 
 If adding a test isn't feasible (e.g. no test suite, integration-only bug), note why.

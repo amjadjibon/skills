@@ -44,11 +44,11 @@ Read the entire plan before touching code.
 
 ## 3. Phase Execution Protocol
 
-Each phase runs on its own branch and gets a stacked PR.
+`full`: each phase runs on its own branch and gets a stacked PR (as below). `lite` (default): skip the per-phase checkout/push/PR steps below — stay on one branch `<feature-name>`, tick checkboxes and run completion criteria per phase as usual, but commit and push only once, after every phase is done (§8).
 
-**Branch naming:** `<feature-name>/phase-<N>` — e.g. `rate-limit-login/phase-1`.
+**Branch naming (`full` only):** `<feature-name>/phase-<N>` — e.g. `rate-limit-login/phase-1`.
 
-For each phase:
+For each phase (`full`):
 
 ```
 1. git checkout -b <feature-name>/phase-<N>   # base = previous phase or main
@@ -115,9 +115,9 @@ Run/write each `TEST-NNN` item and tick its checkbox. If tests belong to a phase
 Done when every `- [ ]` is `- [x]` (or annotated as blocked with user sign-off):
 
 1. Set `status: 'Completed'`, `last_updated: <today>`, update badge
-2. Commit on last phase branch: `docs: complete <feature-name> plan`
+2. `full`: commit on last phase branch: `docs: complete <feature-name> plan` — PRs already open per phase. `lite`: `git add -u && git commit -m "docs: complete <feature-name> plan"` on `<feature-name>`, then push and open the single PR: `git push -u origin <feature-name> && gh pr create --base main --title "<imperative ≤60 chars>" --body "<summary + task list + completion criteria>"`
 
-Report:
+Report (`full`):
 ```
 Plan complete: docs/<feature-name>/PLAN.md
 Phases: <N> — one PR per phase, stacked
@@ -128,8 +128,17 @@ Deviations: <none | list>
 Verification: <what was run>
 ```
 
-**Merging order:** Phase 1 first — GitHub auto-retargets later PRs after phase 1 merges.
+Report (`lite`):
+```
+Plan complete: docs/<feature-name>/PLAN.md
+Phases: <N> — single branch, single PR
+PR: <url>  (base: main)
+Deviations: <none | list>
+Verification: <what was run>
+```
 
-If no remote: skip push steps, tell user branches are ready locally.
+**Merging order (`full` only):** Phase 1 first — GitHub auto-retargets later PRs after phase 1 merges.
+
+If no remote: skip push steps, tell user the branch is ready locally.
 
 If interrupted mid-plan: leave `status: 'In progress'`, ensure finished tasks are ticked and partial work committed, summarize where to resume.

@@ -154,9 +154,11 @@ Cannot proceed: PLAN.md has N phases but max_phases is M.
 Action required: split the plan or increase max_phases in LOOP.md.
 ```
 
+Pass the loop's delivery mode straight through to `dev-create-plan`/`dev-implement-plan` — they honor the same `lite`/`full`/`ultra` semantics.
+
 Phases run sequentially. For each phase N:
-1. `dev-implement-plan` creates branch `<feature>/phase-N`, implements tasks, opens stacked PR
-2. Update LOOP.md Stacked PRs table (branch, PR URL, base)
+1. `dev-implement-plan` — `full`: creates branch `<feature>/phase-N`, implements tasks, opens stacked PR. `lite` (default): stays on branch `<feature-name>`, implements tasks, no PR yet (opened once at Clean Exit).
+2. `full` only: update LOOP.md Stacked PRs table (branch, PR URL, base)
 
 After all phases: tick `- [x] dev-implement-plan`, record `Mode: sequential` in iteration table.
 
@@ -254,15 +256,21 @@ Approve to push and open PR, or ask me to continue fixing?
 On approval:
 1. Set LOOP.md `status: complete`; commit: `chore: dev loop complete for <feature-name>`
 2. Verify `git worktree list` is clean
-3. Confirm all phase PRs are open: `gh pr list --head "<feature-name>/phase-*"`. Open any missing ones
+3. `full`: confirm all phase PRs are open: `gh pr list --head "<feature-name>/phase-*"`. Open any missing ones. `lite`: push `<feature-name>` and open the single PR if not already open: `gh pr create --base main --title "<imperative ≤60 chars>" --body "<summary>"`
 4. Run `dev-clean-up`
-5. Report:
+5. Report (`full`):
 ```
 Loop complete: <feature-name>
 Iterations: N  |  Final verdict: Approve
 Stacked PRs (merge in order):
   phase-1: <url>  → base: main
   phase-2: <url>  → base: phase-1
+```
+Report (`lite`):
+```
+Loop complete: <feature-name>
+Iterations: N  |  Final verdict: Approve
+PR: <url>  → base: main
 ```
 
 ### Blocked Exit — set `status: blocked`
