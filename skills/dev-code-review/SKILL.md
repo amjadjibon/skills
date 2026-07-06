@@ -223,7 +223,7 @@ Finding numbering: `CRIT-`, `HIGH-`, `MED-`, `LOW-`, `INFO-` with zero-padded se
 
 **Always** append at the very end of `REVIEW.md` — parsed by `dev-loop`:
 
-```markdown
+````markdown
 ## Machine-Readable Verdict
 
 ```yaml
@@ -235,7 +235,7 @@ low: <N>
 info: <N>
 blocking_ids: [<CRIT-001>, <HIGH-002>]
 ```
-```
+````
 
 Rules:
 - `Approve` → no Critical or High

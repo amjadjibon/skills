@@ -67,7 +67,7 @@ Work through each category. Only raise real issues.
 
 Save to `docs/<feature-name>/PLAN-REVIEW.md`:
 
-```markdown
+````markdown
 ---
 date: <YYYY-MM-DD>
 plan: docs/<feature-name>/PLAN.md
@@ -114,7 +114,7 @@ revise: <N>
 suggest: <N>
 blocking_ids: [<BLOCK-001>, ...]
 ```
-```
+````
 
 **Verdict rules:**
 - `Ready` — no Block or Revise findings
