@@ -29,7 +29,26 @@ gh run list --branch main --limit 1 --json conclusion   # latest CI must be succ
 
 Any failure → stop and report. Releasing a red or stale main ships broken code with a version number on it.
 
-## 2. Derive the Version
+## 2. Detect Existing Release Automation
+
+Before doing anything by hand, find out what the repo already automates:
+
+```bash
+ls .github/workflows/ 2>/dev/null
+grep -rlE "tags:|goreleaser|semantic-release|release-please|changesets|npm publish|cargo publish|gh release" .github/workflows/ 2>/dev/null
+ls .goreleaser.yml .goreleaser.yaml .releaserc* release-please-config.json .changeset 2>/dev/null
+```
+
+Adapt to what exists — duplicating automation produces double releases or conflicting tags:
+
+- **Release-manager tool** (`release-please`, `semantic-release`, `changesets`) — it owns versioning and changelogs. **Do not hand-tag.** Follow its flow instead: merge its release PR, or run its command (`npx changeset version`, etc.), then verify the release appeared.
+- **Tag-triggered workflow** (`on: push: tags`, goreleaser, publish steps) — the tag is the trigger. Push the tag but **skip `gh release create`** (CI does it); watch with `gh run watch` and report the workflow's release/artifacts.
+- **Release-triggered workflow** (`on: release`) — `gh release create` is the trigger; proceed as written below, then watch the run.
+- **Nothing found** — proceed manually as written below.
+
+Read the matched workflow before deciding — a workflow that only runs tests on tags changes nothing.
+
+## 3. Derive the Version
 
 ```bash
 git describe --tags --abbrev=0 2>/dev/null   # last tag; none → this is v0.1.0, skip bump logic
@@ -40,13 +59,13 @@ Bump from conventional commit types since the last tag: any `!` suffix or `BREAK
 
 If the user named a version, use it — but flag if it disagrees with the derived bump.
 
-## 3. Changelog
+## 4. Changelog
 
 Group the `<last-tag>..HEAD` subjects: **Breaking** / **Features** (`feat:`) / **Fixes** (`fix:`) / **Performance** (`perf:`) — drop `chore:`/`docs:`/`ci:` noise and merge commits. One line per change, PR/issue refs kept (`#42`).
 
 `full`/`ultra`: prepend to `CHANGELOG.md` under `## vX.Y.Z — YYYY-MM-DD` (create the file if missing, [Keep a Changelog](https://keepachangelog.com) shape).
 
-## 4. Bump Version Files (`full`/`ultra` only)
+## 5. Bump Version Files (`full`/`ultra` only)
 
 Detect and update whichever exist: `package.json` (`npm version --no-git-tag-version X.Y.Z`), `Cargo.toml`, `pyproject.toml`, `VERSION`. None found → skip, note it.
 
@@ -56,7 +75,7 @@ Commit hygiene: `git add -u` for tracked files, explicit paths for new files, ne
 git add CHANGELOG.md <version files> && git commit -m "chore: release vX.Y.Z"
 ```
 
-## 5. Confirm, Tag, Publish
+## 6. Confirm, Tag, Publish
 
 **Pause for approval** — show version, bump reasoning, and the changelog; tags and releases are public and painful to retract. On approval:
 
@@ -67,10 +86,12 @@ git push origin vX.Y.Z
 gh release create vX.Y.Z --title "vX.Y.Z" --notes "<changelog section>"   # lite: --generate-notes is fine
 ```
 
+Per §2: skip `gh release create` when a tag-triggered workflow publishes the release; skip tagging entirely when a release-manager tool owns it. After publishing, if any workflow fired: `gh run watch` — a release whose pipeline failed isn't released.
+
 `ultra`: tag `vX.Y.Z-rc.1` and `gh release create --prerelease` instead; on user confirmation ("promote"), repeat with the final tag and mark the release latest.
 
 No remote / no `gh` → create the local tag, print the changelog, tell the user what to push.
 
-## 6. Report
+## 7. Report
 
-Version (and previous) · bump reason (the commit types that drove it) · commit count · release URL · anything skipped (no version files, no CI). If pre-release: how to promote.
+Version (and previous) · bump reason (the commit types that drove it) · commit count · release URL · automation found and how it was used (or "none — manual release") · CI run result · anything skipped (no version files, no CI). If pre-release: how to promote.
