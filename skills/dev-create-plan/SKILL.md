@@ -112,7 +112,7 @@ You are a sub-agent implementing Phase N of <feature-name>.
 
 Context: <1-2 sentences: what the feature does and what this phase contributes.>
 
-Branch: <feature-name>/phase-N  |  Base: <feature-name>/phase-N-1 (main for Phase 1)
+Branch: <feature-name> (`lite`) or <feature-name>/phase-N (`full`/`ultra`)  |  Base: main (`lite` or Phase 1) or <feature-name>/phase-N-1 (`full`/`ultra`, later phases)
 
 Tasks:
 - TASK-00X: <exact description>
