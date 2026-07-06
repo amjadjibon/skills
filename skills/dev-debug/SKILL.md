@@ -6,84 +6,48 @@ argument-hint: "[lite|full|ultra]"
 
 # Debug
 
-Reproduce → isolate → fix → verify. Never guess at a fix before reproducing the problem.
+Reproduce → isolate → fix → verify. Never guess at a fix before reproducing.
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
-- `lite` (default) — one commit for test + fix together.
-- `full` — §5 as written: regression test committed separately before the fix.
-- `ultra` — reproduce and fix in an isolated worktree/branch when the bug requires touching shared or risky state; merge once verified.
+- `lite` (default) — one commit: test + fix together.
+- `full` — regression test committed separately before the fix (cause visible in history).
+- `ultra` — reproduce and fix in an isolated worktree when the bug touches shared/risky state; merge once verified.
 
 ## 1. Reproduce
 
-Get a reliable reproduction before touching any code:
-
-```bash
-# Run the failing test / command the user described
-<test or command>
-```
-
-If you can't reproduce it, stop and ask for more context — environment, input, frequency. A fix you can't verify is a guess.
+Get a reliable reproduction before touching code. Can't reproduce → stop, ask for environment/input/frequency. A fix you can't verify is a guess.
 
 ## 2. Isolate Root Cause
 
-Work inward from the symptom to the cause. Don't fix the first thing that looks suspicious.
+Work from symptom inward — don't fix the first suspicious thing:
 
-- Read the full stack trace top to bottom — the root cause is usually near the bottom, not the top
-- Add temporary logging or assertions to confirm your hypothesis before changing code
-- If multiple things look wrong, pick the deepest one — surface symptoms often disappear when the root is fixed
-- Check recent commits if the bug is a regression: `git log --oneline -20`, `git bisect` if needed
+- Read the full stack trace; the root cause is usually near the bottom.
+- Confirm the hypothesis with temporary logging/assertions before changing code.
+- Multiple suspects → pick the deepest; surface symptoms vanish when the root is fixed.
+- Regression? `git log --oneline -20`, `git bisect` if needed.
 
-State your hypothesis explicitly before writing any fix:
-> "Root cause: `<what>` because `<why>`."
+State it before fixing: "Root cause: `<what>` because `<why>`."
 
 ## 3. Fix Minimally
 
-- Change only what's needed to fix the root cause
-- Don't refactor, rename, or clean up adjacent code while fixing — that's a separate `dev-refactor` session
-- If the fix requires a larger structural change, note it and fix the symptom for now
+Change only what the root cause requires. No adjacent refactoring/renames — that's a `dev-refactor` session. If the real fix needs structural change, note it and fix the symptom for now.
 
 ## 4. Verify
 
-```bash
-# Re-run the reproduction case — must pass
-<test or command>
-
-# Run the full test suite — must not regress
-<full test command>
-```
-
-If the full suite reveals new failures your fix introduced, address them before committing.
+Re-run the reproduction (must pass) and the full suite (must not regress). New failures your fix introduced → address before committing.
 
 ## 5. Regression Test
 
-If no test caught this bug, add one that would have.
+If no test caught this bug, add one that would have. Not feasible (no suite, integration-only) → note why.
 
 Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
 
-**`lite` (default):**
-```bash
-git add <test file> && git add -u && git commit -m "fix: <root cause summary> (with regression test)"
-```
-One commit for test + fix together.
-
-**`full`:**
-```bash
-git add <test file> && git add -u && git commit -m "test: reproduce <bug summary>"
-git add -u && git commit -m "fix: <root cause summary>"
-```
-Commit the failing test first (as a separate commit), then the fix. This makes the cause visible in history.
-
-If adding a test isn't feasible (e.g. no test suite, integration-only bug), note why.
+`lite`: `git add <test file> && git add -u && git commit -m "fix: <root cause> (with regression test)"`.
+`full`: `git commit -m "test: reproduce <bug>"` first, then `git commit -m "fix: <root cause>"`.
 
 ## 6. Report
 
-```
-Bug: <one-line description of what was wrong>
-Root cause: <what caused it>
-Fix: <what changed and why>
-Verified: <test name or command that now passes>
-Regression test: <added | not applicable — reason>
-```
+Bug (one line) · root cause · fix (what and why) · verified by (test/command) · regression test (added | n/a — reason).

@@ -6,23 +6,19 @@ argument-hint: "[lite|full|ultra]"
 
 # QA
 
-Establish confidence in a feature or codebase through systematic test coverage analysis and test writing. Distinct from `dev-debug` (which adds a regression test for a known bug) and `dev-code-review` (which flags missing tests as findings) — QA actively writes the missing tests.
+Systematic coverage analysis + writing the missing tests. Distinct from `dev-debug` (regression test for a known bug) and `dev-code-review` (flags gaps as findings) — QA writes the tests.
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
-- `lite` (default) — §6 as written: one commit, one branch, one PR for all new tests.
-- `full` — one branch per module/gap category (`<feature-name>/qa-<module>`), each with its own commit and stacked PR.
+- `lite` (default) — one commit, one branch, one PR for all new tests.
+- `full` — one branch per module (`<feature-name>/qa-<module>`), stacked PRs.
 - `ultra` — independent test suites written in parallel worktrees, merged and reported together.
 
-## 1. Define Scope
+## 1. Scope
 
-- **Feature** — a named feature or set of files (e.g. "the auth module", "the payment flow")
-- **Diff** — `git diff main...HEAD` — test what was changed in this branch
-- **Full codebase** — run coverage and find the gaps
-
-If scope is ambiguous, ask before proceeding.
+**Feature** (named files/module) · **Diff** (`git diff main...HEAD`) · **Full codebase** (coverage-driven). Ambiguous → ask.
 
 ## 2. Measure Current Coverage
 
@@ -30,77 +26,37 @@ If scope is ambiguous, ask before proceeding.
 go test ./... -coverprofile=coverage.out && go tool cover -func=coverage.out | tail -1  # Go
 npx vitest run --coverage                                                               # Node/TS
 pytest --cov=. --cov-report=term-missing                                                # Python
-go tool cover -html=coverage.out   # Go — opens browser with per-line coverage
 ```
 
-Record: **overall %**, and the specific **files/functions with the lowest coverage**. Don't write tests until you know where the gaps are.
+Record overall % and the lowest-coverage files/functions. Don't write tests before knowing the gaps.
 
-## 3. Identify What Needs Testing
+## 3. Identify Gaps
 
-For each file or function in scope, classify coverage gaps:
-
-| Gap type | Priority |
-| -------- | -------- |
-| Happy path not tested | High |
-| Error / failure paths not tested | High |
-| Boundary conditions (zero, empty, max, nil) | High |
-| Auth / permission checks not tested | High |
-| Concurrent or async behaviour | Medium |
-| Integration with external service | Medium |
-| Unlikely edge cases already handled in code | Low |
-
-List the gaps explicitly before writing any tests. A test plan written up front prevents duplicate tests and missed paths.
+Classify per file/function — **High**: happy path, error/failure paths, boundaries (zero/empty/max/nil), auth/permission checks · **Medium**: concurrency/async, external-service integration · **Low**: unlikely edge cases already handled. List gaps before writing — an upfront test plan prevents duplicates and misses.
 
 ## 4. Write Tests
 
-Work through the gap list from High to Low. For each test:
+High → Low:
 
-- One behaviour per test — not one file per test
-- Name describes the scenario: `TestCreateUser_DuplicateEmail_Returns409`, not `TestCreateUser2`
-- Test the observable behaviour, not the implementation — tests that break on rename/refactor without behaviour change are noise
-- Unhappy paths are as important as happy paths — an untested error handler is an untested promise
-- Use real dependencies where fast enough; mock only at system boundaries (external HTTP, email, payment processor)
+- One behaviour per test; name = scenario (`TestCreateUser_DuplicateEmail_Returns409`, not `TestCreateUser2`).
+- Test observable behaviour, not implementation — tests that break on rename are noise.
+- Unhappy paths matter as much as happy — an untested error handler is an untested promise.
+- Real dependencies where fast enough; mock only system boundaries (external HTTP, email, payments).
+- Run each new test as written — confirm it passes, and fails when it should.
 
-```bash
-# Run after writing each test to confirm it passes (and fails when it should)
-<test command> -run TestYourNewTest
-```
+## 5. Verify Improvement
 
-## 5. Verify Coverage Improved
-
-Re-run coverage from §2. Compare:
-
-```
-Before: 61% overall  |  auth/handler.go: 34%
-After:  78% overall  |  auth/handler.go: 89%
-```
-
-If a gap remains, note why (e.g. "dead code path", "requires live Stripe webhook — marked as manual test").
+Re-run §2, compare (`Before: 61% | auth/handler.go: 34%` → `After: 78% | 89%`). Remaining gaps get a reason ("dead code", "needs live Stripe webhook — manual test").
 
 ## 6. Commit
 
 Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
 
-**`lite` (default):**
-```bash
-git add <test files> && git commit -m "test: add QA coverage for <feature>"
-git push -u origin <feature-name>   # skip if no remote
-gh pr create --base main --title "test: add QA coverage for <feature>" --body "<summary of gaps closed>"
-```
-
-**Called by `dev-loop`:** commit only — no push, no PR. The loop pushes and opens the PR at Clean Exit after user approval.
-
-**`full`:** for each module/gap category, on its own branch stacked off the previous one:
-```bash
-git checkout -b <feature-name>/qa-<module>   # base = previous qa branch or main
-git add <test files for this module> && git commit -m "test: add QA coverage for <module>"
-git push -u origin <feature-name>/qa-<module>
-gh pr create --base <previous-branch-or-main> --title "test: add QA coverage for <module>" --body "<gaps closed in this module>"
-```
+**`lite`**: `git add <test files> && git commit -m "test: add QA coverage for <feature>"`, push, `gh pr create --base main`. **`full`**: per module on its own stacked branch `<feature-name>/qa-<module>`. **Called by `dev-loop`**: commit only — the loop pushes and opens the PR after user approval.
 
 ## 7. QA Report
 
-Write to `docs/<feature-name>/QA.md`:
+Write `docs/<feature-name>/QA.md`:
 
 ```markdown
 ---
@@ -113,33 +69,17 @@ coverage_after: <N%>
 # QA Report: <feature-name>
 
 ## Coverage
-
 | File | Before | After |
 | ---- | ------ | ----- |
-| path/to/file.go | 34% | 89% |
 
 ## Tests Added
-
-- `TestFoo_HappyPath` — <what it covers>
-- `TestFoo_InvalidInput_Returns400` — <what it covers>
+- `TestName` — <what it covers>
 
 ## Remaining Gaps
-
-- `path/to/file.go:142` — <why not covered>
+- `path/file.go:142` — <why not covered>
 
 ## Manual Test Cases
-
-Steps that can't be automated (external webhooks, browser flows, third-party OAuth):
-
-- [ ] <Step-by-step manual test>
+- [ ] <steps that can't be automated — webhooks, browser flows, OAuth>
 ```
 
-Report to caller:
-
-```
-QA complete: <feature-name>
-Coverage: <before>% → <after>%
-Tests added: <N>
-Remaining gaps: <N> (see QA.md)
-PR: <url> (lite) | PRs: <url per module, stacked> (full)
-```
+Report to caller: coverage before → after, tests added, remaining gaps, PR URL(s).

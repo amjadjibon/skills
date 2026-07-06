@@ -12,90 +12,45 @@ Audit first, act second. Always show what will be removed before removing it.
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
-- `lite` (default) — branches only: audit branches (the branch/ref commands in §1), then §2–§4. Skip worktrees and issues.
-- `full` — everything in §1–§6 as written.
-- `ultra` — same as `full`; there's nothing here to parallelize into worktrees — this skill is what removes them.
+- `lite` (default) — branches only (§1 branch/ref audit, §2–§4). Skip worktrees and issues.
+- `full` — everything, §1–§6.
+- `ultra` — same as `full`; nothing to parallelize — this skill is what removes worktrees.
 
 ## 1. Audit
 
-Run all of these before touching anything:
+Run all before touching anything; present the audit; confirm before any destructive step.
 
 ```bash
-# Branches merged into main/master (safe to delete)
-git branch --merged main | grep -v '^\*\|main\|master\|develop'
-
-# Remote tracking refs that no longer exist on the remote
-git remote prune origin --dry-run
-
-# Leftover worktrees
+git branch --merged main | grep -v '^\*\|main\|master\|develop'   # merged local branches
+git remote prune origin --dry-run                                 # stale tracking refs
 git worktree list
-
-# Open issues that reference a merged PR or are labelled "resolved"
 gh issue list --state open --label resolved 2>/dev/null || true
 ```
 
-Present the full audit to the user before proceeding. Confirm before any destructive step.
-
-## 2. Remove Merged Local Branches
+## 2. Merged Local Branches
 
 ```bash
-# Delete branches already merged into main
-git branch --merged main \
-  | grep -v '^\*\|main\|master\|develop' \
-  | xargs -r git branch -d
+git branch --merged main | grep -v '^\*\|main\|master\|develop' | xargs -r git branch -d
 ```
 
-Skip: `main`, `master`, `develop`, the current branch (`*`), and any branch the user explicitly wants to keep.
+Never delete `main`/`master`/`develop`, the current branch, or anything the user wants kept.
 
-## 3. Remove Merged Remote Branches
+## 3. Merged Remote Branches
 
-```bash
-# For each merged branch identified in §1, delete from origin
-git push origin --delete <branch-name>
-```
+`git push origin --delete <branch>` — one at a time, confirm each succeeds. No bulk deletes.
 
-Do not bulk-delete. Delete one branch at a time and confirm each succeeds before moving on.
+## 4. Prune Tracking Refs
 
-## 4. Prune Remote Tracking Refs
+`git fetch --prune` — removes stale `origin/<branch>` pointers only; local branches untouched.
 
-```bash
-# Remove local refs to branches deleted on the remote
-git fetch --prune
-```
+## 5. Worktrees
 
-This is non-destructive to local branches — it only removes stale `origin/<branch>` pointers.
+For each worktree no longer needed (merged/abandoned): `git worktree remove <path> && git branch -d <branch>`. Uncommitted changes inside → warn, require explicit confirmation.
 
-## 5. Clean Up Worktrees
+## 6. Resolved Issues
 
-```bash
-git worktree list
-```
-
-For each worktree that is no longer needed (branch merged, work abandoned):
-
-```bash
-git worktree remove <path>
-git branch -d <branch>
-```
-
-If the worktree has uncommitted changes, warn the user — do not remove it without explicit confirmation.
-
-## 6. Close Resolved Issues
-
-```bash
-# Close issues linked to merged PRs or explicitly marked resolved
-gh issue close <number> --comment "Resolved — closing."
-```
-
-Only close issues where the resolution is clear: the linked PR merged, the issue is labelled `resolved`/`wontfix`, or the user says to close it. Do not close issues speculatively.
+`gh issue close <number> --comment "Resolved — closing."` — only when resolution is clear: linked PR merged, labelled `resolved`/`wontfix`, or user says so. Never speculatively.
 
 ## 7. Report
 
-```
-Cleaned up:
-  Local branches deleted:  <list or "none">
-  Remote branches deleted: <list or "none">
-  Remote refs pruned:      <N>
-  Worktrees removed:       <list or "none">
-  Issues closed:           <list or "none">
-```
+Local branches deleted · remote branches deleted · refs pruned · worktrees removed · issues closed (each: list or "none").

@@ -6,62 +6,49 @@ argument-hint: "[lite|full|ultra]"
 
 # Research
 
-Answer a question before code gets written: how does the existing system work, which approach fits, what will break. Output is `docs/<feature-name>/RESEARCH.md` — a recommendation `dev-create-plan` can consume directly.
-
-Research is read-mostly. The only code written is throwaway spikes, and they never merge.
+Answer a question before code gets written. Output: `docs/<feature-name>/RESEARCH.md` — a recommendation `dev-create-plan` consumes directly. Research is read-mostly; the only code written is throwaway spikes, never merged.
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
-- `lite` (default) — answer from reading code and docs; no spikes unless a claim can't be verified any other way.
-- `full` — evaluate each candidate approach with a small runnable spike; keep the spikes in `docs/<feature-name>/spikes/` for reference.
-- `ultra` — one research agent per independent question or candidate, in parallel; research is read-mostly, so plain sub-agents suffice — use a worktree only for a candidate that needs a spike. The orchestrator merges findings into a single RESEARCH.md.
+- `lite` (default) — answer from reading code and docs; spike only when nothing else can verify a claim.
+- `full` — spike each candidate; keep spikes in `docs/<feature-name>/spikes/`.
+- `ultra` — one agent per independent question, in parallel (plain sub-agents — worktree only for a candidate needing a spike); orchestrator merges into one RESEARCH.md.
 
 ## 1. Frame the Question
 
-Turn the request into 1–3 answerable questions. "Research caching" is not answerable; "should we cache session lookups in-process or in Redis, given multi-instance deployment?" is.
-
-- Named feature → `<feature-name>` is its kebab-case slug; findings go to `docs/<feature-name>/RESEARCH.md`
-- If the question is genuinely ambiguous, ask one focused question. In autonomous mode (called before `dev-loop`/`dev-create-plan`), don't ask — state the interpretation as an assumption and proceed.
+Turn the request into 1–3 answerable questions ("should we cache session lookups in-process or in Redis, given multi-instance deployment?" — not "research caching"). Named feature → kebab-case `<feature-name>`. Genuinely ambiguous → ask one focused question; in autonomous mode, state the interpretation as an assumption and proceed.
 
 ## 2. Read the Codebase First
 
-The answer is usually constrained by what already exists. Before evaluating anything external:
+The answer is usually constrained by what exists:
 
 ```bash
-git log --oneline -15                                   # recent direction
+git log --oneline -15
 ls docs/*/PLAN.md docs/*/RESEARCH.md 2>/dev/null        # prior art — don't re-research
 grep -rn "<relevant term>" --include="*.go" -l | head   # or *.ts, *.py
 ```
 
-Read the 3–5 files closest to the question. Record what the codebase already does: existing utilities, patterns, dependencies that cover part of the answer. An approach that reuses what's already installed beats a better approach that adds a dependency.
+Read the 3–5 closest files. Record existing utilities, patterns, and dependencies that cover part of the answer — reusing what's installed beats a better approach that adds a dependency.
 
 ## 3. Enumerate Candidates
 
-List 2–4 realistic options, always including the do-nothing / simplest baseline. For each candidate record, in one or two lines each:
-
-- What it is and what it costs (new dependency? migration? operational burden?)
-- How it interacts with the existing code found in §2
-- The main risk or unknown
-
-Kill candidates early — a candidate eliminated by a one-line fact ("library X requires Go 1.23, we're on 1.21") needs no further research.
+2–4 realistic options, always including do-nothing/simplest. Per candidate, 1–2 lines: what it costs (dependency? migration? ops?), how it interacts with §2 findings, the main risk. Kill early — a one-line disqualifier ("needs Go 1.23, we're on 1.21") ends that candidate's research.
 
 ## 4. Verify, Don't Speculate
 
-Every load-bearing claim in the recommendation must be verified or explicitly marked as an assumption:
+Every load-bearing claim is verified or marked as an assumption:
 
-- **Code behaviour** — read the actual source, not the README
-- **Performance claims** — a 10-line benchmark beats a blog post
-- **API/library capability** — a spike that compiles and runs; put it in `docs/<feature-name>/spikes/<candidate>/` (`full`), or a scratch dir deleted after (`lite`)
-- **Third-party API contracts / library docs** — fetch the official docs (WebFetch) or search the internet (WebSearch); prefer official docs over blog posts, and record the version the docs describe — API answers rot
-- **Unverifiable** (needs production data, third-party account, load) — record as `ASSUMPTION-*` with how to verify later
+- **Code behaviour** — read the source, not the README.
+- **Performance** — a 10-line benchmark beats a blog post.
+- **API/library capability** — a spike that compiles and runs (`docs/<feature-name>/spikes/<candidate>/` in `full`; scratch dir deleted after in `lite`).
+- **Third-party contracts/docs** — WebFetch the official docs or WebSearch; prefer official docs, record the version — API answers rot.
+- **Unverifiable** (needs prod data, third-party account, load) — `ASSUMPTION-*` with how to verify later.
 
-Spikes are throwaway: no tests, no error handling polish, never merged into application code.
+Spikes are throwaway: no tests, no polish, never merged.
 
 ## 5. Write RESEARCH.md
-
-Save to `docs/<feature-name>/RESEARCH.md`:
 
 ````markdown
 ---
@@ -74,46 +61,32 @@ recommendation: <one line>
 # Research: <feature-name>
 
 ## Question
-
-<The 1–3 questions from §1, as framed.>
+<the 1–3 questions>
 
 ## Recommendation
-
-**<Chosen approach>** — <2–3 sentences: why this one, what it costs, what the main risk is.>
+**<Chosen approach>** — <2–3 sentences: why, cost, main risk.>
 
 ## Candidates
-
 ### <Candidate A> — recommended
-- **Fit**: <how it uses/extends what exists>
-- **Cost**: <dependency, migration, ops>
-- **Verified**: <what was checked and how — file read, benchmark, spike>
-
+- **Fit**: <how it uses what exists> · **Cost**: <dependency/migration/ops> · **Verified**: <how>
 ### <Candidate B> — rejected
-- **Why rejected**: <the one-line disqualifier or trade-off>
+- **Why rejected**: <one-line disqualifier or trade-off>
 
 ## Findings
-
 - **FIND-001**: <verified fact, with file path or spike reference>
 
 ## Assumptions
-
 - **ASSUMPTION-001**: <unverified claim> — verify by: <how>
 
 ## Open Questions
-
-<Anything that must be answered during planning — or "none".>
+<must be answered during planning — or "none">
 ````
 
 ## 6. Sub-Agent Mode (called by another skill)
 
-`dev-create-plan`, `dev-implement-plan`, and `dev-loop` spawn research sub-agents for a single scoped question — a third-party API contract, a library's capability, an API doc, an internet search. In this mode:
+`dev-create-plan`, `dev-implement-plan`, and `dev-loop` spawn research sub-agents for one scoped question (third-party API contract, library capability, doc lookup, internet search). In this mode: one question, one answer — skip §3 unless the question is itself "which of these"; never ask the user; write to `docs/<feature-name>/research/<topic-slug>.md` (same template — topic files so parallel agents never clobber each other); don't commit, push, or touch PLAN.md/LOOP.md — the caller owns git. Return: the answer (2–3 sentences), the file path, sources (doc URL + version, file path, or spike), surviving `ASSUMPTION-*`.
 
-- **One question, one answer.** Skip the candidate matrix (§3) unless the question is itself "which of these"; go straight to §2/§4 verification.
-- **Never ask the user.** State interpretation as an assumption and proceed.
-- **Write to a topic file**, not RESEARCH.md: `docs/<feature-name>/research/<topic-slug>.md` — same template, so parallel research agents never clobber each other.
-- **Don't commit, push, or modify PLAN.md/LOOP.md** — the caller owns git. Return to the caller: the answer in 2–3 sentences, the topic file path, source (doc URL + version, file path, or spike), and any `ASSUMPTION-*` that survived.
-
-Sub-agent briefing template for callers:
+Briefing template for callers:
 
 ```
 You are a research sub-agent. Answer ONE question; do not write application code.
@@ -133,19 +106,6 @@ Reply with: the answer (2-3 sentences), the file path, sources, remaining assump
 
 Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
 
-```bash
-git add docs/<feature-name>/RESEARCH.md && git commit -m "research: <feature-name>"
-```
+`git add docs/<feature-name>/RESEARCH.md && git commit -m "research: <feature-name>"` (`full`: include `spikes/`). No push, no PR — research travels with the feature branch.
 
-`full`: include `docs/<feature-name>/spikes/` in the commit. No push, no PR — research artifacts travel with the feature branch `dev-create-plan` creates.
-
-Report to caller:
-
-```
-Research written to docs/<feature-name>/RESEARCH.md
-Status: <Concluded | Inconclusive>
-Recommendation: <one line>
-Assumptions to verify: <N>
-```
-
-If `Inconclusive`, list what's blocking a conclusion and what input would resolve it. If the recommendation is "do nothing", say so plainly — that is a valid conclusion, not a failure.
+Report: file path, status, one-line recommendation, assumption count. `Inconclusive` → list what's blocking and what input resolves it. "Do nothing" is a valid conclusion — say it plainly.

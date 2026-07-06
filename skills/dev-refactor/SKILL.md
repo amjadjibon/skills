@@ -6,77 +6,48 @@ argument-hint: "[lite|full|ultra]"
 
 # Refactor
 
-Improve code structure without changing observable behavior. Tests must pass before and after every change.
+Improve structure without changing observable behavior. Tests pass before and after every change.
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
-- `lite` (default) — squash all steps into one commit on the current branch.
-- `full` — §3 as written: one commit per step, same branch.
-- `ultra` — independent refactor targets (no shared files/types) each get their own branch + worktree, committed and PR'd separately, merged after tests pass.
+- `lite` (default) — all steps squashed into one commit on the current branch.
+- `full` — one commit per step, same branch.
+- `ultra` — independent targets (no shared files/types) each get their own branch + worktree + PR.
 
-## 1. Identify Scope
+## 1. Scope
 
-- If the user names a file, function, or module — use that.
-- If the description is vague ("clean this up"), read the target and identify the specific smell: duplication, long function, unclear naming, deep nesting, etc. State what you're addressing before starting.
+Named target → use it. Vague ("clean this up") → read the code, name the specific smell (duplication, long function, deep nesting), state it before starting.
 
-## 2. Establish Baseline
+## 2. Baseline
 
-```bash
-# Run the test suite — record the result
-<test command>
-```
-
-If tests fail before you touch anything, stop and tell the user. Refactoring broken code hides bugs.
-
-If the target code has no test coverage, note it explicitly:
-> "No tests cover `<target>`. Changes are unverifiable — proceed anyway, or add tests first?"
-
-In autonomous mode (called by `dev-loop`), proceed and note the gap; don't ask.
+Run the test suite; record the result. **Failing before you touch anything → stop and tell the user** — refactoring broken code hides bugs. No coverage on the target → "No tests cover `<target>`. Proceed anyway, or add tests first?" (autonomous mode: proceed, note the gap).
 
 ## 3. Refactor in Steps
 
-Each step is one coherent change. Do not batch multiple refactors into one step.
+One coherent change per step: make it → tests pass → (`full`: commit `refactor: <what and why>`; `lite`: hold, commit once at the end). Tests break → revert the step, explain why it isn't safe as written.
 
-For each step:
-1. Make the change
-2. Run tests — must still pass
-3. If tests break, revert the step and explain why the refactor isn't safe as written
-4. Commit — `full`: `git add -u && git commit -m "refactor: <what changed and why>"` after this step. `lite` (default): don't commit yet, continue to the next step; commit once at the end (§5) covering all steps.
+Rules: touch only what the refactor needs; match existing style — no whole-file reformats; mention unrelated issues, don't fix inline; **no behavior changes** — a refactor that would alter a side effect, edge case, or error message stops and asks.
 
-**Rules:**
-- Touch only what's needed for the refactor. Don't fix unrelated bugs or add features.
-- Match the existing style — don't reformat the whole file.
-- If you notice an unrelated issue, mention it; don't fix it inline.
-- No behavior changes. If a refactor would change a side effect, edge case, or error message, stop and ask.
-
-## 4. Common Refactor Patterns
-
-Apply these when the code shows the smell — don't apply them speculatively.
+## 4. Patterns (apply on the smell, never speculatively)
 
 | Smell | Refactor |
 | ----- | -------- |
-| Function > ~40 lines | Extract sub-functions with descriptive names |
-| Same code in 2+ places | Extract shared utility; don't abstract on first duplication |
-| Nested conditionals > 3 levels | Early returns / guard clauses |
-| Unclear variable/function names | Rename to express intent |
-| Large parameter list (4+) | Group into a struct/object if they travel together |
-| Boolean flags controlling flow | Split into two functions |
-| Dead code | Delete it |
+| Function > ~40 lines | Extract named sub-functions |
+| Same code 2+ places | Extract shared utility (not on first duplication) |
+| Nesting > 3 levels | Early returns / guard clauses |
+| Unclear names | Rename to intent |
+| 4+ params traveling together | Group into struct/object |
+| Boolean flag controlling flow | Split into two functions |
+| Dead code | Delete |
 
 ## 5. Commit & Report
 
 Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
 
-`lite` (default): `git add -u && git commit -m "refactor: <summary of all steps>"` — one commit for everything. `full`: already committed per step in §3; nothing left to commit here.
+`lite`: `git add -u && git commit -m "refactor: <summary of all steps>"`. `full`: already committed per step.
 
-```
-Refactor complete: <target>
-Steps: <N> (1 commit | N commits)
-Tests: passing
-Changes: <bullet list of what was restructured>
-Behavior unchanged: <yes | note any edge cases you couldn't verify>
-```
+Push: only if a remote is configured and you're on a feature branch. On `main`/`master`, ask first. Called by `dev-loop`: don't push — the loop pushes after approval.
 
-Push: only if a remote is configured and you're on a feature branch — `git push origin <branch>`. On `main`/`master`, ask before pushing. When called by `dev-loop`: don't push, the loop pushes after user approval.
+Report: target, step count, tests passing, what was restructured, "behavior unchanged" (note any unverifiable edge cases).

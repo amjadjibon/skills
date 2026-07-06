@@ -6,142 +6,85 @@ argument-hint: "[lite|full|ultra]"
 
 # Implement Plan
 
-Execute a `PLAN.md` produced by `dev-create-plan`: work through phases in order, tick checkboxes as tasks complete, commit each phase, and keep the plan file an accurate progress record. Someone interrupted mid-plan must be able to resume from the file alone.
+Execute a `PLAN.md`: phases in order, tick checkboxes as tasks complete, commit each phase. The plan file stays an accurate progress record — anyone interrupted mid-plan must be able to resume from it alone.
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
-- `lite` (default) — ignore phase boundaries: one branch, one implementation commit (plus the plan-status docs commits from §2/§8), one PR at the end covering every task.
-- `full` — current behavior: §3 as written, one branch + one stacked PR per phase.
-- `ultra` — phases marked `**Parallel**: yes` (no shared deps) build in separate git worktrees off `main`/the previous phase at the same time; merge each into the stack once its tasks and completion criteria pass, then continue stacking the sequential phases.
+- `lite` (default) — ignore phase boundaries: one branch, one implementation commit (plus the plan-status docs commits), one PR at the end.
+- `full` — one branch + one stacked PR per phase (§3).
+- `ultra` — phases marked `**Parallel**: yes` build in separate worktrees simultaneously; merge each into the stack when its completion criteria pass.
 
 ## Execution Principles
 
-**Simplicity first — the ladder.** Stop at the first rung that satisfies the task:
-1. Does this need to exist at all? Speculative need → skip, note why.
-2. Stdlib or platform feature covers it? Use it.
-3. Already-installed dependency solves it? Use it. Never add a new one for what a few lines can do.
-4. Can it be one function or one line? Do that.
-5. Only then: minimum custom code that works.
+**Simplicity ladder** — stop at the first rung that satisfies the task: (1) doesn't need to exist → skip, note why; (2) stdlib/platform covers it; (3) already-installed dependency; (4) one function or one line; (5) only then minimum custom code.
 
-**Defensive error handling — never simplify this away.** Every error must be handled or explicitly propagated. Validate at trust boundaries (user input, external APIs, file I/O, env vars). Fail fast. Resources must close in all paths.
+**Defensive error handling — never simplify away.** Handle or explicitly propagate every error. Validate at trust boundaries (user input, external APIs, file I/O, env vars). Fail fast; close resources in all paths.
 
-**Surgical changes.** Touch only what the task requires. Match existing style. Mention unrelated dead code — don't delete it. Every changed line traces to the current task.
+**Surgical changes.** Touch only what the task requires; match existing style; mention unrelated issues, don't fix them. Every changed line traces to the current task.
 
-**Don't guess at externals.** A task blocked on how a third-party API, library, or protocol actually behaves → check `docs/<feature-name>/research/` for an existing answer, else spawn a `dev-research` sub-agent (briefing template in dev-research §6) and implement from its findings. Commit the topic file with the phase. Guessed API contracts are how phases fail review.
+**Don't guess at externals.** Blocked on how a third-party API/library actually behaves → check `docs/<feature-name>/research/`, else spawn a `dev-research` sub-agent (template in dev-research §6) and implement from its findings; commit the topic file with the phase.
 
 ## 1. Locate the Plan
 
-- Named feature → `docs/<feature-name>/PLAN.md`
-- Otherwise → `ls docs/*/PLAN.md`. If one exists, use it. If several, prefer `status: 'In progress'`; if none in progress, ask.
-- No PLAN.md → say so, offer `dev-create-plan` instead.
+Named feature → `docs/<feature-name>/PLAN.md`; else `ls docs/*/PLAN.md` (prefer `status: 'In progress'`; several candidates → ask). None → offer `dev-create-plan`.
 
 ## 2. Pre-flight
 
-Read the entire plan before touching code.
+Read the entire plan first.
 
-1. **Check `status`:** `Planned` → fresh start. `In progress` → resume (§5). `Completed`/`Deprecated` → stop and confirm. `On Hold` → ask before resuming.
-2. **Sync (only if remote exists).** `git remote | head -1`. If configured: `git fetch origin`, rebase onto `origin/main` (or `origin/master`). Skip if no remote. **Never rebase when phase branches are already pushed** (`git ls-remote --heads origin '<feature-name>/phase-*'` returns anything) — rebasing rewrites the stacked PRs' history; warn and continue unrebased instead.
-3. **Check working copy** is clean — uncommitted unrelated changes will contaminate phase commits. Warn user if found.
-4. **Mark started.** Own commit before any implementation: set `status: 'In progress'`, `last_updated: <today>`, update badge. Commit: `docs: start <feature-name> implementation`
+1. **`status`**: `Planned` → fresh start · `In progress` → resume (§5) · `Completed`/`Deprecated` → stop and confirm · `On Hold` → ask.
+2. **Sync** (only if a remote exists): `git fetch origin`, rebase onto `origin/main`. **Never rebase when phase branches are already pushed** (`git ls-remote --heads origin '<feature-name>/phase-*'` returns anything) — that rewrites the stacked PRs; warn and continue unrebased.
+3. **Working copy clean?** Uncommitted unrelated changes contaminate phase commits — warn.
+4. **Mark started** in its own commit: `status: 'In progress'`, `last_updated`, badge → `docs: start <feature-name> implementation`.
 
-## 3. Phase Execution Protocol
+## 3. Phase Execution
 
-`full`: each phase runs on its own branch and gets a stacked PR (as below). `lite` (default): skip the per-phase checkout/push/PR steps below — stay on one branch `<feature-name>`, tick checkboxes and run completion criteria per phase as usual, but commit and push only once, after every phase is done (§8).
-
-**Branch naming (`full` only):** `<feature-name>/phase-<N>` — e.g. `rate-limit-login/phase-1`.
-
-For each phase (`full`):
+`lite` (default): stay on one branch `<feature-name>`, tick checkboxes and run completion criteria per phase, but commit and push once at the end (§8). `full`: per phase —
 
 ```
-1. git checkout -b <feature-name>/phase-<N>   # base = previous phase or main
-
-2. Read phase tasks top to bottom
-3. Execute each task; tick checkbox immediately after completion
-4. Verify completion criteria — run the command/test, don't assume
-
-5. Commit:
-   git add -u && git commit -m "<type>: <phase summary>"
-   # new files: git add path/to/new/file && git add -u && git commit
-
-6. Push and open stacked PR:
-   git push -u origin <feature-name>/phase-<N>
-   gh pr create \
-     --base <previous-branch-or-main> \
-     --title "<imperative ≤60 chars>" \
+1. git checkout -b <feature-name>/phase-<N>      # base = previous phase or main
+2. Execute each task; tick its checkbox immediately (same phase commit)
+3. Verify completion criteria — run the command, don't assume
+4. git add -u && git commit -m "<type>: <phase summary>"   # new files: explicit paths
+5. git push -u origin <feature-name>/phase-<N>
+   gh pr create --base <previous-branch-or-main> --title "<imperative ≤60 chars>" \
      --body "<phase Goal + task list + completion criteria>"
-
-7. Move to next phase (branches off this one)
+6. Next phase branches off this one
 ```
 
 Rules:
-- **Tick checkboxes one at a time** in the plan file as each task finishes. The checkbox edit goes into the same phase commit. Never tick a box for unverified work.
-- **Use the commit message the plan specifies.** If the plan's message no longer fits, write an accurate one and note the deviation (§6).
+- Never tick a box for unverified work. Completion criteria are gates — fix before committing.
+- Use the plan's commit message; if it no longer fits, write an accurate one and note the deviation (§6).
 - Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
-- **Check `git status` before staging** — don't commit build output or `.env`.
-- **Completion criteria are gates.** If they fail, fix the phase before committing.
-- **Tasks within a phase are sequential** unless genuinely independent domains (backend + frontend, service A + service B) with no shared types or fixtures.
-- **Keep history linear.** Sync via rebase, not merge.
+- Check `git status` before staging — no build output or `.env`.
+- Tasks are sequential unless genuinely independent domains with no shared types/fixtures.
+- Keep history linear — rebase, not merge.
 
-## 4. Blocked or Failing Tasks
+## 4. Blocked Tasks
 
-If a task can't be completed as written:
-1. Add an inline note:
-   ```
-   - [x] TASK-005: <original description>
-     > Blocked: <reason>. Resolved by: <what was done instead>.
-   ```
-2. If blocked with no resolution: leave unchecked, add `> Blocked: <reason>.`, stop and ask.
-3. If blockage invalidates later tasks, update the plan (§6) before continuing.
+Resolved differently: tick and note inline — `> Blocked: <reason>. Resolved by: <what was done>.` Unresolvable: leave unchecked with `> Blocked: <reason>.`, stop and ask. If it invalidates later tasks, update the plan (§6) first.
 
-## 5. Resuming a Plan In Progress
+## 5. Resuming
 
-1. Find the first unchecked `- [ ] TASK-` — that's where to resume.
-2. Cross-check: `git log --oneline` should show commits for completed phases. If checkboxes and commits disagree, trust history, fix checkboxes, tell the user.
-3. Check `git status` for partial work already in progress before starting new changes.
+First unchecked `- [ ] TASK-` is the resume point. Cross-check `git log --oneline` — if checkboxes and commits disagree, trust history, fix checkboxes, tell the user. Check `git status` for partial work.
 
 ## 6. Plan Deviations
 
-Reality wins. When implementation reveals the plan is wrong:
-- Update `PLAN.md` in its own commit: `docs: update plan for <feature-name>`. Don't bury plan edits in implementation commits.
-- Add new `TASK-NNN` entries continuing the numbering — don't renumber existing ones.
-- Bump `last_updated` and `version` (1.0 → 1.1).
+Reality wins. Update PLAN.md in its own commit (`docs: update plan for <feature-name>`) — never buried in implementation commits. New tasks continue `TASK-NNN` numbering; bump `last_updated` and `version`.
 
 ## 7. Testing Section
 
-Run/write each `TEST-NNN` item and tick its checkbox. If tests belong to a phase's completion criteria, tick when that phase completes. Otherwise treat as the final phase:
-`git add -u && git commit -m "test: <feature-name>"`
+Run/write each `TEST-NNN`, tick its box. Tests in a phase's criteria tick with that phase; otherwise final phase: `git add -u && git commit -m "test: <feature-name>"`.
 
 ## 8. Completion
 
-Done when every `- [ ]` is `- [x]` (or annotated as blocked with user sign-off):
+All boxes ticked (or blocked with user sign-off):
 
-1. Set `status: 'Completed'`, `last_updated: <today>`, update badge
-2. `full`: commit on last phase branch: `docs: complete <feature-name> plan` — PRs already open per phase. `lite`: `git add -u && git commit -m "docs: complete <feature-name> plan"` on `<feature-name>`, then push and open the single PR: `git push -u origin <feature-name> && gh pr create --base main --title "<imperative ≤60 chars>" --body "<summary + task list + completion criteria>"`
+1. `status: 'Completed'`, `last_updated`, badge.
+2. `full`: commit `docs: complete <feature-name> plan` on the last phase branch (PRs already open). `lite`: same commit on `<feature-name>`, then `git push -u origin <feature-name> && gh pr create --base main --title "<imperative ≤60 chars>" --body "<summary + tasks + criteria>"`.
 
-Report (`full`):
-```
-Plan complete: docs/<feature-name>/PLAN.md
-Phases: <N> — one PR per phase, stacked
-PRs:
-  phase-1: <url>  (base: main)
-  phase-2: <url>  (base: phase-1)
-Deviations: <none | list>
-Verification: <what was run>
-```
+Report: plan path, phase count, PR URL(s) (`full`: one per phase with bases — merge phase-1 first, GitHub auto-retargets), deviations, what was run to verify.
 
-Report (`lite`):
-```
-Plan complete: docs/<feature-name>/PLAN.md
-Phases: <N> — single branch, single PR
-PR: <url>  (base: main)
-Deviations: <none | list>
-Verification: <what was run>
-```
-
-**Merging order (`full` only):** Phase 1 first — GitHub auto-retargets later PRs after phase 1 merges.
-
-If no remote: skip push steps, tell user the branch is ready locally.
-
-If interrupted mid-plan: leave `status: 'In progress'`, ensure finished tasks are ticked and partial work committed, summarize where to resume.
+No remote → skip pushes, say the branch is ready locally. Interrupted → leave `In progress`, tick finished tasks, commit partial work, say where to resume.

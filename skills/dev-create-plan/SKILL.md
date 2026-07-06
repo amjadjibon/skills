@@ -8,16 +8,15 @@ argument-hint: "[lite|full|ultra]"
 
 Create `docs/<feature-name>/PLAN.md` for autonomous execution by agents or humans.
 
-**Interactive mode** (user runs `/create-plan`): ask one focused question if scope is truly ambiguous; otherwise proceed.
-**Autonomous mode** (called by `dev-loop`): never ask — research, assume, document.
+**Interactive** (user runs it): ask one focused question only if scope is truly ambiguous. **Autonomous** (called by `dev-loop`): never ask — research, assume, document.
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
-- `lite` (default) — one phase, one branch, single PR at the end. Collapse the template into a single "Phase 1".
-- `full` — current behavior: one phase per unit of work, stacked branches (`<feature>/phase-N` off `phase-N-1`), one PR per phase.
-- `ultra` — like `full`, but mark phases with no shared dependencies `**Parallel**: yes` so `dev-implement-plan`/`dev-loop` can build them in separate worktrees off `main` instead of stacking.
+- `lite` (default) — collapse the template into a single "Phase 1"; one branch `<feature-name>`, one PR at the end.
+- `full` — one phase per unit of work; stacked branches `<feature>/phase-N` off `phase-N-1`, one PR per phase.
+- `ultra` — like `full`, but phases with no shared dependencies get `**Parallel**: yes` so implement/loop can build them in worktrees off `main`.
 
 ## Step 0 — Research First
 
@@ -27,48 +26,33 @@ find . -type f -name "*.go" | head -20   # or *.ts, *.py
 ls docs/ 2>/dev/null
 ```
 
-Read 3–5 key files (routing, middleware, error handling, tests). Record findings as `ASSUMPTION-*` in §4.
+Read 3–5 key files (routing, middleware, error handling, tests). Record findings as `ASSUMPTION-*` in §4. If `docs/<feature-name>/RESEARCH.md` exists, read it — the plan follows its recommendation and inherits its assumptions.
 
-If `docs/<feature-name>/RESEARCH.md` exists, read it — the plan follows its recommendation and inherits its assumptions.
-
-**Unknown externals → research sub-agents, not guesses.** If the plan hinges on a third-party API contract, an unfamiliar library, or anything a doc/internet lookup can settle, spawn one `dev-research` sub-agent per question (briefing template in dev-research §6, parallel when independent). Reference the answers in tasks and assumptions as `research/<topic-slug>.md`; commit the topic files with the plan.
+**Unknown externals → research sub-agents, not guesses.** If the plan hinges on a third-party API, unfamiliar library, or anything a doc/internet lookup can settle, spawn one `dev-research` sub-agent per question (template in dev-research §6, parallel when independent). Reference answers as `research/<topic-slug>.md`; commit the topic files with the plan.
 
 ## Git
 
-1. `git checkout -b <feature-name>`
-2. Commit plan: `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`
-3. `lite` (default): single phase, single branch `<feature-name>`, one PR at the end. `full`: stacked PRs — phase 1 off `main`, phase N off phase N-1, branches `<feature-name>/phase-1`, `<feature-name>/phase-2`, …
-4. PR titles: imperative ≤60 chars, never prefix with `phase N`.
+1. `git checkout -b <feature-name>`, then `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`.
+2. PR titles: imperative ≤60 chars, never prefixed with `phase N`.
+3. Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
 
-Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
+## Status Badges & Tracker IDs
 
-## Status badges
+`Planned` blue · `In progress` yellow · `Completed` brightgreen · `On Hold` orange · `Deprecated` red — `https://img.shields.io/badge/status-<status>-<color>` (spaces → `%20`).
 
-`Planned` → blue · `In progress` → yellow · `Completed` → brightgreen · `On Hold` → orange · `Deprecated` → red
-
-`https://img.shields.io/badge/status-<status>-<color>` (spaces → `%20`)
-
-## Tracker IDs
-
-If user provides a ticket: add `ticket:` to frontmatter + blockquote link under badge.
-`[A-Z]+-\d+` → Jira · `LIN-\d+` → Linear · full URL → use as-is. Include in commit: `plan: <feature-name> (<id>)`.
+Ticket given? Add `ticket:` to frontmatter + blockquote link under the badge (`[A-Z]+-\d+` Jira · `LIN-\d+` Linear · URL as-is); include in commit: `plan: <feature-name> (<id>)`.
 
 ## Planning Principles
 
-- Assume, don't ask. Name the chosen approach and why.
-- Cut speculative phases — YAGNI. Fewer phases is better.
+- Assume, don't ask; name the chosen approach and why.
+- Cut speculative phases — fewer is better. One phase = one goal; "and also…" → new phase.
 - Stdlib/platform before new dependencies.
-- Completion criteria must be a runnable command or observable behaviour, not "it should work".
-- Each task: one sentence of what, one of why (if non-obvious).
-- One phase = one goal. "And also…" → new phase.
+- Completion criteria = runnable command or observable behaviour, never "it should work".
+- Each task: one sentence what, one why (if non-obvious).
 
 ## Agent Prompt Rules
 
-Every phase must include a self-contained `**Agent Prompt**` block — the orchestrator hands it to a sub-agent with no other context.
-
-- No "as discussed" — the agent starts cold
-- Include: goal, branch, base branch, exact tasks, key files (specific paths from Step 0 research), completion criteria, git instructions
-- Agent must not push, open PRs, or modify PLAN.md
+Every phase carries a self-contained `**Agent Prompt**` block — a sub-agent receives it with no other context. No "as discussed". Include: goal, branch, base, exact tasks, key file paths from Step 0, completion criteria, git instructions. The agent must not push, open PRs, or modify PLAN.md.
 
 ## Mandatory Template
 
@@ -98,17 +82,17 @@ tags: [feature|upgrade|refactor|chore|architecture|migration|bug]
 
 ## 2. Implementation Steps
 
-> After completing all tasks in a phase, `git add -u` and commit. No `Co-authored-by:`. Tick `[x]` as each task completes.
+> After each phase: `git add -u` and commit. No `Co-authored-by:`. Tick `[x]` as each task completes.
 
 ### Phase N: <Phase Name>
 
-**Goal**: <What this phase achieves and why it's ordered here.>
+**Goal**: <what this phase achieves and why it's ordered here>
 
 **Depends on**: Phase N-1 complete (omit for Phase 1)
 
-- [ ] TASK-00X: <Exact action with file path, function, or command.>
+- [ ] TASK-00X: <exact action with file path, function, or command>
 
-**Completion criteria**: <Measurable condition>
+**Completion criteria**: <measurable condition>
 
 **git commit**: `git add -u && git commit -m "<type>: <phase N summary>"`
 
@@ -116,9 +100,8 @@ tags: [feature|upgrade|refactor|chore|architecture|migration|bug]
 ```
 You are a sub-agent implementing Phase N of <feature-name>.
 
-Context: <1-2 sentences: what the feature does and what this phase contributes.>
-
-Branch: <feature-name> (`lite`) or <feature-name>/phase-N (`full`/`ultra`)  |  Base: main (`lite` or Phase 1) or <feature-name>/phase-N-1 (`full`/`ultra`, later phases)
+Context: <1-2 sentences: the feature and this phase's contribution.>
+Branch: <feature-name> (lite) or <feature-name>/phase-N (full/ultra)  |  Base: main or <feature-name>/phase-N-1
 
 Tasks:
 - TASK-00X: <exact description>
@@ -128,30 +111,23 @@ Key files:
 
 Completion criteria: <verbatim from above>
 
-When done: git add -u && git commit -m "<type>: <phase N summary>" — no Co-authored-by
-Write a one-paragraph summary of changes and commit SHA.
+When done: git add -u && git commit -m "<type>: <phase N summary>" — no Co-authored-by.
+Reply with a one-paragraph summary and commit SHA.
 Do NOT push, open PRs, or modify PLAN.md.
 ```
 
-`lite` (default): write one "Phase 1" covering the whole feature — don't repeat this block. `full`/`ultra`: repeat this block per phase.
-
----
-
 ## 3. Testing
 
-- [ ] TEST-001: <Specific test with file path>
-- [ ] TEST-002: <Integration test or manual step>
+- [ ] TEST-001: <specific test with file path>
 
 ## 4. Risks & Assumptions
 
-- **RISK-001**: <Risk> — mitigation: <how>
-- **ASSUMPTION-001**: <Assumed true without user confirmation>
+- **RISK-001**: <risk> — mitigation: <how>
+- **ASSUMPTION-001**: <assumed true without user confirmation>
 ````
+
+`lite`: one "Phase 1" covers the whole feature. `full`/`ultra`: repeat the phase block per phase.
 
 ## Process
 
-1. Research (Step 0)
-2. `git checkout -b <feature-name>`
-3. Write `docs/<feature-name>/PLAN.md` using the template above — include Agent Prompt for every phase
-4. `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`
-5. Tell the caller: "Plan created at `docs/<feature-name>/PLAN.md` on branch `<feature-name>`."
+Research (Step 0) → `git checkout -b <feature-name>` → write PLAN.md from the template (Agent Prompt in every phase) → commit → report: "Plan created at `docs/<feature-name>/PLAN.md` on branch `<feature-name>`."

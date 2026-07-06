@@ -6,155 +6,69 @@ argument-hint: "[lite|full|ultra]"
 
 # Code Review
 
-Review code changes — correctness, security, simplicity — and write findings to `docs/<feature-name>/REVIEW.md`.
+Review changes — correctness, security, simplicity — and write findings to `docs/<feature-name>/REVIEW.md`.
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
-Applies only if asked to also apply fixes — the review pass itself is unaffected.
+Applies only if asked to also apply fixes; the review pass itself is unaffected.
 
-- `lite` (default) — apply fixes on the current branch, one commit.
-- `full` — group fixes by category (security, correctness, simplicity) into separate stacked branches/PRs.
-- `ultra` — spawn one fix agent per independent finding cluster in its own worktree, in parallel (the mechanism `dev-loop` §3.C.2 uses), merge after.
+- `lite` (default) — fixes on the current branch, one commit.
+- `full` — fixes grouped by category (security, correctness, simplicity) into stacked branches/PRs.
+- `ultra` — one fix agent per independent finding cluster in its own worktree, in parallel (dev-loop §3.C.2 mechanism), merged after.
 
 ## 1. Identify What to Review
 
 Review **one file at a time** — never load the full diff in one shot.
 
-**Step 1 — stat the diff:**
+1. Stat: `git diff main...HEAD --stat` (or `--cached`, or `gh pr diff <number> --stat`).
+2. Filter noise — exclude generated/vendored/lockfiles:
+   ```bash
+   git diff main...HEAD --name-only | grep -vE 'go\.sum|go\.mod|package-lock\.json|yarn\.lock|pnpm-lock\.yaml|vendor/|\.pb\.go|\.pb\.ts|_generated\.|/__generated__/|dist/|\.min\.js'
+   ```
+3. Prioritise by risk, stop when context is limited: **1** auth/middleware/payment/crypto/permissions/migrations · **2** API handlers/DB queries/jobs/config · **3** business logic/services/models · **4** utilities/tests/docs.
+4. Per file: `git diff main...HEAD -- <file>`. Record findings before loading the next file. If one file exceeds ~300 diff lines, chunk with `| head -300` then `| tail -n +301`.
 
-```bash
-git diff main...HEAD --stat
-# or: git diff --cached --stat
-# or: gh pr diff <number> --stat
-```
+Scope ambiguous (no branch, PR, or files named)? Ask first.
 
-This gives a size overview with no diff content loaded yet.
+## 2. Feature Name
 
-**Step 2 — filter out noise files:**
-
-Exclude generated, vendored, and dependency files — they are not worth reviewing:
-
-```bash
-git diff main...HEAD --name-only | grep -vE \
-  'go\.sum|go\.mod|package-lock\.json|yarn\.lock|pnpm-lock\.yaml|vendor/|\.pb\.go|\.pb\.ts|_generated\.|/__generated__/|dist/|\.min\.js'
-```
-
-**Step 3 — prioritise by risk:**
-
-Review in this order — stop when time/context is limited:
-
-| Priority | Path patterns |
-|----------|--------------|
-| 1 — Critical | auth, middleware, payment, crypto, permissions, migrations |
-| 2 — High | API handlers, DB queries, background jobs, config loading |
-| 3 — Medium | business logic, services, models |
-| 4 — Low | utilities, helpers, tests, docs |
-
-**Step 4 — review each file:**
-
-```bash
-git diff main...HEAD -- <file>
-# or: git diff --cached -- <file>
-```
-
-Read, record findings, move to the next file. Do not load the next file until findings for the current one are noted.
-
-**Step 5 — handle oversized files:** If a single file's diff still exceeds ~300 lines, review hunk by hunk using `git diff -- <file> | head -300` then `| tail -n +301`.
-
-If scope is ambiguous (no branch, no PR number, no files named), ask before proceeding.
-
-## 2. Determine the Feature Name
-
-Use the branch name, PR title, or ask. This becomes `<feature-name>` in `docs/<feature-name>/REVIEW.md`.
+Branch name, PR title, or ask → `<feature-name>` for `docs/<feature-name>/REVIEW.md`.
 
 ## 3. Review Checklist
 
-Work through each category. Only report real issues. Apply language-appropriate standards.
+Only report real issues; apply language-appropriate standards.
 
-### Correctness
-- Logic errors, off-by-one, wrong conditions, unreachable code
-- Missing error handling at boundaries (user input, external APIs, file I/O)
-- Race conditions or unsafe concurrency
-- Incorrect types, null/undefined unguarded
-- Functions that silently succeed when they should fail
+**Correctness** — logic errors, off-by-one, unreachable code; missing error handling at boundaries (user input, external APIs, file I/O); race conditions; unguarded null/undefined; functions that silently succeed when they should fail.
 
-### Async & Concurrency
-- **Unhandled rejections** — `async` calls without `await`/`.catch()`
-- **Blocking event loop** — sync I/O inside async code
-- **Missing await** — omitted `await` on a call whose result is used immediately after
-- **Deadlocks** — mutual lock dependencies
-- **Shared mutable state** — written by multiple goroutines/threads without synchronisation
-- **Async in constructors** — no way to await or cancel the work
-- **Fire-and-forget** — background tasks with no mechanism to surface failures
+**Async & concurrency** — unhandled rejections (`async` without `await`/`.catch()`); missing `await` on a result used immediately; sync I/O blocking the event loop; deadlocks; shared mutable state without synchronisation; async work in constructors; fire-and-forget tasks with no failure surface.
 
-### Memory & Resource Management
-- **Unclosed resources** — files, connections, streams without `with`/`defer`/`finally`
-- **Event listener leaks** — added without removal on teardown
-- **Circular references** — preventing GC in caches or graph structures
-- **Unbounded caches** — maps/lists with no eviction or size cap
-- **Large allocations in hot paths** — buffers allocated on every request that could be pooled
-- **Goroutine leaks** (Go) — goroutines blocked on a channel no one will close
+**Memory & resources** — unclosed files/connections/streams (`with`/`defer`/`finally`); event listeners without teardown; unbounded caches; large per-request allocations that could be pooled; goroutines blocked on channels no one closes.
 
-### Security
-- **Secrets in code** — hardcoded API keys, passwords, tokens — Critical
-- **Input validation** — user-controlled data used without validation (paths, queries, shell args, file uploads)
-- **Command injection** — `shell=True` or string interpolation into shell commands
-- **Path traversal** — user-supplied filenames without sanitising `..` or absolute paths
-- **Auth token storage** — tokens in `localStorage`/`sessionStorage` (XSS-vulnerable) instead of `httpOnly` cookies
-- **CSRF** — state-changing endpoints missing CSRF token or `SameSite` protection
-- **Rate limiting** — missing on login, search, payment, or other expensive endpoints
-- **XSS** — user-provided HTML rendered without sanitisation; missing CSP on new endpoints
-- **CORS** — `Access-Control-Allow-Origin: *` on credentialed or sensitive endpoints
-- **Missing auth checks** — operations that expose/change data without permission verification
-- **Error messages leaking internals** — stack traces, credentials, or paths in responses
-- **Sensitive data logged** — passwords, tokens, PII in logs
+**Security** — hardcoded secrets (Critical); unvalidated user input (paths, queries, shell args, uploads); command injection (`shell=True`, string-built commands); path traversal (`..`, absolute paths); tokens in `localStorage` instead of `httpOnly` cookies; missing CSRF/`SameSite`; missing rate limits on login/search/payment; unsanitised HTML render (XSS); `Access-Control-Allow-Origin: *` on credentialed endpoints; missing auth checks; stack traces/internals in responses; passwords/tokens/PII in logs.
 
-### Performance & Database
-- **N+1 queries** — query inside a loop; always Medium or High depending on scale
-- **Missing indexes** — `WHERE`/`JOIN`/`ORDER BY` on unindexed columns
-- **Full table scans** — `SELECT` without usable `WHERE`, or `LIKE '%foo'`
-- **`SELECT *`** — fetches unused columns; fragile
-- **Missing pagination** — unbounded results from user-controlled filters
-- **No transaction on multi-step writes** — partial failure leaves inconsistent state
-- **Eager loading when lazy is sufficient** — all relations fetched when only a subset is used
+**Performance & DB** — N+1 queries; missing indexes on `WHERE`/`JOIN`/`ORDER BY`; full table scans (`LIKE '%foo'`); `SELECT *`; unbounded results without pagination; multi-step writes without a transaction; eager loading unused relations.
 
-### Simplicity & Reuse
-- Code duplicating existing utilities
-- Abstractions introduced for a single use case
-- Functions doing more than one thing
-- Dead code, unused imports, unread variables
-- Multi-line expressions that could be one line without losing clarity
-- Missing doc comments on non-obvious functions (don't flag self-explanatory ones)
+**Simplicity & reuse** — duplicates existing utilities; single-use abstractions; functions doing more than one thing; dead code, unused imports; missing doc comments on non-obvious functions only.
 
-### Test Quality
+**Test quality** (only when tests exist in the diff; missing tests → Low) — tests that can't fail (asserting constants, mocking the thing under test); happy-path-only; brittle assertions (error strings, timestamps, generated IDs); testing implementation not behaviour; no boundary cases (zero/empty/null/max); order- or state-dependent tests; new code paths with no coverage.
 
-Only flag when tests exist in the diff. Missing tests → Low finding, not a blocker.
-
-- **Tests that always pass** — asserting constants, mocking the thing under test
-- **No unhappy-path coverage** — only success case tested
-- **Brittle assertions** — on error strings, timestamps, or auto-generated IDs
-- **Testing implementation not behaviour** — breaks on rename without behaviour change
-- **Missing boundary tests** — zero, empty, null, max for numeric conditions
-- **Test isolation** — depends on execution order, shared state, or external services
-- **No coverage of the new code path** — new branch or error handler with no test
-
-## 4. Severity Levels
+## 4. Severity
 
 | Severity | Meaning |
 |----------|---------|
-| **Critical** | Must fix — security hole, data loss, crash in happy path |
-| **High** | Should fix — likely bug or significant security risk |
-| **Medium** | Fix soon — correctness concern or violated best practice |
-| **Low** | Cleanup — simplification, dead code, minor style |
-| **Info** | Observation — no action required |
+| **Critical** | Security hole, data loss, crash in happy path |
+| **High** | Likely bug or significant security risk |
+| **Medium** | Correctness concern or violated best practice |
+| **Low** | Cleanup — simplification, dead code, style |
+| **Info** | Observation, no action |
 
 ## 5. Write REVIEW.md
 
-Save to `docs/<feature-name>/REVIEW.md`. Overwriting a previous pass is intentional — REVIEW.md always reflects the latest review; per-iteration history lives in dev-loop's LOOP.md iteration table.
+Save to `docs/<feature-name>/REVIEW.md`. Overwriting a previous pass is intentional — REVIEW.md is always the latest review; per-iteration history lives in dev-loop's LOOP.md.
 
-```markdown
+````markdown
 ---
 date: <YYYY-MM-DD>
 branch: <branch-name>
@@ -166,7 +80,7 @@ verdict: <Approve | Request Changes | Block>
 
 ## Verdict
 
-**<Approve | Request Changes | Block>** — <one sentence summary>
+**<Approve | Request Changes | Block>** — <one sentence>
 
 ## Summary
 
@@ -177,53 +91,24 @@ verdict: <Approve | Request Changes | Block>
 ### [CRIT-001] <Title> *(Critical)*
 **File**: `path/to/file.ext:42`
 **Category**: Security | Correctness | Simplicity
-**Issue**: <What is wrong and why it matters>
-**Fix**: <Concrete suggestion or corrected code snippet>
+**Issue**: <what is wrong and why it matters>
+**Fix**: <concrete suggestion or corrected snippet>
 
----
-
-### [HIGH-001] <Title> *(High)*
-...
-
-### [MED-001] <Title> *(Medium)*
-...
-
-### [LOW-001] <Title> *(Low)*
-...
+<!-- [HIGH-001], [MED-001], [LOW-001], [INFO-001] — same shape; skip empty severities -->
 
 ## What's Good
 
-<1-3 specific bullet points — no generic praise>
+<1-3 specifics, no generic praise>
 
 ## Pre-Merge Checklist
 
-**Always:**
 - [ ] All Critical and High findings resolved
-- [ ] No secrets or credentials in committed files
-- [ ] `.gitignore` covers new artifact/config types
-- [ ] Tests cover changed behaviour and at least one unhappy path
-- [ ] All async calls awaited or errors handled
-- [ ] Resources closed in all code paths
+- [ ] No secrets in committed files; `.gitignore` covers new artifact types
+- [ ] Tests cover changed behaviour + at least one unhappy path
+- [ ] All async calls awaited or errors handled; resources closed in all paths
+- [ ] If auth/user data: httpOnly tokens, CSRF protection, rate limits, no sensitive data in errors/logs
+- [ ] If uploads: server-side size limit, MIME/extension allowlist, sanitised filenames
 
-**If auth, sessions, or user data:**
-- [ ] Tokens in `httpOnly` cookies, not `localStorage`
-- [ ] CSRF protection on state-changing endpoints
-- [ ] Rate limiting on login, signup, payment, search
-- [ ] No sensitive data in error responses or logs
-
-**If file uploads:**
-- [ ] Size limit enforced server-side
-- [ ] MIME type and extension allowlist validated
-- [ ] User-supplied filenames never used directly in storage paths
-```
-
-Finding numbering: `CRIT-`, `HIGH-`, `MED-`, `LOW-`, `INFO-` with zero-padded sequence numbers per severity. Skip sections with no findings.
-
-## 6. Machine-Readable Verdict Block
-
-**Always** append at the very end of `REVIEW.md` — parsed by `dev-loop`:
-
-````markdown
 ## Machine-Readable Verdict
 
 ```yaml
@@ -237,13 +122,9 @@ blocking_ids: [<CRIT-001>, <HIGH-002>]
 ```
 ````
 
-Rules:
-- `Approve` → no Critical or High
-- `Request Changes` → Medium only, no Critical/High
-- `Block` → any Critical or High
-- `blocking_ids` lists every Critical and High ID for `dev-loop`
+The Machine-Readable Verdict block is **always** last — dev-loop parses it. `Approve` = no Critical/High · `Request Changes` = Medium only · `Block` = any Critical/High; `blocking_ids` lists every Critical/High ID.
 
-## 7. Report to Caller
+## 6. Report to Caller
 
 ```
 Review written to docs/<feature-name>/REVIEW.md
@@ -251,12 +132,10 @@ Verdict: <Approve | Request Changes | Block>
 Findings: <N> critical, <N> high, <N> medium, <N> low
 ```
 
-If Critical findings exist, call them out explicitly.
+Call out Critical findings explicitly.
 
-## Review Principles
+## Principles
 
-- **Only report real issues.** False positives erode trust faster than missed findings.
-- **Be specific.** Every finding needs file and line number. "Input not validated" → useless. "Line 47 passes `filename` to `open()` without stripping `..`" → actionable.
-- **One finding per issue.**
-- **Explain the why.** The issue description should make the risk obvious without follow-up.
-- **Don't review what wasn't changed.** Pre-existing problems → Info finding or skip.
+- Only real issues — false positives erode trust faster than missed findings.
+- Every finding needs file:line and a why. "Input not validated" is useless; "line 47 passes `filename` to `open()` without stripping `..`" is actionable.
+- One finding per issue. Don't review what wasn't changed — pre-existing problems are Info or skipped.

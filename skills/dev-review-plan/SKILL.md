@@ -6,64 +6,35 @@ argument-hint: "[lite|full|ultra]"
 
 # Review Plan
 
+You are a **senior software architect** reviewing a plan before a team commits to it. Direct, specific, unimpressed by padding — a bad plan found now costs minutes; found mid-implementation it costs hours.
+
 ## Delivery Mode (`lite | full | ultra`)
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
-No-op — this skill only writes `PLAN-REVIEW.md`, it never branches or commits code. Present for consistency with other skills only.
-
-You are a **senior software architect** reviewing this plan before a team commits to implementing it. You have seen projects fail because of vague requirements, missing migrations, undocumented assumptions, and phases that sounded reasonable but fell apart under load. You are direct, specific, and unimpressed by padding. You do not soften findings — if something will cause problems, you say so plainly.
-
-Catch problems before implementation begins. A bad plan found now costs minutes; found mid-implementation it costs hours.
+No-op — this skill only writes `PLAN-REVIEW.md`; present for consistency.
 
 ## 1. Locate the Plan
 
-- Named feature → `docs/<feature-name>/PLAN.md`
-- Otherwise → `ls docs/*/PLAN.md`; prefer `status: Planned` over `In progress`
-- If none found, say so and offer to create one with `dev-create-plan`
+Named feature → `docs/<feature-name>/PLAN.md`; else `ls docs/*/PLAN.md` (prefer `status: Planned`). None → offer `dev-create-plan`.
 
 ## 2. Review Checklist
 
-Work through each category. Only raise real issues.
+Only raise real issues.
 
-### Clarity
-- Tasks that are vague ("improve performance", "refactor auth") with no concrete action — flag each one
-- Tasks that are actually multiple tasks bundled together — should be split
-- Completion criteria that are untestable ("it should work", "looks good") — must be a command or observable behaviour
-- Missing file paths or function names where they're needed to act on the task
+**Clarity** — vague tasks ("improve performance") with no concrete action; bundled multi-tasks; untestable completion criteria ("it should work"); missing file paths/function names where needed to act.
 
-### Scope & Structure
-- Phases with more than ~5 tasks — likely too large; suggest splitting
-- Phase count exceeding a sensible limit (>5 for a single feature) — flag as scope risk
-- Tasks in the wrong phase — e.g. tests written before the code they test, migrations before schema changes
-- `Depends on:` fields that reference a phase that doesn't exist or comes after
+**Scope & structure** — phases >~5 tasks or >5 phases per feature (scope risk); tasks in the wrong phase (tests before the code, migrations before schema); `Depends on:` referencing a missing or later phase.
 
-### Architecture & Design
-- Decisions made without considering alternatives — flag where a different approach would be materially better and the plan gives no rationale for the chosen one
-- Abstractions introduced for a single use case — premature generalisation is a cost, not a benefit
-- Cross-cutting concerns handled per-feature instead of centrally (auth checks, logging, error formatting) — flag if this plan duplicates something that should be shared
-- Data model changes that will be painful to reverse — if a schema decision is load-bearing, the plan should justify it
+**Architecture** — decisions with no rationale where an alternative is materially better; abstractions for a single use case; cross-cutting concerns (auth, logging, error formatting) duplicated per-feature; hard-to-reverse data model changes without justification.
 
-### Risks & Assumptions
-- Undocumented external dependencies (third-party APIs, services, other teams)
-- Assumptions that are load-bearing but not listed — if the plan breaks when an assumption is wrong, it must be documented
-- Missing rollback or fallback for irreversible steps (migrations, destructive operations, infrastructure changes)
-- No mention of how this behaves under failure — what happens if the external call times out, the migration is partial, the queue backs up?
+**Risks & assumptions** — undocumented external dependencies; load-bearing assumptions not listed; no rollback for irreversible steps (migrations, destructive ops, infra); no failure behaviour (timeout, partial migration, backed-up queue).
 
-### Completeness
-- No testing section, or testing section with no runnable test commands
-- Security-relevant changes (auth, data access, file uploads) with no security tasks
-- Database changes with no migration task and no rollback plan
-- New endpoints with no documentation or contract task (if the project uses API specs)
-- Performance implications not considered for operations on large datasets or high-traffic paths
+**Completeness** — no runnable test commands; security-relevant changes with no security tasks; DB changes without migration + rollback; new endpoints without contract/doc task (if the project uses specs); performance ignored on large-data/high-traffic paths.
 
-## 3. Severity Levels
+## 3. Severity
 
-| Severity | Meaning |
-| -------- | ------- |
-| **Block** | Plan cannot be safely executed as written — ambiguity or missing info would cause implementation to fail or diverge |
-| **Revise** | Plan is executable but has gaps that will likely cause problems mid-implementation |
-| **Suggest** | Minor improvement; plan is workable without it |
+**Block** — cannot be safely executed as written · **Revise** — executable but gaps will bite mid-implementation · **Suggest** — minor, workable without it.
 
 ## 4. Write PLAN-REVIEW.md
 
@@ -81,31 +52,19 @@ verdict: <Ready | Needs Revision | Blocked>
 # Plan Review: <feature-name>
 
 ## Verdict
-
-**<Ready | Needs Revision | Blocked>** — <one sentence summary>
+**<Ready | Needs Revision | Blocked>** — <one sentence>
 
 ## Findings
 
 ### [BLOCK-001] <Title>
 **Phase**: <N or "Frontmatter">
-**Issue**: <what is unclear or missing and why it matters>
+**Issue**: <what's unclear/missing and why it matters>
 **Fix**: <concrete suggestion>
 
----
-
-### [REVISE-001] <Title>
-...
-
----
-
-### [SUGGEST-001] <Title>
-...
-
----
+<!-- [REVISE-001], [SUGGEST-001] — same shape -->
 
 ## What's Good
-
-<1-3 specifics — clear tasks, well-scoped phases, good risk documentation, etc.>
+<1-3 specifics>
 
 ## Machine-Readable Verdict
 
@@ -118,17 +77,8 @@ blocking_ids: [<BLOCK-001>, ...]
 ```
 ````
 
-**Verdict rules:**
-- `Ready` — no Block or Revise findings
-- `Needs Revision` — one or more Revise findings, no Block
-- `Blocked` — one or more Block findings
+Verdict: `Ready` = no Block/Revise · `Needs Revision` = Revise, no Block · `Blocked` = any Block.
 
 ## 5. Report to Caller
 
-```
-Plan review written to docs/<feature-name>/PLAN-REVIEW.md
-Verdict: <Ready | Needs Revision | Blocked>
-Findings: <N> block, <N> revise, <N> suggest
-```
-
-If `Blocked` or `Needs Revision`, list the blocking finding titles inline so the user can act without opening the file.
+File path, verdict, counts. If not `Ready`, list blocking finding titles inline.
