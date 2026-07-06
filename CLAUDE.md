@@ -50,7 +50,7 @@ To add manually:
 
 ## Existing Skills
 
-- **dev-research** — Investigates a codebase, approach, or technology before planning; compares candidates, verifies claims with spikes, writes `docs/<feature-name>/RESEARCH.md` with a recommendation.
+- **dev-research** — Investigates a codebase, approach, or technology before planning; compares candidates, verifies claims with spikes and web/doc lookups, writes `docs/<feature-name>/RESEARCH.md` with a recommendation. Also spawned as a scoped sub-agent by dev-create-plan/dev-implement-plan/dev-loop to answer single questions (third-party APIs, libraries, docs) into `docs/<feature-name>/research/<topic>.md`.
 - **dev-create-plan** — Writes `docs/<feature-name>/PLAN.md` with phased, checkbox-driven steps ready for autonomous execution.
 - **dev-implement-plan** — Executes a `PLAN.md` produced by `dev-create-plan`, ticking checkboxes and committing each phase.
 - **dev-code-review** — Reviews a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature-name>/REVIEW.md`.

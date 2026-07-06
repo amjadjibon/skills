@@ -50,7 +50,7 @@ If a skill doesn't show up after install, run `/reload-plugins` (or restart the 
 
 | Skill | Description |
 | ----- | ----------- |
-| [dev-research](skills/dev-research/SKILL.md) | Research a codebase, approach, or technology before planning — compare candidates, verify claims with runnable spikes, write `docs/<feature>/RESEARCH.md` with a recommendation. |
+| [dev-research](skills/dev-research/SKILL.md) | Research a codebase, approach, or technology before planning — compare candidates, verify claims with spikes and web/doc lookups, write `docs/<feature>/RESEARCH.md` with a recommendation. Also spawned as a scoped sub-agent by the plan/implement skills for single questions (third-party APIs, libraries, docs). |
 | [dev-create-plan](skills/dev-create-plan/SKILL.md) | Create a structured `docs/<feature>/PLAN.md` with phases, tasks, and verifiable completion criteria. Branches, commits the plan, and integrates git at phase boundaries. |
 | [dev-implement-plan](skills/dev-implement-plan/SKILL.md) | Execute a `PLAN.md` produced by `dev-create-plan` — tick checkboxes as tasks complete, commit each phase, handle deviations, and open a PR on completion. |
 | [dev-code-review](skills/dev-code-review/SKILL.md) | Review a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature>/REVIEW.md` with severity ratings. |

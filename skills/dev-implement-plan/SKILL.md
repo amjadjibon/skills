@@ -27,6 +27,8 @@ Execute a `PLAN.md` produced by `dev-create-plan`: work through phases in order,
 
 **Surgical changes.** Touch only what the task requires. Match existing style. Mention unrelated dead code — don't delete it. Every changed line traces to the current task.
 
+**Don't guess at externals.** A task blocked on how a third-party API, library, or protocol actually behaves → check `docs/<feature-name>/research/` for an existing answer, else spawn a `dev-research` sub-agent (briefing template in dev-research §6) and implement from its findings. Commit the topic file with the phase. Guessed API contracts are how phases fail review.
+
 ## 1. Locate the Plan
 
 - Named feature → `docs/<feature-name>/PLAN.md`

@@ -61,6 +61,8 @@ find . -name "*.md" -path "*/docs/*" | head -20
 
 Read 3–5 key files to understand existing patterns. State assumptions in the plan's §4. Do not ask the user.
 
+If the task hinges on an unfamiliar third-party API, library, or technology choice, run `dev-research` first (same mode) → `docs/<feature-name>/RESEARCH.md`. For single scoped questions surfacing later in the loop, sub-skills spawn `dev-research` sub-agents themselves (dev-research §6).
+
 ### 1c. Create the plan
 
 Run `dev-create-plan` in autonomous mode → `docs/<feature-name>/PLAN.md` on branch `<feature-name>`.
