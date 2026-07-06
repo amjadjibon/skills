@@ -7,29 +7,38 @@ A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as
 Requires the [Claude Code CLI](https://claude.ai/code).
 
 1. Add this repo as a marketplace:
+
    ```text
    /plugin marketplace add https://github.com/amjadjibon/skills
    ```
+
 2. Install the plugin:
+
    ```text
    /plugin install dev-skills
    ```
+
 3. Verify it's installed:
+
    ```sh
    claude plugin list
    ```
+
 4. Invoke any skill with the `dev-skills:` namespace:
+
    ```text
    /dev-skills:dev-create-plan add rate limiting to the API
    /dev-skills:dev-loop add rate limiting to the API
    ```
 
 **Try before installing** — load it for one session with no marketplace/install step, from a local clone:
+
 ```sh
 claude --plugin-dir /path/to/skills
 ```
 
 **Update or remove:**
+
 ```text
 /plugin update dev-skills
 /plugin uninstall dev-skills
