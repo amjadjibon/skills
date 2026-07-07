@@ -100,13 +100,22 @@ Then invoke it in a Claude Code session (drop the `dev-skills:` prefix when inst
 /dev-loop add rate limiting to the API
 ```
 
+### Delivery modes
+
+Every skill accepts an optional trailing mode argument — `lite` (default, fastest), `full` (thorough), or `ultra` (maximum depth, often parallel agents):
+
+```text
+/dev-code-review full
+/dev-loop add rate limiting to the API ultra
+```
+
 ## How Skills Compose
 
 ```text
 dev-loop
-  └─ dev-research  →  dev-create-plan  →  dev-implement-plan  →  dev-code-review
-     (optional)                                 ↑                       │
-                                                └── fix agents ──────────┘ (parallel, per-finding)
+  └─ dev-research  →  dev-create-plan  →  dev-review-plan  →  dev-implement-plan  →  dev-qa  →  dev-code-review
+     (optional)                                                       ↑                                 │
+                                                                      └──── fix agents ─────────────────┘ (parallel, per-finding)
 ```
 
 Output artifacts land in `docs/<feature>/`: `RESEARCH.md` (`dev-research`, optional pre-plan), `PLAN.md` (created by `dev-create-plan`, updated by `dev-implement-plan`), `PLAN-REVIEW.md` (`dev-review-plan`), `QA.md` (`dev-qa`), `REVIEW.md` (written each pass by `dev-code-review`), and `LOOP.md` (dev-loop state).
@@ -136,4 +145,10 @@ description: <one-line description used for skill discovery>
 ---
 
 # Skill instructions here
+```
+
+After editing any `SKILL.md` (or this README / `CLAUDE.md`), validate before committing:
+
+```sh
+python3 scripts/validate.py
 ```
