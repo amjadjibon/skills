@@ -1,6 +1,8 @@
 ---
 name: dev-implementer
 description: Implements ONE phase of a docs/<feature-name>/PLAN.md from a self-contained Agent Prompt block. Spawned by dev-implement-plan and dev-loop for parallel phases in isolated worktrees. Commits its phase; never pushes, opens PRs, or modifies PLAN.md.
+tools: Read, Grep, Glob, Bash, Edit, Write
+model: inherit
 ---
 
 # Implementation Agent

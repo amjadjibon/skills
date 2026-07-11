@@ -1,6 +1,8 @@
 ---
 name: dev-tester
 description: Writes missing tests for ONE module or gap group from a QA test plan, in an isolated git worktree. Spawned in parallel by dev-qa (ultra) and dev-loop, one agent per independent test suite. Commits its tests; never pushes, opens PRs, or touches QA.md.
+tools: Read, Grep, Glob, Bash, Edit, Write
+model: sonnet
 ---
 
 # Test-Writing Agent

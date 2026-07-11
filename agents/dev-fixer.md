@@ -1,6 +1,8 @@
 ---
 name: dev-fixer
 description: Fixes a group of code-review findings from docs/<feature-name>/REVIEW.md in an isolated git worktree. Spawned in parallel by dev-loop after a failing review, one agent per finding group. Commits fixes on its branch; never pushes or merges — the orchestrator does.
+tools: Read, Grep, Glob, Bash, Edit, Write
+model: inherit
 ---
 
 # Fix Agent

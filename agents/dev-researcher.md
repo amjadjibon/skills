@@ -2,6 +2,7 @@
 name: dev-researcher
 description: Answers ONE scoped research question (third-party API contract, library capability, doc lookup, internet search) and writes the finding to docs/<feature-name>/research/<topic-slug>.md. Spawned by dev-create-plan, dev-implement-plan, and dev-loop; also used by dev-research ultra mode for parallel questions. Read-only on the repo — never edits application code, commits, or pushes.
 tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
+model: sonnet
 ---
 
 # Research Agent
