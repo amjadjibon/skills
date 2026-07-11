@@ -14,6 +14,8 @@ skills/
     SKILL.md     # The skill definition
 agents/
   <agent-name>.md  # Sub-agent definitions the skills spawn
+commands/
+  <command-name>.md  # Slash commands (currently: loop — wraps dev-loop)
 ```
 
 Each skill lives in its own directory under `skills/`. The directory name is the skill's identifier used to invoke it.

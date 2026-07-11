@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS = ROOT / "skills"
 AGENTS = ROOT / "agents"
+COMMANDS = ROOT / "commands"
 
 HYGIENE_LINE = (
     "Commit hygiene: `git add -u` for tracked files, explicit paths for new files, "
@@ -68,7 +69,8 @@ def main():
     skill_dirs = sorted(d.name for d in SKILLS.iterdir() if d.is_dir())
     agent_files = sorted(AGENTS.glob("*.md")) if AGENTS.is_dir() else []
     agent_names = {p.stem for p in agent_files}
-    md_files = [SKILLS / d / "SKILL.md" for d in skill_dirs] + agent_files + [ROOT / "CLAUDE.md", ROOT / "README.md"]
+    command_files = sorted(COMMANDS.glob("*.md")) if COMMANDS.is_dir() else []
+    md_files = [SKILLS / d / "SKILL.md" for d in skill_dirs] + agent_files + command_files + [ROOT / "CLAUDE.md", ROOT / "README.md"]
 
     for path in md_files:
         if not path.exists():

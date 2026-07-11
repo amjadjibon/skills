@@ -74,6 +74,16 @@ The plugin also ships three sub-agent definitions under `agents/`, used by the s
 | [dev-fixer](agents/dev-fixer.md) | dev-loop | Fixes a group of REVIEW.md findings in an isolated worktree, in parallel with other fixers. |
 | [dev-tester](agents/dev-tester.md) | dev-qa (ultra), dev-loop | Writes missing tests for one module's coverage gaps in an isolated worktree; reports suspected bugs instead of changing app code. |
 
+## Commands
+
+The plugin ships one slash command under `commands/` — a direct entry point to the orchestrator:
+
+```text
+/dev-skills:loop add rate limiting to the API ultra
+```
+
+`loop` invokes the `dev-loop` skill with your arguments (trailing `lite|full|ultra` = mode) and runs the full plan → implement → review → fix cycle, pausing only at the approval gate before pushing.
+
 ## Usage
 
 See [Installing the Plugin](#installing-the-plugin) above for the recommended path (namespaced as `/dev-skills:<skill-name>`).
