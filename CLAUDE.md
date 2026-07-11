@@ -18,7 +18,7 @@ agents/
 
 Each skill lives in its own directory under `skills/`. The directory name is the skill's identifier used to invoke it.
 
-`agents/` holds sub-agent definitions (same frontmatter shape: `name` matching the filename, `description`; optional `tools`). The skills reference them by name when spawning parallel workers: `dev-researcher` (scoped research questions), `dev-implementer` (one PLAN.md phase in a worktree), `dev-fixer` (a group of REVIEW.md findings in a worktree). Skills must still work without them — every spawn instruction says "when available, else general-purpose".
+`agents/` holds sub-agent definitions (same frontmatter shape: `name` matching the filename, `description`; optional `tools`). The skills reference them by name when spawning parallel workers: `dev-researcher` (scoped research questions), `dev-implementer` (one PLAN.md phase in a worktree), `dev-fixer` (a group of REVIEW.md findings in a worktree), `dev-tester` (one module's coverage gaps in a worktree). Skills must still work without them — every spawn instruction says "when available, else general-purpose".
 
 ## SKILL.md Format
 

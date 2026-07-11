@@ -14,7 +14,7 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 - `lite` (default) — one commit, one branch, one PR for all new tests.
 - `full` — one branch per module (`<feature-name>/qa-<module>`), stacked PRs.
-- `ultra` — independent test suites written in parallel worktrees, merged and reported together.
+- `ultra` — independent test suites written in parallel worktrees (subagent type `dev-tester` when available, else general-purpose — one per module, briefed with its worktree path, branch, and §3 gaps), merged and reported together.
 
 ## 1. Scope
 

@@ -72,6 +72,7 @@ The plugin also ships three sub-agent definitions under `agents/`, used by the s
 | [dev-researcher](agents/dev-researcher.md) | dev-create-plan, dev-implement-plan, dev-loop, dev-research (ultra) | Answers one scoped research question (API contract, library, docs, web) into `docs/<feature>/research/<topic>.md`. Read-only + web tools. |
 | [dev-implementer](agents/dev-implementer.md) | dev-implement-plan (ultra), dev-loop | Implements one PLAN.md phase in an isolated worktree from its Agent Prompt block. Commits; never pushes. |
 | [dev-fixer](agents/dev-fixer.md) | dev-loop | Fixes a group of REVIEW.md findings in an isolated worktree, in parallel with other fixers. |
+| [dev-tester](agents/dev-tester.md) | dev-qa (ultra), dev-loop | Writes missing tests for one module's coverage gaps in an isolated worktree; reports suspected bugs instead of changing app code. |
 
 ## Usage
 
