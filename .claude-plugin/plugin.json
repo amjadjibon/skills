@@ -1,7 +1,7 @@
 {
   "name": "dev-skills",
-  "description": "Autonomous dev workflow skills: plan, implement, review, QA, debug, refactor, and clean up — each with a lite/full/ultra delivery mode.",
-  "version": "1.0.0",
+  "description": "Autonomous dev workflow in one plugin: 12 skills (plan, implement, review, QA, debug, refactor, perf, release, clean up), 4 sub-agents (researcher, implementer, fixer, tester), and the /loop orchestrator command — each skill with a lite/full/ultra delivery mode.",
+  "version": "1.1.0",
   "author": {
     "name": "Amjad Hossain"
   },

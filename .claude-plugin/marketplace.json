@@ -1,0 +1,13 @@
+{
+  "name": "amjadjibon-skills",
+  "owner": {
+    "name": "Amjad Hossain"
+  },
+  "plugins": [
+    {
+      "name": "dev-skills",
+      "source": "./",
+      "description": "Autonomous dev workflow in one plugin: 12 skills (plan, implement, review, QA, debug, refactor, perf, release, clean up), 4 sub-agents (researcher, implementer, fixer, tester), and the /loop orchestrator command — each skill with a lite/full/ultra delivery mode."
+    }
+  ]
+}
