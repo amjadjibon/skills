@@ -12,9 +12,13 @@ This is a collection of custom Claude Code skills. Skills are persona or behavio
 skills/
   <skill-name>/
     SKILL.md     # The skill definition
+agents/
+  <agent-name>.md  # Sub-agent definitions the skills spawn
 ```
 
 Each skill lives in its own directory under `skills/`. The directory name is the skill's identifier used to invoke it.
+
+`agents/` holds sub-agent definitions (same frontmatter shape: `name` matching the filename, `description`; optional `tools`). The skills reference them by name when spawning parallel workers: `dev-researcher` (scoped research questions), `dev-implementer` (one PLAN.md phase in a worktree), `dev-fixer` (a group of REVIEW.md findings in a worktree). Skills must still work without them — every spawn instruction says "when available, else general-purpose".
 
 ## SKILL.md Format
 

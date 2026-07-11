@@ -28,7 +28,7 @@ ls docs/ 2>/dev/null
 
 Read 3–5 key files (routing, middleware, error handling, tests). Record findings as `ASSUMPTION-*` in §4. If `docs/<feature-name>/RESEARCH.md` exists, read it — the plan follows its recommendation and inherits its assumptions.
 
-**Unknown externals → research sub-agents, not guesses.** If the plan hinges on a third-party API, unfamiliar library, or anything a doc/internet lookup can settle, spawn one `dev-research` sub-agent per question (template in dev-research §6, parallel when independent). Reference answers as `research/<topic-slug>.md`; commit the topic files with the plan.
+**Unknown externals → research sub-agents, not guesses.** If the plan hinges on a third-party API, unfamiliar library, or anything a doc/internet lookup can settle, spawn one research sub-agent per question (subagent type `dev-researcher` when available, else general-purpose with the template in dev-research §6; parallel when independent). Reference answers as `research/<topic-slug>.md`; commit the topic files with the plan.
 
 ## Git
 

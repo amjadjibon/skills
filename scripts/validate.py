@@ -10,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS = ROOT / "skills"
+AGENTS = ROOT / "agents"
 
 HYGIENE_LINE = (
     "Commit hygiene: `git add -u` for tracked files, explicit paths for new files, "
@@ -65,7 +66,9 @@ def check_frontmatter(path, text, dirname):
 
 def main():
     skill_dirs = sorted(d.name for d in SKILLS.iterdir() if d.is_dir())
-    md_files = [SKILLS / d / "SKILL.md" for d in skill_dirs] + [ROOT / "CLAUDE.md", ROOT / "README.md"]
+    agent_files = sorted(AGENTS.glob("*.md")) if AGENTS.is_dir() else []
+    agent_names = {p.stem for p in agent_files}
+    md_files = [SKILLS / d / "SKILL.md" for d in skill_dirs] + agent_files + [ROOT / "CLAUDE.md", ROOT / "README.md"]
 
     for path in md_files:
         if not path.exists():
@@ -76,15 +79,17 @@ def main():
 
         if path.name == "SKILL.md":
             check_frontmatter(path, text, path.parent.name)
+        elif path.parent == AGENTS:
+            check_frontmatter(path, text, path.stem)
             if "## Delivery Mode" in text and MODE_LINE not in text:
                 err(path, "Delivery Mode section missing the canonical mode-parsing line")
             if "git commit -m" in text and HYGIENE_LINE not in text:
                 err(path, "commits but missing the canonical commit-hygiene line")
 
-        # every dev-* reference must be a real skill
-        for ref in set(re.findall(r"\bdev-[a-z][a-z-]*[a-z]\b", text)) - NOT_SKILLS:
+        # every dev-* reference must be a real skill or agent
+        for ref in set(re.findall(r"\bdev-[a-z][a-z-]*[a-z]\b", text)) - NOT_SKILLS - agent_names:
             if ref not in skill_dirs:
-                err(path, f"references `{ref}` but skills/{ref}/ does not exist")
+                err(path, f"references `{ref}` but skills/{ref}/ and agents/{ref}.md do not exist")
 
     # CLAUDE.md and README.md must list every skill
     for doc in ("CLAUDE.md", "README.md"):

@@ -99,7 +99,7 @@ git worktree add .worktrees/<feature-name>-<slot> -b <feature-name>-<slot> <feat
 
 `<slot>`: `phase-2`, `fix-HIGH-001`, `fix-cluster-auth`. Add a LOOP.md Active Worktrees row before handoff; track `assigned → running → merged → removed`.
 
-**Assign** — implementation phases: use the phase's `**Agent Prompt**` from PLAN.md verbatim, prepend `Worktree path: .worktrees/<feature-name>-<slot>`. Fix agents:
+**Assign** — spawn with the plugin's agent types when available (`dev-implementer` for phases, `dev-fixer` for fixes, `dev-researcher` for research questions), else general-purpose. Implementation phases: use the phase's `**Agent Prompt**` from PLAN.md verbatim, prepend `Worktree path: .worktrees/<feature-name>-<slot>`. Fix agents:
 
 ```
 You are a sub-agent fixing review findings in an isolated git worktree.

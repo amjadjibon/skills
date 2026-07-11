@@ -24,7 +24,7 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 **Surgical changes.** Touch only what the task requires; match existing style; mention unrelated issues, don't fix them. Every changed line traces to the current task.
 
-**Don't guess at externals.** Blocked on how a third-party API/library actually behaves → check `docs/<feature-name>/research/`, else spawn a `dev-research` sub-agent (template in dev-research §6) and implement from its findings; commit the topic file with the phase.
+**Don't guess at externals.** Blocked on how a third-party API/library actually behaves → check `docs/<feature-name>/research/`, else spawn a research sub-agent (subagent type `dev-researcher` when available, else general-purpose with the template in dev-research §6) and implement from its findings; commit the topic file with the phase.
 
 ## 1. Locate the Plan
 

@@ -63,6 +63,16 @@ If a skill doesn't show up after install, run `/reload-plugins` (or restart the 
 | [dev-clean-up](skills/dev-clean-up/SKILL.md) | Housekeeping — remove merged local and remote branches, prune stale tracking refs, close resolved GitHub issues, clean up leftover worktrees. |
 | [dev-release](skills/dev-release/SKILL.md) | Cut a release — derive the version bump from conventional commits, generate a changelog, bump version files, tag, and publish a GitHub release. |
 
+## Agents
+
+The plugin also ships three sub-agent definitions under `agents/`, used by the skills when they spawn parallel workers (skills fall back to general-purpose agents when installed standalone without the plugin):
+
+| Agent | Spawned by | Role |
+| ----- | ---------- | ---- |
+| [dev-researcher](agents/dev-researcher.md) | dev-create-plan, dev-implement-plan, dev-loop, dev-research (ultra) | Answers one scoped research question (API contract, library, docs, web) into `docs/<feature>/research/<topic>.md`. Read-only + web tools. |
+| [dev-implementer](agents/dev-implementer.md) | dev-implement-plan (ultra), dev-loop | Implements one PLAN.md phase in an isolated worktree from its Agent Prompt block. Commits; never pushes. |
+| [dev-fixer](agents/dev-fixer.md) | dev-loop | Fixes a group of REVIEW.md findings in an isolated worktree, in parallel with other fixers. |
+
 ## Usage
 
 See [Installing the Plugin](#installing-the-plugin) above for the recommended path (namespaced as `/dev-skills:<skill-name>`).
