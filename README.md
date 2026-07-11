@@ -1,6 +1,6 @@
 # skills
 
-A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin.
+A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 12 skills, 4 sub-agents, and the `/loop` orchestrator command.
 
 ## Installing the Plugin
 
@@ -9,16 +9,16 @@ Requires the [Claude Code CLI](https://claude.ai/code).
 1. Add this repo as a marketplace:
 
    ```text
-   /plugin marketplace add https://github.com/amjadjibon/skills
+   /plugin marketplace add amjadjibon/skills
    ```
 
 2. Install the plugin:
 
    ```text
-   /plugin install dev-skills
+   /plugin install dev-skills@amjadjibon-skills
    ```
 
-3. Verify it's installed:
+3. Verify it's installed — skills and command with `claude plugin list`, agents with `/agents`:
 
    ```sh
    claude plugin list
@@ -90,7 +90,7 @@ See [Installing the Plugin](#installing-the-plugin) above for the recommended pa
 
 ### As standalone skills
 
-Prefer a single skill without the plugin namespace? Install it directly from this repository using `npx skills`:
+Prefer a single skill without the plugin namespace? Install it directly from this repository using `npx skills`. Note this path carries only the skill — not the agents or the `/loop` command; skills fall back to general-purpose sub-agents when the plugin's agents aren't installed:
 
 ```sh
 # Install a specific skill (personal, available in all projects)

@@ -4,11 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This is a collection of custom Claude Code skills. Skills are persona or behavior overlays that modify how Claude responds when invoked via the Skill tool.
+This repository is the `dev-skills` Claude Code plugin: 12 skills, 4 sub-agents, and the `/loop` command, distributed via the repo's own marketplace (`.claude-plugin/marketplace.json`). Skills are behavior overlays invoked via the Skill tool; agents are the parallel workers the skills spawn.
 
 ## Structure
 
 ```text
+.claude-plugin/
+  plugin.json        # Plugin manifest (name, description, version)
+  marketplace.json   # Makes the repo installable: /plugin marketplace add amjadjibon/skills
 skills/
   <skill-name>/
     SKILL.md     # The skill definition
@@ -45,7 +48,9 @@ After editing any SKILL.md, CLAUDE.md, or README.md, run:
 python3 scripts/validate.py
 ```
 
-It checks frontmatter, code-fence nesting, cross-skill references, doc coverage, and the canonical convention lines (commit hygiene, mode parsing). Must pass before committing.
+It checks frontmatter (skills and agents), code-fence nesting, cross-skill/agent references, doc coverage, and the canonical convention lines (commit hygiene, mode parsing) across skills/, agents/, commands/, CLAUDE.md, and README.md. Must pass before committing.
+
+When adding a skill, agent, or command, also bump `version` in `.claude-plugin/plugin.json` and keep its description (and marketplace.json's) in sync.
 
 ## Adding a New Skill
 
