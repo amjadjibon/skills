@@ -4,6 +4,7 @@
 Run from the repo root: python3 scripts/validate.py
 Exits non-zero on any finding.
 """
+import json
 import re
 import sys
 from pathlib import Path
@@ -93,12 +94,26 @@ def main():
             if ref not in skill_dirs:
                 err(path, f"references `{ref}` but skills/{ref}/ and agents/{ref}.md do not exist")
 
-    # CLAUDE.md and README.md must list every skill
+    # CLAUDE.md and README.md must list every skill and mention every agent
     for doc in ("CLAUDE.md", "README.md"):
         text = (ROOT / doc).read_text()
         for d in skill_dirs:
             if not re.search(rf"\*\*{d}\*\*|\[{d}\]", text):
                 err(ROOT / doc, f"does not list skill `{d}`")
+        for a in sorted(agent_names):
+            if a not in text:
+                err(ROOT / doc, f"does not mention agent `{a}`")
+
+    # plugin.json and marketplace.json must exist, parse, and agree on the description
+    plugin_path = ROOT / ".claude-plugin" / "plugin.json"
+    market_path = ROOT / ".claude-plugin" / "marketplace.json"
+    try:
+        plugin = json.loads(plugin_path.read_text())
+        market = json.loads(market_path.read_text())
+        if plugin.get("description") != market["plugins"][0].get("description"):
+            err(market_path, "plugin description out of sync with plugin.json")
+    except (OSError, json.JSONDecodeError, KeyError, IndexError) as e:
+        err(plugin_path, f"manifest problem: {e}")
 
     if errors:
         print("\n".join(errors))
