@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS = ROOT / "skills" / "dev"
-AGENTS = ROOT / "agents"
+AGENTS = ROOT / ".agents"
 COMMANDS = ROOT / "commands"
 
 HYGIENE_LINE = (
@@ -92,7 +92,7 @@ def main():
         # every dev-* reference must be a real skill or agent
         for ref in set(re.findall(r"\bdev-[a-z][a-z-]*[a-z]\b", text)) - NOT_SKILLS - agent_names:
             if ref not in skill_dirs:
-                err(path, f"references `{ref}` but skills/{ref}/ and agents/{ref}.md do not exist")
+                err(path, f"references `{ref}` but skills/dev/{ref}/ and .agents/{ref}.md do not exist")
 
     # CLAUDE.md and README.md must list every skill and mention every agent
     for doc in ("CLAUDE.md", "README.md"):
