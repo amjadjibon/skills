@@ -6,5 +6,21 @@
     "name": "Amjad Hossain"
   },
   "homepage": "https://github.com/amjadjibon/skills",
-  "repository": "https://github.com/amjadjibon/skills"
+  "repository": "https://github.com/amjadjibon/skills",
+  "skills": [
+    "./skills/dev/dev-clean-up",
+    "./skills/dev/dev-code-review",
+    "./skills/dev/dev-create-plan",
+    "./skills/dev/dev-debug",
+    "./skills/dev/dev-design",
+    "./skills/dev/dev-implement-plan",
+    "./skills/dev/dev-loop",
+    "./skills/dev/dev-perf",
+    "./skills/dev/dev-qa",
+    "./skills/dev/dev-refactor",
+    "./skills/dev/dev-release",
+    "./skills/dev/dev-research",
+    "./skills/dev/dev-review-plan",
+    "./skills/dev/dev-ui-design"
+  ]
 }

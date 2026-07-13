@@ -13,15 +13,16 @@ This repository is the `dev-skills` Claude Code plugin: 14 skills, 4 sub-agents,
   plugin.json        # Plugin manifest (name, description, version)
   marketplace.json   # Makes the repo installable: /plugin marketplace add amjadjibon/skills
 skills/
-  <skill-name>/
-    SKILL.md     # The skill definition
+  dev/
+    <skill-name>/
+      SKILL.md     # The skill definition
 agents/
   <agent-name>.md  # Sub-agent definitions the skills spawn
 commands/
   <command-name>.md  # Slash commands (currently: loop — wraps dev-loop)
 ```
 
-Each skill lives in its own directory under `skills/`. The directory name is the skill's identifier used to invoke it.
+Each skill lives in its own directory under `skills/dev/`. The directory name is the skill's identifier used to invoke it. Because skills are nested one level deeper than the plugin-loader default, `.claude-plugin/plugin.json` lists each skill path explicitly in its `skills` array — keep that array in sync when adding, removing, or renaming a skill directory.
 
 `agents/` holds sub-agent definitions (same frontmatter shape: `name` matching the filename, `description`; optional `tools`). The skills reference them by name when spawning parallel workers: `dev-researcher` (scoped research questions), `dev-implementer` (one PLAN.md phase in a worktree), `dev-fixer` (a group of REVIEW.md findings in a worktree), `dev-tester` (one module's coverage gaps in a worktree). Skills must still work without them — every spawn instruction says "when available, else general-purpose".
 
@@ -64,10 +65,11 @@ It will guide you through drafting the skill, writing test cases, running evals,
 
 To add manually:
 
-1. Create `skills/<skill-name>/SKILL.md`
+1. Create `skills/dev/<skill-name>/SKILL.md`
 2. Add the YAML frontmatter (`name`, `description`)
 3. Write the skill instructions in the body — be explicit about voice, rules, and examples
 4. The description should capture trigger phrases and use cases precisely
+5. Add `"./skills/dev/<skill-name>"` to the `skills` array in `.claude-plugin/plugin.json`
 
 ## Existing Skills
 

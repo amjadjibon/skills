@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILLS = ROOT / "skills"
+SKILLS = ROOT / "skills" / "dev"
 AGENTS = ROOT / "agents"
 COMMANDS = ROOT / "commands"
 
