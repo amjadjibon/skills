@@ -1,6 +1,6 @@
 # skills
 
-A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 12 skills, 4 sub-agents, and the `/loop` orchestrator command.
+A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 14 skills, 4 sub-agents, and the `/loop` orchestrator command.
 
 ## Installing the Plugin
 
@@ -51,6 +51,8 @@ If a skill doesn't show up after install, run `/reload-plugins` (or restart the 
 | Skill | Description |
 | ----- | ----------- |
 | [dev-research](skills/dev-research/SKILL.md) | Research a codebase, approach, or technology before planning — compare candidates, verify claims with spikes and web/doc lookups, write `docs/<feature>/RESEARCH.md` with a recommendation. Also spawned as a scoped sub-agent by the plan/implement skills for single questions (third-party APIs, libraries, docs). |
+| [dev-design](skills/dev-design/SKILL.md) | Decide a feature's shape before planning — system design, data model, API/interface contract, UI/UX, whichever axes apply. Writes `docs/<feature>/DESIGN.md` that `dev-create-plan` builds phases from. |
+| [dev-ui-design](skills/dev-ui-design/SKILL.md) | Build a clickable UI prototype as one self-contained HTML file (inline CSS, no build step) to demo a screen or flow before real frontend code is written. Writes `docs/<feature>/prototype.html`. |
 | [dev-create-plan](skills/dev-create-plan/SKILL.md) | Create a structured `docs/<feature>/PLAN.md` with phases, tasks, and verifiable completion criteria. Branches, commits the plan, and integrates git at phase boundaries. |
 | [dev-implement-plan](skills/dev-implement-plan/SKILL.md) | Execute a `PLAN.md` produced by `dev-create-plan` — tick checkboxes as tasks complete, commit each phase, handle deviations, and open a PR on completion. |
 | [dev-code-review](skills/dev-code-review/SKILL.md) | Review a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature>/REVIEW.md` with severity ratings. |
@@ -134,12 +136,12 @@ Every skill accepts an optional trailing mode argument — `lite` (default, fast
 
 ```text
 dev-loop
-  └─ dev-research  →  dev-create-plan  →  dev-review-plan  →  dev-implement-plan  →  dev-qa  →  dev-code-review
-     (optional)                                                       ↑                                 │
-                                                                      └──── fix agents ─────────────────┘ (parallel, per-finding)
+  └─ dev-research  →  dev-design   →  dev-create-plan  →  dev-review-plan  →  dev-implement-plan  →  dev-qa  →  dev-code-review
+     (optional)         (optional)                                                    ↑                                 │
+                                                                                       └──── fix agents ─────────────────┘ (parallel, per-finding)
 ```
 
-Output artifacts land in `docs/<feature>/`: `RESEARCH.md` (`dev-research`, optional pre-plan), `PLAN.md` (created by `dev-create-plan`, updated by `dev-implement-plan`), `PLAN-REVIEW.md` (`dev-review-plan`), `QA.md` (`dev-qa`), `REVIEW.md` (written each pass by `dev-code-review`), and `LOOP.md` (dev-loop state).
+Output artifacts land in `docs/<feature>/`: `RESEARCH.md` (`dev-research`, optional pre-plan), `DESIGN.md` (`dev-design`, optional pre-plan), `prototype.html` (`dev-ui-design`, optional pre-plan), `PLAN.md` (created by `dev-create-plan`, updated by `dev-implement-plan`), `PLAN-REVIEW.md` (`dev-review-plan`), `QA.md` (`dev-qa`), `REVIEW.md` (written each pass by `dev-code-review`), and `LOOP.md` (dev-loop state).
 
 ## Adding a Skill
 

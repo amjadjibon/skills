@@ -38,7 +38,7 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 ## 1. Bootstrap
 
 1. **Feature name**: kebab-case slug of the task ("Add rate limiting to /api/login" → `rate-limit-login`).
-2. **Research**: `git status && git branch --show-current`; read 3–5 key files; state assumptions in the plan's §4; never ask the user. If the task hinges on an unfamiliar third-party API/library/technology, run `dev-research` first (same mode) → `docs/<feature-name>/RESEARCH.md`. Scoped questions surfacing later are handled by sub-skills spawning `dev-research` sub-agents (dev-research §6).
+2. **Research**: `git status && git branch --show-current`; read 3–5 key files; state assumptions in the plan's §4; never ask the user. If the task hinges on an unfamiliar third-party API/library/technology, run `dev-research` first (same mode) → `docs/<feature-name>/RESEARCH.md`. If the feature needs its shape decided (system design, data model, API contract, UI/UX) before it can be phased, run `dev-design` next (same mode) → `docs/<feature-name>/DESIGN.md`. Scoped questions surfacing later are handled by sub-skills spawning `dev-research` sub-agents (dev-research §6).
 3. **Plan**: `dev-create-plan` (autonomous) → `docs/<feature-name>/PLAN.md` on branch `<feature-name>`.
 4. **Review plan**: `dev-review-plan`. `Ready` → proceed. `Needs Revision` → apply Revise findings in one commit (`docs: revise plan based on review`), proceed. `Blocked` → stop, report.
 5. **Init LOOP.md** from this template (the loop parses it to resume — keep the structure exact), commit `chore: init dev loop for <feature-name>`:

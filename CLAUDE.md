@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This repository is the `dev-skills` Claude Code plugin: 12 skills, 4 sub-agents, and the `/loop` command, distributed via the repo's own marketplace (`.claude-plugin/marketplace.json`). Skills are behavior overlays invoked via the Skill tool; agents are the parallel workers the skills spawn.
+This repository is the `dev-skills` Claude Code plugin: 14 skills, 4 sub-agents, and the `/loop` command, distributed via the repo's own marketplace (`.claude-plugin/marketplace.json`). Skills are behavior overlays invoked via the Skill tool; agents are the parallel workers the skills spawn.
 
 ## Structure
 
@@ -72,6 +72,8 @@ To add manually:
 ## Existing Skills
 
 - **dev-research** — Investigates a codebase, approach, or technology before planning; compares candidates, verifies claims with spikes and web/doc lookups, writes `docs/<feature-name>/RESEARCH.md` with a recommendation. Also spawned as a scoped sub-agent by dev-create-plan/dev-implement-plan/dev-loop to answer single questions (third-party APIs, libraries, docs) into `docs/<feature-name>/research/<topic>.md`.
+- **dev-design** — Decides a feature's shape before planning: system design, data model, API/interface contract, and UI/UX, whichever axes apply. Writes `docs/<feature-name>/DESIGN.md` that `dev-create-plan` builds phases from.
+- **dev-ui-design** — Builds a clickable UI prototype as a single self-contained HTML file (inline CSS, no build step) to demo a screen or flow, turning `dev-design`'s UI/UX axis into something clickable. Writes `docs/<feature-name>/prototype.html`.
 - **dev-create-plan** — Writes `docs/<feature-name>/PLAN.md` with phased, checkbox-driven steps ready for autonomous execution.
 - **dev-implement-plan** — Executes a `PLAN.md` produced by `dev-create-plan`, ticking checkboxes and committing each phase.
 - **dev-code-review** — Reviews a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature-name>/REVIEW.md`.
@@ -90,9 +92,9 @@ Skills are designed to compose:
 
 ```text
 dev-loop
-  └─ dev-research  →  dev-create-plan  →  dev-review-plan  →  dev-implement-plan  →  dev-qa  →  dev-code-review
-     (optional)                                                       ↑                                 │
-                                                                      └──── fix agents ─────────────────┘ (parallel, per-finding)
+  └─ dev-research  →  dev-design   →  dev-create-plan  →  dev-review-plan  →  dev-implement-plan  →  dev-qa  →  dev-code-review
+     (optional)         (optional)                                                    ↑                                 │
+                                                                                       └──── fix agents ─────────────────┘ (parallel, per-finding)
 ```
 
 Plans live in `docs/<feature-name>/PLAN.md`; reviews in `docs/<feature-name>/REVIEW.md`.
@@ -104,7 +106,9 @@ Artifacts produced during a dev-loop session accumulate under `docs/`. Each feat
 ```text
 docs/
   <feature-name>/
-    RESEARCH.md # created by dev-research (optional, pre-plan)
-    PLAN.md     # created by dev-create-plan, mutated by dev-implement-plan
+    RESEARCH.md    # created by dev-research (optional, pre-plan)
+    DESIGN.md      # created by dev-design (optional, pre-plan)
+    prototype.html # created by dev-ui-design (optional, pre-plan)
+    PLAN.md        # created by dev-create-plan, mutated by dev-implement-plan
     REVIEW.md   # created/overwritten each review pass by dev-code-review
 ```
