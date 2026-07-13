@@ -1,0 +1,125 @@
+<title>dev-skills</title>
+<style>
+  :root{
+    --bg:#0d1117; --bg2:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e;
+    --accent:#58a6ff; --accent-dim:#1f6feb; --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    line-height:1.5;
+  }
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  header{border-bottom:1px solid var(--border); padding:16px 24px; display:flex; align-items:center; gap:12px}
+  header .logo{width:32px;height:32px;border-radius:6px;background:linear-gradient(135deg,#58a6ff,#1f6feb);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
+  header .name{font-weight:600}
+  header nav{margin-left:auto; display:flex; gap:20px; font-size:14px}
+  header nav a{color:var(--muted)}
+
+  .hero{max-width:900px; margin:0 auto; padding:72px 24px 48px; text-align:center}
+  .hero h1{font-size:42px; margin:0 0 12px; letter-spacing:-0.02em}
+  .hero p{color:var(--muted); font-size:18px; max-width:620px; margin:0 auto 28px}
+  .hero .cta{display:flex; gap:12px; justify-content:center; flex-wrap:wrap}
+  .btn{padding:10px 18px; border-radius:6px; font-size:14px; font-weight:600; border:1px solid var(--border); cursor:pointer}
+  .btn-primary{background:var(--accent-dim); color:#fff; border-color:var(--accent-dim)}
+  .btn-primary:hover{background:#3b82f6; text-decoration:none}
+  .btn-ghost{background:var(--bg2); color:var(--text)}
+  .btn-ghost:hover{background:#21262d; text-decoration:none}
+
+  .install{max-width:640px; margin:0 auto 64px; background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:16px 20px; font-family:var(--mono); font-size:13.5px; display:flex; align-items:center; justify-content:space-between; gap:12px}
+  .install code{color:#a5d6ff}
+  .copy{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:inherit}
+  .copy:hover{color:var(--text);border-color:var(--muted)}
+
+  section{max-width:1080px; margin:0 auto; padding:0 24px 64px}
+  section h2{font-size:24px; margin-bottom:6px}
+  section .sub{color:var(--muted); margin-bottom:28px; font-size:15px}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px}
+  .card{background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:18px 20px; transition:border-color .15s}
+  .card:hover{border-color:var(--accent)}
+  .card .tag{font-family:var(--mono); font-size:12.5px; color:var(--accent); margin-bottom:8px; display:inline-block}
+  .card p{color:var(--muted); font-size:13.5px; margin:0}
+
+  .pipeline{background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:28px 24px; overflow-x:auto}
+  .pipeline pre{margin:0; font-family:var(--mono); font-size:13px; color:#a5d6ff; white-space:pre}
+
+  .agents{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px}
+  .agent{border:1px solid var(--border); border-radius:8px; padding:16px; background:var(--bg2)}
+  .agent .name{font-family:var(--mono); font-weight:600; font-size:14px}
+  .agent p{color:var(--muted); font-size:13px; margin:6px 0 0}
+
+  footer{border-top:1px solid var(--border); padding:32px 24px; text-align:center; color:var(--muted); font-size:13px}
+</style>
+
+<header>
+  <div class="logo">DS</div>
+  <span class="name">dev-skills</span>
+  <nav>
+    <a href="#skills">Skills</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#agents">Agents</a>
+    <a href="https://github.com/amjadjibon/skills">GitHub</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <h1>Autonomous dev workflow, one plugin.</h1>
+  <p>14 skills and 4 sub-agents for Claude Code — design, plan, implement, review, QA, and release, each with a lite/full/ultra delivery mode.</p>
+  <div class="cta">
+    <a class="btn btn-primary" href="https://github.com/amjadjibon/skills">View on GitHub</a>
+    <a class="btn btn-ghost" href="#skills">Browse skills</a>
+  </div>
+</div>
+
+<div class="install">
+  <code>/plugin marketplace add amjadjibon/skills</code>
+  <button class="copy" onclick="navigator.clipboard.writeText('/plugin marketplace add amjadjibon/skills'); this.textContent='Copied'; setTimeout(()=>this.textContent='Copy',1200)">Copy</button>
+</div>
+
+<section id="pipeline">
+  <h2>Pipeline</h2>
+  <p class="sub">Skills compose end to end, or run standalone.</p>
+  <div class="pipeline"><pre>dev-loop
+  └─ dev-research  →  dev-design   →  dev-create-plan  →  dev-review-plan  →  dev-implement-plan  →  dev-qa  →  dev-code-review
+     (optional)         (optional)                                                    ↑                                 │
+                                                                                       └──── fix agents ─────────────────┘</pre></div>
+</section>
+
+<section id="skills">
+  <h2>Skills</h2>
+  <p class="sub">14 behavior overlays, invoked via the Skill tool.</p>
+  <div class="grid">
+    <div class="card"><span class="tag">dev-research</span><p>Investigate a codebase, approach, or technology before planning; writes RESEARCH.md with a recommendation.</p></div>
+    <div class="card"><span class="tag">dev-design</span><p>Decide a feature's shape: system design, data model, API contract, and UI/UX. Writes DESIGN.md.</p></div>
+    <div class="card"><span class="tag">dev-ui-design</span><p>Builds a clickable UI prototype as one self-contained HTML file. Writes prototype.html.</p></div>
+    <div class="card"><span class="tag">dev-create-plan</span><p>Writes PLAN.md with phased, checkbox-driven steps ready for autonomous execution.</p></div>
+    <div class="card"><span class="tag">dev-review-plan</span><p>Reviews a PLAN.md before implementation for vague tasks, missing criteria, and scope issues.</p></div>
+    <div class="card"><span class="tag">dev-implement-plan</span><p>Executes a PLAN.md, ticking checkboxes and committing each phase.</p></div>
+    <div class="card"><span class="tag">dev-qa</span><p>Measures test coverage, identifies untested paths, writes missing tests, produces QA.md.</p></div>
+    <div class="card"><span class="tag">dev-code-review</span><p>Reviews a diff or branch for correctness, security, and simplification; writes REVIEW.md.</p></div>
+    <div class="card"><span class="tag">dev-loop</span><p>Orchestrates plan → implement → review autonomously, spawning parallel agents in worktrees.</p></div>
+    <div class="card"><span class="tag">dev-refactor</span><p>Restructures code without changing behavior, applying changes in small verifiable steps.</p></div>
+    <div class="card"><span class="tag">dev-debug</span><p>Reproduce → isolate → fix → verify loop, committing the failing test before the fix.</p></div>
+    <div class="card"><span class="tag">dev-perf</span><p>Measure baseline → profile → optimize one bottleneck at a time → benchmark.</p></div>
+    <div class="card"><span class="tag">dev-clean-up</span><p>Removes merged branches, prunes stale refs, closes resolved issues, cleans worktrees.</p></div>
+    <div class="card"><span class="tag">dev-release</span><p>Derives the version bump from conventional commits, generates a changelog, tags a release.</p></div>
+  </div>
+</section>
+
+<section id="agents">
+  <h2>Sub-agents</h2>
+  <p class="sub">Parallel workers the skills spawn, each in an isolated worktree.</p>
+  <div class="agents">
+    <div class="agent"><div class="name">dev-researcher</div><p>Answers one scoped research question.</p></div>
+    <div class="agent"><div class="name">dev-implementer</div><p>Implements one PLAN.md phase.</p></div>
+    <div class="agent"><div class="name">dev-fixer</div><p>Fixes a group of REVIEW.md findings.</p></div>
+    <div class="agent"><div class="name">dev-tester</div><p>Writes coverage for one module's gaps.</p></div>
+  </div>
+</section>
+
+<footer>
+  dev-skills — MIT — <a href="https://github.com/amjadjibon/skills">github.com/amjadjibon/skills</a>
+</footer>
