@@ -1,6 +1,6 @@
 ---
 name: dev-design
-description: Design a feature's architecture, API/interface shape, and UI/UX before planning — pick the axes that actually apply (system design, data model, API contract, screen/component layout) and write docs/<feature-name>/DESIGN.md with the decisions and tradeoffs a plan can be built on. Trigger when the user says "design this feature", "how should we structure this", "design the API", "design the schema", "design the UI/UX for this", "what should the architecture look like", or wants interface/data-model/component decisions made before a PLAN.md exists. Also invoked between dev-research and dev-create-plan when the feature needs shape decided, not just an approach chosen.
+description: Decide a feature's shape before planning — system design, data model, API contract, UI/UX, whichever axes apply — and write docs/<feature-name>/DESIGN.md with the decisions and tradeoffs a plan builds on. Trigger on "design this feature/API/schema/UI", "how should we structure this", or between dev-research and dev-create-plan when shape needs deciding before a PLAN.md exists.
 argument-hint: "[lite|full|ultra]"
 ---
 

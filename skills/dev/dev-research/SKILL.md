@@ -1,6 +1,6 @@
 ---
 name: dev-research
-description: Research a codebase, approach, or technology before planning or building — explore relevant code, compare candidate approaches, verify assumptions with runnable spikes or web/doc lookups, and write findings to docs/<feature-name>/RESEARCH.md with a recommendation. Use when the user says "research this", "investigate", "explore options", "compare approaches", "how should we implement", "which library should we use", "spike this", or wants to understand a system or evaluate alternatives before committing to a plan. Also invoked as a scoped sub-agent by dev-create-plan, dev-implement-plan, and dev-loop to answer a single question about a third-party API, library, or documentation.
+description: Research a codebase, approach, or technology before planning — compare candidate approaches, verify assumptions with runnable spikes and web/doc lookups, write docs/<feature-name>/RESEARCH.md with a recommendation. Trigger on "research/investigate/spike this", "explore options", "compare approaches", "which library should we use". Also spawned as a scoped sub-agent by dev-create-plan, dev-implement-plan, and dev-loop to answer a single third-party API/library/doc question.
 argument-hint: "[lite|full|ultra]"
 ---
 

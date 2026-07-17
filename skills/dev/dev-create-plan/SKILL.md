@@ -1,6 +1,6 @@
 ---
 name: dev-create-plan
-description: Create a new plan file for new features, refactoring existing code or upgrading packages, design, architecture or infrastructure. Trigger when the user says "create a plan", "make an implementation plan", "plan for this feature", "write a plan before we start", "plan this refactor", "plan this upgrade", or any request to document steps before starting work. Also trigger when the user mentions wanting a structured approach, phased rollout, or task checklist for a coding task. Use this skill proactively whenever implementation complexity warrants a written plan before jumping into code.
+description: Write docs/<feature-name>/PLAN.md with phased, checkbox-driven steps for a feature, refactor, upgrade, or infrastructure change. Trigger on "create/make a plan", "plan this feature/refactor/upgrade", any request to document steps or a task checklist before coding — and proactively whenever implementation complexity warrants a written plan first.
 argument-hint: "[lite|full|ultra]"
 ---
 

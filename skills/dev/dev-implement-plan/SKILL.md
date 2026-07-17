@@ -1,6 +1,6 @@
 ---
 name: dev-implement-plan
-description: Execute an implementation plan from a docs/<feature-name>/PLAN.md file created by the dev-create-plan skill. Trigger when the user says "implement the plan", "execute the plan", "run the plan", "work through the plan", "continue the plan", "resume the plan", "start phase 1", or points at any PLAN.md file and asks to build it. Also trigger when the user references a planned feature by name and wants implementation to begin, or when a plan was just created and the user says "go", "start", or "implement it". Use this skill whenever there is a PLAN.md to execute, even if the user doesn't say the word "plan".
+description: Execute an implementation plan from docs/<feature-name>/PLAN.md created by dev-create-plan — tick checkboxes, commit each phase. Trigger on "implement/execute/continue/resume the plan", "start phase 1", "go" right after a plan was created, or whenever there is a PLAN.md to build, even if the user never says "plan".
 argument-hint: "[lite|full|ultra]"
 ---
 
