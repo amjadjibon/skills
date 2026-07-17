@@ -40,7 +40,7 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 1. **Feature name**: kebab-case slug of the task ("Add rate limiting to /api/login" → `rate-limit-login`).
 2. **Research**: `git status && git branch --show-current`; read 3–5 key files; state assumptions in the plan's §4; never ask the user. If the task hinges on an unfamiliar third-party API/library/technology, run `dev-research` first (same mode) → `docs/<feature-name>/RESEARCH.md`. If the feature needs its shape decided (system design, data model, API contract, UI/UX) before it can be phased, run `dev-design` next (same mode) → `docs/<feature-name>/DESIGN.md`. Scoped questions surfacing later are handled by sub-skills spawning `dev-research` sub-agents (dev-research §6).
 3. **Plan**: `dev-create-plan` (autonomous) → `docs/<feature-name>/PLAN.md` on branch `<feature-name>`.
-4. **Review plan**: `dev-review-plan`. `Ready` → proceed. `Needs Revision` → apply Revise findings in one commit (`docs: revise plan based on review`), proceed. `Blocked` → stop, report.
+4. **Review plan**: `dev-review-plan`. `Ready` → proceed. `Needs Revision` → apply Revise findings in one commit (`docs: revise plan based on review`), proceed. `Blocked` → stop, report. **Small-task off-ramp**: if the plan is a single phase with ≤2 tasks, skip this review and fold `dev-qa` (Step A.5) into the implement step — the ceremony costs more than a 5-line feature; the code review (Step B) stays mandatory, it's what catches real bugs.
 5. **Init LOOP.md** from this template (the loop parses it to resume — keep the structure exact), commit `chore: init dev loop for <feature-name>`:
 
 ````markdown
@@ -159,7 +159,7 @@ After any fix path: increment `current_iteration`, append a new `### Iteration N
 
 Every exit but Clean: clean up worktrees first.
 
-**Clean Exit** — present verdict + findings summary, then **wait for approval**: "Approve to push and open PR, or ask me to continue fixing?" On approval: LOOP.md `status: complete` + commit `chore: dev loop complete for <feature-name>`; verify worktrees gone; `full`: ensure every phase PR is open (`gh pr list --head "<feature-name>/phase-*"`); `lite`: push and `gh pr create --base main`; run `dev-clean-up`; report PR URLs (merge order: phase-1 first — GitHub auto-retargets).
+**Clean Exit** — set LOOP.md `status: awaiting-approval` and commit (`chore: await approval for <feature-name>`) so a resumed loop can tell "paused for the user" from "mid-flight" by file state alone, then present verdict + findings summary and **wait for approval**: "Approve to push and open PR, or ask me to continue fixing?" On approval: LOOP.md `status: complete` + commit `chore: dev loop complete for <feature-name>`; verify worktrees gone; `full`: ensure every phase PR is open (`gh pr list --head "<feature-name>/phase-*"`); `lite`: push and `gh pr create --base main`; run `dev-clean-up`; report PR URLs (merge order: phase-1 first — GitHub auto-retargets).
 
 **Blocked Exit** (`status: blocked`) — report the Critical finding, branch not pushed, "resolve manually, then resume with /dev-loop".
 
@@ -178,7 +178,10 @@ Commit hygiene: `git add -u` for tracked files, explicit paths for new files, ne
 | Direct fix | `fix: address review findings from iteration N` |
 | Parallel fix merge | `fix: address High findings from iteration N (parallel)` |
 | Fix phase added | `docs: add fix phase for iteration N findings` |
+| Plan checkbox tick | fold into the phase's work commit, never standalone |
 | Loop state | `chore: <action> for <feature-name>` |
+
+State updates (LOOP.md, PLAN.md checkboxes) ride along in the adjacent work commit when one exists; a standalone `chore:` state commit is only for updates with no adjacent work (recording a review, init, awaiting approval). Bookkeeping commits outnumbering feature commits is a smell.
 
 ## 6. Principles
 
