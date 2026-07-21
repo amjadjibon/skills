@@ -104,7 +104,7 @@ Reply with: the answer (2-3 sentences), the file path, sources, remaining assump
 
 ## 7. Commit & Report
 
-Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
+Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
 `git add docs/<feature-name>/RESEARCH.md && git commit -m "research: <feature-name>"` (`full`: include `spikes/`). No push, no PR — research travels with the feature branch.
 

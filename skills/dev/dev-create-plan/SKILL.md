@@ -34,7 +34,7 @@ Read 3–5 key files (routing, middleware, error handling, tests). Record findin
 
 1. `git checkout -b <feature-name>`, then `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`.
 2. PR titles: imperative ≤60 chars, never prefixed with `phase N`.
-3. Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
+3. Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
 ## Status Badges & Tracker IDs
 

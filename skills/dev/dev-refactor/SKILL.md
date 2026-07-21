@@ -44,7 +44,7 @@ Rules: touch only what the refactor needs; match existing style — no whole-fil
 
 ## 5. Commit & Report
 
-Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
+Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
 `lite`: `git add -u && git commit -m "refactor: <summary of all steps>"`. `full`: already committed per step.
 

@@ -50,7 +50,7 @@ Re-run §2, compare (`Before: 61% | auth/handler.go: 34%` → `After: 78% | 89%`
 
 ## 6. Commit
 
-Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
+Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
 **`lite`**: `git add <test files> && git commit -m "test: add QA coverage for <feature>"`, push, `gh pr create --base main`. **`full`**: per module on its own stacked branch `<feature-name>/qa-<module>`. **Called by `dev-loop`**: commit only — the loop pushes and opens the PR after user approval.
 

@@ -169,7 +169,7 @@ Every exit but Clean: clean up worktrees first.
 
 ## 5. Commit Discipline
 
-Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
+Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
 | Source | Message |
 |--------|---------|

@@ -99,7 +99,7 @@ Same contract as `dev-research` §6: one question, one answer, write to `docs/<f
 
 ## 6. Commit & Report
 
-Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
+Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
 `git add docs/<feature-name>/DESIGN.md && git commit -m "design: <feature-name>"`. No push, no PR — design travels with the feature branch, same as research.
 

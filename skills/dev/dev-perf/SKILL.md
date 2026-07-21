@@ -65,7 +65,7 @@ Same benchmark as §2. `Before: p50 450ms p99 2100ms 12MB → After: p50 38ms p9
 
 ## 6. Commit
 
-Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
+Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
 `git add -u && git commit -m "perf: <what changed> — p99 2100ms → 120ms"` — numbers in every perf commit.
 

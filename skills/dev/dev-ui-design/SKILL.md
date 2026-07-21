@@ -48,6 +48,6 @@ Save to `docs/<feature-name>/prototype.html`. Report the file path and how to vi
 
 ## 5. Commit
 
-Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
+Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
 `git add docs/<feature-name>/prototype.html && git commit -m "prototype: <feature-name> UI"`. No push, no PR — the prototype travels with the feature branch, same as research and design.
