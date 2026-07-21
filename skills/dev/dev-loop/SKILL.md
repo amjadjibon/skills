@@ -149,6 +149,8 @@ Repeat until an exit condition (§4). `lite` runs the whole plan through one Imp
 
 **Step A.5 — QA.** Run whenever this pass added new code: the `lite` pass, each `full`/`ultra` phase, and any `§3.C.3` fix-phase. Skip only when this pass was a `§3.C.1`/`§3.C.2` fix with no new phase (existing code re-reviewed directly, nothing new to cover). `dev-qa` (same mode) on the branch just built → `docs/<feature-name>/QA.md` (`full`/`ultra`: append a section per phase, don't overwrite prior phases' results). Commit tests; record HEAD as `last_review_base`.
 
+**Step A.6 — Smoke check (optional).** If this pass stood up something runnable locally (a service, a new endpoint, a CLI command) and it can be started in the worktree, use `dev-smoke-testing` to write/run the one or two checks that confirm it's actually alive before spending review budget on it — the orchestrator running it itself in place of manually curling the endpoint, not an automated gate. Skip entirely when there's nothing to run (a library change, a pure refactor) or starting the service isn't feasible in this environment.
+
 **Step B — Review.** Diff base: first review of a branch → `main...HEAD` (`lite`) or `<previous-phase-branch>...HEAD` (`full`/`ultra`); later reviews on the same branch → `<last_review_base>...HEAD`. Run `dev-code-review` → REVIEW.md; parse the `## Machine-Readable Verdict` YAML. Tick checkbox, fill iteration table (add the phase number in `full`/`ultra`), update `last_review_base`.
 
 **Step C — Decide:**
