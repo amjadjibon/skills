@@ -1,12 +1,12 @@
 # Mermaid Diagram Templates
 
-Worked examples per diagram type for `mermaid-diagram`, plus the syntax gotchas that account for most render failures. Adapt node names/labels, don't paste unmodified.
+Worked examples per diagram type for `mermaid-diagram`, plus the syntax gotchas that account for most render failures. Adapt node names/labels, don't paste unmodified. Icon choices below follow the "Which Emoji for Which Node" table in `SKILL.md` — check there before introducing a new symbol.
 
 ## Activity / Flowchart
 
 ```mermaid
 flowchart TD
-    Start([🚀 Start]) --> Validate{✓ Valid input?}
+    Start([Start]) --> Validate{Valid input?}
     Validate -->|Yes| Process[⚙️ Process order]
     Validate -->|No| Reject[❌ Reject]
     Process --> Charge[💳 Charge payment]
