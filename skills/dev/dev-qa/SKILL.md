@@ -43,6 +43,7 @@ High → Low:
 - Unhappy paths matter as much as happy — an untested error handler is an untested promise.
 - Real dependencies where fast enough; mock only system boundaries (external HTTP, email, payments).
 - Run each new test as written — confirm it passes, and fails when it should.
+- Gap is E2E-shaped (a full user flow, not a single function/module)? Use `dev-e2e-testing` for the tooling/fixture/flake practices, not ad-hoc Playwright/Cypress.
 
 ## 5. Verify Improvement
 
