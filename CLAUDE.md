@@ -75,6 +75,7 @@ To add manually:
 
 - **dev-research** — Investigates a codebase, approach, or technology before planning; compares candidates, verifies claims with spikes and web/doc lookups, writes `docs/<feature-name>/RESEARCH.md` with a recommendation. Also spawned as a scoped sub-agent by dev-create-plan/dev-implement-plan/dev-loop to answer single questions (third-party APIs, libraries, docs) into `docs/<feature-name>/research/<topic>.md`.
 - **dev-design** — Decides a feature's shape before planning: system design, data model, API/interface contract, and UI/UX, whichever axes apply. Writes `docs/<feature-name>/DESIGN.md` that `dev-create-plan` builds phases from.
+- **dev-api-design** — REST and GraphQL API design principles (resource/URL design, pagination, versioning, GraphQL schema-first/DataLoader/Relay pagination) for filling in `dev-design`'s API-contract axis. Hands off to `openapi-spec` (`skills/misc/openapi-spec`) to write the actual spec document.
 - **dev-ui-design** — Builds a clickable UI prototype as a single self-contained HTML file (inline CSS, no build step) to demo a screen or flow, turning `dev-design`'s UI/UX axis into something clickable. Writes `docs/<feature-name>/prototype.html`.
 - **dev-create-plan** — Writes `docs/<feature-name>/PLAN.md` with phased, checkbox-driven steps ready for autonomous execution.
 - **dev-implement-plan** — Executes a `PLAN.md` produced by `dev-create-plan`, ticking checkboxes and committing each phase.
