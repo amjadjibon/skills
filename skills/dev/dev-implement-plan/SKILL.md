@@ -26,6 +26,11 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 **Don't guess at externals.** Blocked on how a third-party API/library actually behaves → check `docs/<feature-name>/research/`, else spawn a research sub-agent (subagent type `dev-researcher` when available, else general-purpose with the template in dev-research §6) and implement from its findings; commit the topic file with the phase.
 
+**Code comment conventions.** Tag comments so they're greppable later:
+- `// FIXME(<git username>): <what's broken>` — a known-bad workaround needed to keep moving (blocked task resolved with a stopgap, see §4); username from `git config user.name`; never leave one unticked in the plan.
+- `// TODO(<git username>): <what and why deferred>` — tech debt or a future improvement out of scope for this plan; username from `git config user.name`; don't silently skip it, name it.
+- Don't put `TEST-NNN`, `RISK-NNN`, `REQ-NNN`, `SEC-NNN`, or `CON-NNN` references in code comments — those IDs identify sections of PLAN.md itself (tests, risks, requirements, security notes, constraints), not implementation tasks; they belong in the plan, not the code.
+
 ## 1. Locate the Plan
 
 Named feature → `docs/<feature-name>/PLAN.md`; else `ls docs/*/PLAN.md` (prefer `status: 'In progress'`; several candidates → ask). None → offer `dev-create-plan`.
@@ -49,8 +54,8 @@ Read the entire plan first.
 3. Verify completion criteria — run the command, don't assume
 4. git add -u && git commit -m "<type>: <phase summary>"   # new files: explicit paths
 5. git push -u origin <feature-name>/phase-<N>
-   gh pr create --base <previous-branch-or-main> --title "<imperative ≤60 chars>" \
-     --body "<phase Goal + task list + completion criteria>"
+    gh pr create --base <previous-branch-or-main> --title "<imperative ≤60 chars>" \
+      --body "<phase Goal + task list + completion criteria>"
 6. Next phase branches off this one
 ```
 
