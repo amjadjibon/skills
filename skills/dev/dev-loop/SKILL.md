@@ -9,15 +9,15 @@ argument-hint: "[lite|full|ultra]"
 You are the **orchestrator agent**:
 
 ```
-[task] → dev-create-plan → implement (agents) → dev-code-review
-                            ↑                      |
-            merge worktrees |       ┌──────────────┘
+[task] → dev-create-plan → implement (agents) → dev-qa → dev-code-review
+                            ↑                                 |
+            merge worktrees |               ┌─────────────────┘
                             └──── fix agents (parallel)
                                                     ↓ (only Low/Info remain)
                                             pause → user approval → push + PR
 ```
 
-Fully autonomous. Pause only for: user approval before push/PR, an unfixable `Critical` finding, or `max_iterations` reached.
+Fully autonomous. Pause only for: user approval before push/PR, an unfixable `Critical` finding, or `max_iterations` reached. In `full`/`ultra`, this cycle runs **per phase** — implement, test, review, fix that one phase clean — before the next phase starts, not batched across the whole plan (§3).
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
@@ -33,25 +33,34 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 - Phases run sequentially (stacked PRs require it), except `ultra`.
 - Fix agents run in parallel only for genuinely independent domains (backend + frontend, auth + notifications) — not merely different files. Shared type/interface/config/test fixture → one agent. When in doubt, one agent.
-- Limits from LOOP.md frontmatter: `max_agents` (3) — merge smallest clusters to fit; `max_phases` (5) — if exceeded, stop and tell the user.
+- Limits scale with mode — set these into LOOP.md frontmatter at init (§1.5), don't hardcode one set of numbers regardless of mode:
+
+  | Mode | `max_iterations` | `max_phases` | `max_agents` | Why |
+  |------|:---:|:---:|:---:|-----|
+  | `lite` | 2 | 1 | 2 | Small, single-pass scope by design — a `lite` task needing more than this should have been `full` instead. |
+  | `full` | 3 | 5 | 3 | Default working budget for a multi-phase feature. |
+  | `ultra` | 3 | 8 | 5 | Built for larger decomposable work with genuine parallelism — more phases and more room for independent fix/implement agents. |
+
+  `max_iterations` is a **per-phase** budget in `full`/`ultra` (§3 Step A resets it per phase), a whole-loop budget in `lite`. `max_phases`/`max_agents` — if exceeded, stop and tell the user rather than silently merging past the limit.
 
 ## 1. Bootstrap
 
 1. **Feature name**: kebab-case slug of the task ("Add rate limiting to /api/login" → `rate-limit-login`).
 2. **Research**: `git status && git branch --show-current`; read 3–5 key files; state assumptions in the plan's §4; never ask the user. If the task hinges on an unfamiliar third-party API/library/technology, run `dev-research` first (same mode) → `docs/<feature-name>/RESEARCH.md`. If the feature needs its shape decided (system design, data model, API contract, UI/UX) before it can be phased, run `dev-design` next (same mode) → `docs/<feature-name>/DESIGN.md`. Scoped questions surfacing later are handled by sub-skills spawning `dev-research` sub-agents (dev-research §6).
-3. **Plan**: `dev-create-plan` (autonomous) → `docs/<feature-name>/PLAN.md` on branch `<feature-name>`.
+3. **Plan**: `dev-create-plan` (autonomous) → `docs/<feature-name>/PLAN.md` on branch `<feature-name>`. Task explicitly wants TDD/test-first? Tell it to mark the affected phases `**Test-first**: yes` — `dev-implement-plan` (Step A) then builds those phases through `dev-tdd`'s red → green loop instead of implementation-then-tests.
 4. **Review plan**: `dev-review-plan`. `Ready` → proceed. `Needs Revision` → apply Revise findings in one commit (`docs: revise plan based on review`), proceed. `Blocked` → stop, report. **Small-task off-ramp**: if the plan is a single phase with ≤2 tasks, skip this review and fold `dev-qa` (Step A.5) into the implement step — the ceremony costs more than a 5-line feature; the code review (Step B) stays mandatory, it's what catches real bugs.
-5. **Init LOOP.md** from this template (the loop parses it to resume — keep the structure exact), commit `chore: init dev loop for <feature-name>`:
+5. **Init LOOP.md** from this template (the loop parses it to resume — keep the structure exact) with `max_iterations`/`max_phases`/`max_agents` from the §0 mode table, commit `chore: init dev loop for <feature-name>`:
 
 ````markdown
 ---
 feature: <feature-name>
 task: <original task description>
 branch: <feature-name>
+mode: <lite|full|ultra>
 started: <YYYY-MM-DD>
-max_iterations: 3
-max_phases: 5
-max_agents: 3
+max_iterations: <2 lite | 3 full | 3 ultra>
+max_phases: <1 lite | 5 full | 8 ultra>
+max_agents: <2 lite | 3 full | 5 ultra>
 current_iteration: 1
 status: running
 last_review_base: ''
@@ -61,9 +70,11 @@ last_review_base: ''
 
 ## Iterations
 
-| Iter | Verdict | Crit | High | Med | Low | Mode | Action |
-|------|---------|------|------|-----|-----|------|--------|
-| 1    | —       | —    | —    | —   | —   | —    | —      |
+| Iter | Phase | Verdict | Crit | High | Med | Low | Mode | Action |
+|------|-------|---------|------|------|-----|-----|------|--------|
+| 1    | 1     | —       | —    | —    | —   | —   | —    | —      |
+
+<!-- lite: Phase is always 1. full/ultra: one row per phase per review pass. -->
 
 ## Stacked PRs
 
@@ -129,31 +140,34 @@ Conflicts: two agents on one file → read both, merge intent; fix agent vs main
 
 ## 3. The Loop
 
-Repeat until an exit condition (§4).
+Repeat until an exit condition (§4). `lite` runs the whole plan through one Implement → QA → Review → Fix cycle at a time (matches its "ignore phase boundaries" mode). `full`/`ultra` run **one phase at a time** through its own cycle before starting the next — a bug from phase 1 gets caught by phase 1's own review, not carried forward for phase 3 to build on top of.
 
-**Step A — Implement.** If PLAN.md phases > `max_phases`: stop, ask user to split or raise the limit. Per phase: `dev-implement-plan` (`full`: branch + stacked PR, update the Stacked PRs table; `lite`: stays on `<feature-name>`, PR deferred to Clean Exit). After all phases tick `- [x] dev-implement-plan`.
+**Step A — Implement.** If PLAN.md phases > `max_phases`: stop, ask user to split or raise the limit.
 
-**Step A.5 — QA (iteration 1 only).** `dev-qa` (same mode) on `<work-branch>` → `docs/<feature-name>/QA.md`. Commit tests; record HEAD as `last_review_base`.
+- `lite`: implement every task across all phases in one pass on `<feature-name>`; tick `- [x] dev-implement-plan` once done.
+- `full`/`ultra`: implement **one phase** (branch + stacked PR, update the Stacked PRs table), tick that phase's checkbox — then go straight to Step A.5 for this phase. Don't start the next phase until this one clears Step C. Reset `current_iteration` to 1 when starting a new phase — `max_iterations` is a per-phase budget, so one difficult phase's fix cycles don't starve the iteration allowance for phases after it.
 
-**Step B — Review.** Diff base: iteration 1 `main...HEAD`; later `<last_review_base>...HEAD`. Run `dev-code-review` → REVIEW.md; parse the `## Machine-Readable Verdict` YAML. Tick checkbox, fill iteration table, update `last_review_base`.
+**Step A.5 — QA.** Run whenever this pass added new code: the `lite` pass, each `full`/`ultra` phase, and any `§3.C.3` fix-phase. Skip only when this pass was a `§3.C.1`/`§3.C.2` fix with no new phase (existing code re-reviewed directly, nothing new to cover). `dev-qa` (same mode) on the branch just built → `docs/<feature-name>/QA.md` (`full`/`ultra`: append a section per phase, don't overwrite prior phases' results). Commit tests; record HEAD as `last_review_base`.
+
+**Step B — Review.** Diff base: first review of a branch → `main...HEAD` (`lite`) or `<previous-phase-branch>...HEAD` (`full`/`ultra`); later reviews on the same branch → `<last_review_base>...HEAD`. Run `dev-code-review` → REVIEW.md; parse the `## Machine-Readable Verdict` YAML. Tick checkbox, fill iteration table (add the phase number in `full`/`ultra`), update `last_review_base`.
 
 **Step C — Decide:**
 
 | Condition | Action |
 |-----------|--------|
-| `Approve` or only Low/Info | §4 Clean Exit |
+| `Approve` or only Low/Info | `lite`: §4 Clean Exit. `full`/`ultra`: this phase is done — advance to the next phase's Step A, or §4 Clean Exit if it was the last phase. |
 | Medium only | §3.C.1 direct fix |
 | High | §3.C.2 fix agents (parallel only if independent domains) |
 | Any Critical | §4 Blocked Exit |
 | `current_iteration` = `max_iterations` | §4 Max Iterations Exit |
 
-After any fix path: increment `current_iteration`, append a new `### Iteration N+1` log block (implement-or-fix / review / decide checkboxes).
+After any fix path: increment `current_iteration`, append a new `### Iteration N+1` log block (implement-or-fix / QA / review / decide checkboxes — QA only when §3.C.3 added a phase).
 
-**§3.C.1 — Direct fix (Medium/Low):** fix on `<work-branch>`, `git add -u && git commit -m "fix: address review findings from iteration N"`, push. Go to Step B.
+**§3.C.1 — Direct fix (Medium/Low):** fix on the branch under review, `git add -u && git commit -m "fix: address review findings from iteration N"`, push. Go to Step B (no Step A.5 — no new code to cover).
 
-**§3.C.2 — Fix agents (High):** group findings by domain (shared type/config/fixture → same group; merge smallest groups to fit `max_agents`). Per group: worktree off `<work-branch>`, spawn agent with its finding IDs. Then merge all, remove worktrees, push. Go to Step B.
+**§3.C.2 — Fix agents (High):** group findings by domain (shared type/config/fixture → same group; merge smallest groups to fit `max_agents`). Per group: worktree off the branch under review, spawn agent with its finding IDs. Then merge all, remove worktrees, push. Go to Step B (no Step A.5).
 
-**§3.C.3 — Fix phase in PLAN.md:** only when a High finding needs a missing abstraction or migration, not a patch — and only if it won't exceed `max_phases` (`lite` has no phases). Append `### Phase N+1` with `TASK-NNN: Fix [HIGH-001]…`, bump version, commit `docs: add fix phase for iteration N findings`. Go to Step A. Default to §3.C.2.
+**§3.C.3 — Fix phase in PLAN.md:** only when a High finding needs a missing abstraction or migration, not a patch — and only if it won't exceed `max_phases` (`lite` has no phases). Append `### Phase N+1` with `TASK-NNN: Fix [HIGH-001]…`, bump version, commit `docs: add fix phase for iteration N findings`. Go to Step A (this new phase runs its own A → A.5 → B cycle). Default to §3.C.2.
 
 ## 4. Exit Conditions
 
@@ -163,7 +177,7 @@ Every exit but Clean: clean up worktrees first.
 
 **Blocked Exit** (`status: blocked`) — report the Critical finding, branch not pushed, "resolve manually, then resume with /dev-loop".
 
-**Max Iterations Exit** (`status: abandoned`) — report unresolved CRIT/HIGH IDs, branch not pushed.
+**Max Iterations Exit** (`status: abandoned`) — report unresolved CRIT/HIGH IDs, branch not pushed. `full`/`ultra`: this is the current phase's budget, not the whole plan's — report which phase hit it.
 
 **User Interrupt** (`status: abandoned`) — report iteration, step, last commit; resumable with /dev-loop.
 

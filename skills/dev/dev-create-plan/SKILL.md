@@ -18,6 +18,8 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 - `full` — one phase per unit of work; stacked branches `<feature>/phase-N` off `phase-N-1`, one PR per phase.
 - `ultra` — like `full`, but phases with no shared dependencies get `**Parallel**: yes` so implement/loop can build them in worktrees off `main`.
 
+Any phase whose tasks should be built test-first gets `**Test-first**: yes` — `dev-implement-plan` builds that phase through `dev-tdd`'s red → green loop instead of implementation-then-tests. Ask when the task doesn't say either way; default to no marker (implement, then `dev-qa`/review catch gaps) unless TDD was requested or the phase is complex enough that tests-first meaningfully reduces risk.
+
 ## Step 0 — Research First
 
 ```bash
@@ -89,6 +91,8 @@ tags: [feature|upgrade|refactor|chore|architecture|migration|bug]
 **Goal**: <what this phase achieves and why it's ordered here>
 
 **Depends on**: Phase N-1 complete (omit for Phase 1)
+
+<!-- **Test-first**: yes — include only when this phase should be built via dev-tdd's red → green loop -->
 
 - [ ] TASK-00X: <exact action with file path, function, or command>
 
