@@ -35,7 +35,7 @@ Not every feature touches all three. Skip an axis entirely rather than padding i
 
 **Data model** — feature adds or changes persisted state. Decide: fields, types, nullability, indexes, relationships to existing tables/structs. Call out migrations and backward compatibility explicitly — a field rename is a bigger decision than it looks.
 
-**API / interface contract** — feature adds or changes something other code or another team calls: HTTP endpoints, RPC methods, CLI flags, public function signatures, event schemas. Decide: request/response shape, error cases, versioning if it's public. Write the contract as a signature or schema snippet, not a description of one.
+**API / interface contract** — feature adds or changes something other code or another team calls: HTTP endpoints, RPC methods, CLI flags, public function signatures, event schemas. Decide: request/response shape, error cases, versioning if it's public. Write the contract as a signature or schema snippet, not a description of one. For a REST/GraphQL HTTP API specifically, defer the resource shape, versioning strategy, and pagination style to `dev-api-design` first, then write the result into this axis.
 
 **UI/UX** — feature has a user-facing screen or component. Decide: what the user sees and does, states (empty/loading/error), and which existing component/pattern in the codebase this should match — reuse an existing design pattern before inventing one. A wireframe as an indented text sketch is enough here; if the user wants something clickable to look at, hand off to `dev-ui-design` to turn this axis into `docs/<feature-name>/prototype.html`.
 
