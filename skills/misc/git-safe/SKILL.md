@@ -1,6 +1,6 @@
 ---
 name: git-safe
-description: Safety rules for git operations that can lose work or rewrite shared history — force push, reset --hard, clean -f, branch -D, checkout/restore over uncommitted changes, rebase of pushed branches, amending published commits — plus the standard commit hygiene and message conventions (no Co-authored-by, git add -u not -A, imperative why-focused subject) every skill in this repo follows. Trigger whenever a git command about to run matches one of these, the user asks to force push/discard/reset/clean/delete a branch, or any skill is about to run `git commit`.
+description: Safety rules for destructive/history-rewriting git ops (force push, reset --hard, clean -f, branch -D, checkout over uncommitted changes, rebase/amend of pushed work) plus this repo's canonical commit hygiene (no Co-authored-by, add -u not -A, imperative subject). Trigger before any such command, or before any skill runs `git commit`.
 ---
 
 # Git Guardrails

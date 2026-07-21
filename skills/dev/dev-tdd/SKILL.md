@@ -1,6 +1,6 @@
 ---
 name: dev-tdd
-description: Test-driven development — the red → green loop, done so the resulting tests are worth keeping. Use when the user wants to build a feature or fix a bug test-first, mentions "red-green-refactor", "TDD", or wants integration tests that survive refactors. `dev-implement-plan` uses this loop for phases that should be built test-first instead of implementation-then-tests. Distinct from `dev-qa`, which backfills coverage on code that already exists.
+description: Test-driven development — the red → green loop, done so the resulting tests are worth keeping. Use when building a feature or fixing a bug test-first, or on "red-green-refactor"/"TDD"/integration tests that survive refactors. `dev-implement-plan` uses this for test-first phases; distinct from `dev-qa`, which backfills coverage on existing code.
 argument-hint: "[lite|full|ultra]"
 ---
 

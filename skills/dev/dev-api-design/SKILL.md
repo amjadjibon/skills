@@ -1,6 +1,6 @@
 ---
 name: dev-api-design
-description: REST and GraphQL API design principles — resource-oriented URL/method design, pagination, filtering, error formats, versioning, HATEOAS, localization/i18n (Accept-Language negotiation, locale fallback, translated content shape, locale-invariant IDs), GraphQL schema-first development, resolvers, DataLoader/N+1 prevention, and Relay-style cursor pagination. Trigger on "design this API", "REST or GraphQL", "how should I version this API", "how do I localize this API", "support multiple languages/locales", "review this API design", "API design standards", or when picking resource shape/URL structure/pagination/locale strategy before or during dev-design's API-contract axis. For writing the actual OpenAPI 3.1 spec document, use the `openapi-spec` skill instead.
+description: REST/GraphQL design principles — resource/URL design, pagination, versioning, HATEOAS, localization, GraphQL schema-first/DataLoader/Relay pagination. Trigger on "design this API", "REST or GraphQL", "version/localize this API", "review this API design". Fills dev-design's API-contract axis; for the OpenAPI 3.1 document itself, use `openapi-spec`.
 ---
 
 # API Design Principles

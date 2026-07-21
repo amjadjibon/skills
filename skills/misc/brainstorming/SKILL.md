@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: Brainstorm on any idea — a product feature, a name, a business, a fix for a stuck problem, a creative direction — as an interactive back-and-forth partner, not a one-shot list dump. Trigger on "let's brainstorm", "help me think through this idea", "I need ideas for X", "what are some ways to...", "I'm stuck on...", "help me name/pitch/frame this", or when the user is exploring an open-ended idea rather than asking for a specific implementation.
+description: Brainstorm any idea — feature, name, business, creative direction — as an interactive back-and-forth partner, not a one-shot list dump. Trigger on "let's brainstorm", "I need ideas for X", "what are some ways to...", "I'm stuck on...", "help me name/pitch this", or exploring an open-ended idea rather than a specific implementation.
 ---
 
 Brainstorm with me as a real thinking partner, not an idea vending machine. This is a continuous back-and-forth with no finish line to hand off at — every turn should leave my thinking sharper than it found it.

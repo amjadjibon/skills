@@ -1,6 +1,6 @@
 ---
 name: mermaid-diagram
-description: Generate Mermaid diagrams (flowchart/activity, sequence, architecture, deployment, class, state, ER) from a text description or from source code, with high-contrast styling and syntax validation. Trigger on "create a diagram", "generate a mermaid diagram", "document this architecture", "show this as a flowchart/sequence diagram", "diagram this code/workflow/API flow", "convert code to a diagram", or when a design doc needs an embedded diagram.
+description: Generate Mermaid diagrams (flowchart, sequence, architecture, deployment, class, state, ER) from a description or source code, with high-contrast styling and syntax validation. Trigger on "create/generate a diagram", "document this architecture", "show this as a flowchart/sequence diagram", "diagram this code/workflow", or a design doc needing an embedded diagram.
 ---
 
 # Mermaid Diagram Generator

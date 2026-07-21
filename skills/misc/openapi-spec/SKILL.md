@@ -1,6 +1,6 @@
 ---
 name: openapi-spec
-description: Write and validate OpenAPI 3.1 specifications for RESTful APIs — no code generation, spec document only. Covers reusable components ($ref schemas/parameters/responses/security schemes) and Spectral/Redocly lint rules. Trigger on "write an OpenAPI spec", "generate an OpenAPI/Swagger doc", "put this API contract into openapi.yaml", "validate my openapi.yaml", or when a `.yaml`/`.json` file under a `paths:`/`openapi:` key is being written or reviewed. If the resource shape, URL/versioning strategy, or REST-vs-GraphQL choice hasn't been decided yet, that's the `dev-api-design` skill, not this one.
+description: Write and validate OpenAPI 3.1 spec documents (no code generation) — $ref-based components, Spectral/Redocly lint rules. Trigger on "write an OpenAPI spec", "generate a Swagger doc", "validate my openapi.yaml", or editing a `.yaml`/`.json` under `paths:`/`openapi:`. If the shape/versioning/REST-vs-GraphQL choice isn't made yet, use `dev-api-design` instead.
 ---
 
 # OpenAPI Spec Generation

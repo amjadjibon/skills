@@ -1,6 +1,6 @@
 ---
 name: dev-research
-description: Mostly runs as a scoped sub-agent — spawned by dev-create-plan, dev-implement-plan, and dev-loop to answer a single third-party API/library/doc question (§6) mid-task, without the user ever invoking it directly. Also usable standalone: research a codebase, approach, or technology before planning — compare candidate approaches, verify assumptions with runnable spikes and web/doc lookups, write docs/<feature-name>/RESEARCH.md with a recommendation. Trigger standalone on "research/investigate/spike this", "explore options", "compare approaches", "which library should we use".
+description: Mostly runs as a scoped sub-agent (§6) — spawned by dev-create-plan/dev-implement-plan/dev-loop to answer one third-party API/library/doc question mid-task without the user invoking it directly. Also standalone: research a codebase/approach/technology before planning, verify with spikes and web/doc lookups, write docs/<feature-name>/RESEARCH.md. Trigger standalone on "research/investigate/spike this", "explore options", "which library should we use".
 argument-hint: "[lite|full|ultra]"
 ---
 

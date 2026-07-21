@@ -1,6 +1,6 @@
 ---
 name: github-actions
-description: Create and review GitHub Actions workflows — CI (test/lint/build), release/publish pipelines, reusable workflows, composite actions, matrix builds, caching, and security hardening (least-privilege permissions, pinned action SHAs, secret handling). Trigger on "set up CI", "add a GitHub Actions workflow", "write a .github/workflows file", "automate this with GitHub Actions", "review this workflow", or when a `.github/workflows/*.yml` file is being written or edited.
+description: Create/review GitHub Actions workflows — CI, release pipelines, reusable workflows, composite actions, matrix builds, caching, security hardening (least-privilege permissions, pinned SHAs). Trigger on "set up CI", "add a GitHub Actions workflow", "automate this with GitHub Actions", or editing `.github/workflows/*.yml`.
 ---
 
 # GitHub Actions Workflow Creator
