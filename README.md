@@ -64,6 +64,7 @@ If a skill doesn't show up after install, run `/reload-plugins` (or restart the 
 | [dev-qa](skills/dev/dev-qa/SKILL.md) | Quality assurance — measure test coverage, identify untested paths, write missing unit/integration/e2e tests, produce a QA report with before/after coverage numbers. |
 | [dev-clean-up](skills/dev/dev-clean-up/SKILL.md) | Housekeeping — remove merged local and remote branches, prune stale tracking refs, close resolved GitHub issues, clean up leftover worktrees. |
 | [dev-release](skills/dev/dev-release/SKILL.md) | Cut a release — derive the version bump from conventional commits, generate a changelog, bump version files, tag, and publish a GitHub release. |
+| [git-safe](skills/misc/git-safe/SKILL.md) | Pre-flight gate for destructive git commands (force push, reset --hard, clean -f, branch -D, rebase/amend on pushed branches) and the canonical commit hygiene/message conventions the other skills reference. |
 
 ## Agents
 
