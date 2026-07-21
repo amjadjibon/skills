@@ -26,6 +26,8 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 **Don't guess at externals.** Blocked on how a third-party API/library actually behaves → check `docs/<feature-name>/research/`, else spawn a research sub-agent (subagent type `dev-researcher` when available, else general-purpose with the template in dev-research §6) and implement from its findings; commit the topic file with the phase.
 
+**Test-first phases.** A phase (or the plan as a whole) marked or requested as test-first/TDD builds its tasks through `dev-tdd`'s red → green loop instead of writing the implementation first and tests after — same phase-commit rules from §3 apply, the loop just runs inside each task rather than test-then-code being a separate step.
+
 **Code comment conventions.** Tag comments so they're greppable later:
 - `// FIXME(<git username>): <what's broken>` — a known-bad workaround needed to keep moving (blocked task resolved with a stopgap, see §4); username from `git config user.name`; never leave one unticked in the plan.
 - `// TODO(<git username>): <what and why deferred>` — tech debt or a future improvement out of scope for this plan; username from `git config user.name`; don't silently skip it, name it.

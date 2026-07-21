@@ -82,6 +82,7 @@ To add manually:
 - **dev-ui-design** — Builds a clickable UI prototype as a single self-contained HTML file (inline CSS, no build step) to demo a screen or flow, turning `dev-design`'s UI/UX axis into something clickable. Writes `docs/<feature-name>/prototype.html`.
 - **dev-create-plan** — Writes `docs/<feature-name>/PLAN.md` with phased, checkbox-driven steps ready for autonomous execution.
 - **dev-implement-plan** — Executes a `PLAN.md` produced by `dev-create-plan`, ticking checkboxes and committing each phase.
+- **dev-tdd** — The red → green TDD loop: what a good test is, seams (test only at pre-agreed public boundaries), anti-patterns (implementation-coupled, tautological, horizontal slicing), and the rules of the cycle. Used by `dev-implement-plan` for phases built test-first; distinct from `dev-qa`, which backfills coverage on code that already exists. Refactoring belongs to `dev-refactor`/`dev-code-review`, not this loop.
 - **dev-code-review** — Reviews a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature-name>/REVIEW.md`.
 - **dev-loop** — Orchestrates the full `dev-create-plan → dev-implement-plan → dev-code-review → fix → re-review` cycle autonomously, spawning parallel agents in isolated worktrees and pausing only for user approval before pushing.
 - **dev-refactor** — Restructures code without changing behavior. Establishes a test baseline, applies changes in small verifiable steps, commits each step.

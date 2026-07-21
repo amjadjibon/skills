@@ -1,7 +1,7 @@
 {
   "name": "dev-skills",
-  "description": "Autonomous dev workflow in one plugin: 19 skills (design, api design, openapi spec, mermaid diagrams, github actions, ui prototype, plan, implement, review, QA, debug, refactor, perf, release, clean up, git safety), 4 sub-agents (researcher, implementer, fixer, tester), and the /loop orchestrator command — each skill with a lite/full/ultra delivery mode.",
-  "version": "1.7.0",
+  "description": "Autonomous dev workflow in one plugin: 20 skills (design, api design, openapi spec, mermaid diagrams, github actions, ui prototype, plan, implement, TDD, review, QA, debug, refactor, perf, release, clean up, git safety), 4 sub-agents (researcher, implementer, fixer, tester), and the /loop orchestrator command — each skill with a lite/full/ultra delivery mode.",
+  "version": "1.8.0",
   "author": {
     "name": "Amjad Hossain"
   },
@@ -23,6 +23,7 @@
     "./skills/dev/dev-release",
     "./skills/dev/dev-research",
     "./skills/dev/dev-review-plan",
+    "./skills/dev/dev-tdd",
     "./skills/dev/dev-ui-design",
     "./skills/misc/git-safe",
     "./skills/misc/github-actions",

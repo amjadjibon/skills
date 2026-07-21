@@ -6,7 +6,7 @@ argument-hint: "[lite|full|ultra]"
 
 # QA
 
-Systematic coverage analysis + writing the missing tests. Distinct from `dev-debug` (regression test for a known bug) and `dev-code-review` (flags gaps as findings) — QA writes the tests.
+Systematic coverage analysis + writing the missing tests. Distinct from `dev-debug` (regression test for a known bug) and `dev-code-review` (flags gaps as findings) — QA writes the tests. Assumes the code under test already exists — for building new code test-first, see `dev-tdd` instead.
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
@@ -39,7 +39,7 @@ Classify per file/function — **High**: happy path, error/failure paths, bounda
 High → Low:
 
 - One behaviour per test; name = scenario (`TestCreateUser_DuplicateEmail_Returns409`, not `TestCreateUser2`).
-- Test observable behaviour, not implementation — tests that break on rename are noise.
+- Test observable behaviour through public interfaces, not implementation — see `dev-tdd`'s anti-patterns (implementation-coupled, tautological) and mocking-boundary rules, they apply here too even outside a strict red→green loop.
 - Unhappy paths matter as much as happy — an untested error handler is an untested promise.
 - Real dependencies where fast enough; mock only system boundaries (external HTTP, email, payments).
 - Run each new test as written — confirm it passes, and fails when it should.
