@@ -73,6 +73,7 @@ If a skill doesn't show up after install, run `/reload-plugins` (or restart the 
 | [openapi-spec](skills/misc/openapi-spec/SKILL.md) | Write and validate OpenAPI 3.1 spec documents — `$ref`-based reusable components, Spectral/Redocly lint rules. No code generation; assumes `dev-api-design` already decided the shape. |
 | [mermaid-diagram](skills/misc/mermaid-diagram/SKILL.md) | Generate Mermaid diagrams (flowchart, sequence, architecture, deployment, class, state, ER) from a description or source code, with high-contrast styling and `mmdc` validation before handoff. |
 | [github-actions](skills/misc/github-actions/SKILL.md) | Create and review GitHub Actions workflows — CI, release/publish, reusable workflows, composite actions, matrix builds, caching, and security hardening. Validates with `actionlint`. |
+| [prototype](skills/misc/prototype/SKILL.md) | Build a throwaway prototype in the real codebase to answer one design question — a driveable TUI for a state/logic question, or several structurally different UI variants on a real route switchable via `?variant=`. Adapted from [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/prototype). |
 
 ## Agents
 

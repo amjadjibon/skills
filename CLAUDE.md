@@ -96,6 +96,7 @@ To add manually:
 - **dev-clean-up** — Housekeeping: remove merged local/remote branches, prune stale tracking refs, close resolved issues, remove leftover worktrees. Audits before acting.
 - **dev-release** — Cuts a release after PRs merge: derives the version bump from conventional commits, generates a changelog, bumps version files, tags, and publishes a GitHub release. Pauses for approval before tagging.
 - **git-safe** (`skills/misc/git-safe`) — Pre-flight gate for destructive/history-rewriting git commands (force push, reset --hard, clean -f, branch -D, rebase/amend on pushed branches); also the canonical source for this repo's commit hygiene and message conventions, referenced by the other skills instead of restated.
+- **prototype** (`skills/misc/prototype`) — Builds a throwaway prototype in the real codebase to answer one design question: a driveable terminal app for a state model/logic question (`LOGIC.md`), or several structurally different UI variants on a real route switchable via `?variant=` (`UI.md`). Distinct from `dev-ui-design` (a single static HTML mockup) — this wires into the actual app, then gets captured to a throwaway branch once the question is answered.
 
 ## Skill Pipeline
 
