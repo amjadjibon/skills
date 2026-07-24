@@ -11,6 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS = ROOT / "skills" / "dev"
+MISC_SKILLS = ROOT / "skills" / "misc"
 AGENTS = ROOT / ".agents"
 COMMANDS = ROOT / "commands"
 
@@ -68,10 +69,15 @@ def check_frontmatter(path, text, dirname):
 
 def main():
     skill_dirs = sorted(d.name for d in SKILLS.iterdir() if d.is_dir())
+    misc_dirs = sorted(d.name for d in MISC_SKILLS.iterdir() if d.is_dir()) if MISC_SKILLS.is_dir() else []
+    all_skills = skill_dirs + misc_dirs
     agent_files = sorted(AGENTS.glob("*.md")) if AGENTS.is_dir() else []
     agent_names = {p.stem for p in agent_files}
     command_files = sorted(COMMANDS.glob("*.md")) if COMMANDS.is_dir() else []
-    md_files = [SKILLS / d / "SKILL.md" for d in skill_dirs] + agent_files + command_files + [ROOT / "CLAUDE.md", ROOT / "README.md"]
+    skill_files = [SKILLS / d / "SKILL.md" for d in skill_dirs] + [MISC_SKILLS / d / "SKILL.md" for d in misc_dirs]
+    # multi-file skills (e.g. prototype's LOGIC.md/UI.md) get their fences and refs checked too
+    companions = sorted(p for f in skill_files for p in f.parent.glob("*.md") if p.name != "SKILL.md")
+    md_files = skill_files + companions + agent_files + command_files + [ROOT / "CLAUDE.md", ROOT / "README.md"]
 
     for path in md_files:
         if not path.exists():
@@ -97,7 +103,7 @@ def main():
     # CLAUDE.md and README.md must list every skill and mention every agent
     for doc in ("CLAUDE.md", "README.md"):
         text = (ROOT / doc).read_text()
-        for d in skill_dirs:
+        for d in all_skills:
             if not re.search(rf"\*\*{d}\*\*|\[{d}\]", text):
                 err(ROOT / doc, f"does not list skill `{d}`")
         for a in sorted(agent_names):
@@ -112,6 +118,13 @@ def main():
         market = json.loads(market_path.read_text())
         if plugin.get("description") != market["plugins"][0].get("description"):
             err(market_path, "plugin description out of sync with plugin.json")
+        # the skills array is the load path — a skill missing from it silently never loads
+        listed = set(plugin.get("skills", []))
+        actual = {f"./skills/dev/{d}" for d in skill_dirs} | {f"./skills/misc/{d}" for d in misc_dirs}
+        for missing in sorted(actual - listed):
+            err(plugin_path, f"skills array missing `{missing}` — it will not load")
+        for stale in sorted(listed - actual):
+            err(plugin_path, f"skills array lists `{stale}` but that directory does not exist")
     except (OSError, json.JSONDecodeError, KeyError, IndexError) as e:
         err(plugin_path, f"manifest problem: {e}")
 
@@ -119,7 +132,7 @@ def main():
         print("\n".join(errors))
         print(f"\n{len(errors)} finding(s)")
         sys.exit(1)
-    print(f"OK — {len(skill_dirs)} skills validated")
+    print(f"OK — {len(all_skills)} skills validated ({len(skill_dirs)} dev, {len(misc_dirs)} misc)")
 
 
 if __name__ == "__main__":
