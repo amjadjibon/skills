@@ -100,12 +100,14 @@ def main():
             if ref not in skill_dirs:
                 err(path, f"references `{ref}` but skills/dev/{ref}/ and .agents/{ref}.md do not exist")
 
-    # CLAUDE.md and README.md must list every skill and mention every agent
+    # README.md is the human-facing list and must cover every skill; CLAUDE.md deliberately
+    # does not repeat them (the descriptions are already in the always-loaded skill listing).
+    readme = (ROOT / "README.md").read_text()
+    for d in all_skills:
+        if not re.search(rf"\*\*{d}\*\*|\[{d}\]", readme):
+            err(ROOT / "README.md", f"does not list skill `{d}`")
     for doc in ("CLAUDE.md", "README.md"):
         text = (ROOT / doc).read_text()
-        for d in all_skills:
-            if not re.search(rf"\*\*{d}\*\*|\[{d}\]", text):
-                err(ROOT / doc, f"does not list skill `{d}`")
         for a in sorted(agent_names):
             if a not in text:
                 err(ROOT / doc, f"does not mention agent `{a}`")

@@ -73,30 +73,9 @@ To add manually:
 
 ## Existing Skills
 
-- **dev-research** — Investigates a codebase, approach, or technology before planning; compares candidates, verifies claims with spikes and web/doc lookups, writes `docs/<feature-name>/RESEARCH.md` with a recommendation. Also spawned as a scoped sub-agent by dev-create-plan/dev-implement-plan/dev-loop to answer single questions (third-party APIs, libraries, docs) into `docs/<feature-name>/research/<topic>.md`.
-- **dev-design** — Decides a feature's shape before planning: system design, data model, API/interface contract, and UI/UX, whichever axes apply. Writes `docs/<feature-name>/DESIGN.md` that `dev-create-plan` builds phases from.
-- **dev-api-design** — REST and GraphQL API design principles (resource/URL design, pagination, versioning, GraphQL schema-first/DataLoader/Relay pagination) for filling in `dev-design`'s API-contract axis. Hands off to `openapi-spec` (`skills/misc/openapi-spec`) to write the actual spec document.
-- **openapi-spec** (`skills/misc/openapi-spec`) — Writes and validates the OpenAPI 3.1 spec document itself (`$ref`-based components, Spectral/Redocly lint rules), no code generation. Assumes `dev-api-design` already decided the shape.
-- **brainstorming** (`skills/misc/brainstorming`) — Continuous interactive ideation partner: orients on the real target, spreads ideas across safe/middle/bold rather than volume, and defaults to critical engagement (pushback, not agreement) with no hand-off/convergence point.
-- **mermaid-diagram** (`skills/misc/mermaid-diagram`) — Generates Mermaid diagrams (flowchart, sequence, architecture, deployment, class, state, ER) with high-contrast styling, from a description or from source code, validated with `mmdc` before being handed back.
-- **github-actions** (`skills/misc/github-actions`) — Creates and reviews GitHub Actions workflows: CI, release/publish, reusable workflows, composite actions, matrix builds, caching, and security hardening (least-privilege permissions, pinned action SHAs). Validates with `actionlint`.
-- **dev-ui-design** — Builds a clickable UI prototype as a single self-contained HTML file (inline CSS, no build step) to demo a screen or flow, turning `dev-design`'s UI/UX axis into something clickable. Writes `docs/<feature-name>/prototype.html`.
-- **dev-create-plan** — Writes `docs/<feature-name>/PLAN.md` with phased, checkbox-driven steps ready for autonomous execution.
-- **dev-implement-plan** — Executes a `PLAN.md` produced by `dev-create-plan`, ticking checkboxes and committing each phase.
-- **dev-e2e-testing** — Writes and maintains end-to-end tests (`tests/e2e/`) driving the whole system through its real UI/API: what earns an E2E test, Playwright/Cypress setup, fixture independence, and flake-as-a-bug discipline. Distinct from `dev-tdd`/`dev-qa`.
-- **dev-smoke-testing** — Writes fast, thin, one-check-per-file sanity scripts (`scripts/test-<check-name>.sh|py`) that answer one question — is it alive right now — run on demand by an agent or user instead of manually checking by hand. Not a CI/CD pipeline gate; safe against production.
-- **dev-tdd** — The red → green TDD loop: what a good test is, seams (test only at pre-agreed public boundaries), anti-patterns (implementation-coupled, tautological, horizontal slicing), and the rules of the cycle. Used by `dev-implement-plan` for phases built test-first; distinct from `dev-qa`, which backfills coverage on code that already exists. Refactoring belongs to `dev-refactor`/`dev-code-review`, not this loop.
-- **dev-code-review** — Reviews a diff or branch for correctness, security, and simplification; writes findings to `docs/<feature-name>/REVIEW.md`.
-- **dev-loop** — Orchestrates the full `dev-create-plan → dev-implement-plan → dev-code-review → fix → re-review` cycle autonomously, spawning parallel agents in isolated worktrees and pausing only for user approval before pushing.
-- **dev-refactor** — Restructures code without changing behavior. Establishes a test baseline, applies changes in small verifiable steps, commits each step.
-- **dev-debug** — Reproduce → isolate → fix → verify loop. Commits the failing test before the fix for traceable history.
-- **dev-perf** — Measure baseline → profile → optimize one bottleneck at a time → benchmark. Includes before/after numbers in commit messages.
-- **dev-review-plan** — Reviews a PLAN.md before implementation for vague tasks, missing criteria, bad phase ordering, and scope issues. Writes `docs/<feature-name>/PLAN-REVIEW.md` with a machine-readable verdict.
-- **dev-qa** — Measures test coverage, identifies untested paths, writes missing tests, and produces `docs/<feature-name>/QA.md` with before/after coverage numbers.
-- **dev-clean-up** — Housekeeping: remove merged local/remote branches, prune stale tracking refs, close resolved issues, remove leftover worktrees. Audits before acting.
-- **dev-release** — Cuts a release after PRs merge: derives the version bump from conventional commits, generates a changelog, bumps version files, tags, and publishes a GitHub release. Pauses for approval before tagging.
-- **git-safe** (`skills/misc/git-safe`) — Pre-flight gate for destructive/history-rewriting git commands (force push, reset --hard, clean -f, branch -D, rebase/amend on pushed branches); also the canonical source for this repo's commit hygiene and message conventions, referenced by the other skills instead of restated.
-- **prototype** (`skills/misc/prototype`) — Builds a throwaway prototype in the real codebase to answer one design question: a driveable terminal app for a state model/logic question (`LOGIC.md`), or several structurally different UI variants on a real route switchable via `?variant=` (`UI.md`). Distinct from `dev-ui-design` (a single static HTML mockup) — this wires into the actual app, then gets captured to a throwaway branch once the question is answered.
+Each skill's `description` frontmatter is the source of truth and is already in the
+always-loaded skill listing — read `skills/*/*/SKILL.md` rather than duplicating it here.
+README.md carries the human-facing list.
 
 ## Skill Pipeline
 
