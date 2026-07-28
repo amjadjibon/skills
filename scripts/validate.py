@@ -110,6 +110,13 @@ def main():
             if a not in text:
                 err(ROOT / doc, f"does not mention agent `{a}`")
 
+    # every "<N> skills" claim across the docs and manifests must match reality
+    for doc in ("CLAUDE.md", "README.md", "index.html", ".claude-plugin/plugin.json", ".claude-plugin/marketplace.json"):
+        path = ROOT / doc
+        for m in re.finditer(r"(\d+) skills", path.read_text()):
+            if int(m.group(1)) != len(all_skills):
+                err(path, f"claims `{m.group(0)}` but there are {len(all_skills)}")
+
     # plugin.json and marketplace.json must exist, parse, and agree on the description
     plugin_path = ROOT / ".claude-plugin" / "plugin.json"
     market_path = ROOT / ".claude-plugin" / "marketplace.json"

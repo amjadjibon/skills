@@ -1,6 +1,6 @@
 # skills
 
-A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 14 skills, 4 sub-agents, and the `/loop` orchestrator command.
+A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 24 skills, 4 sub-agents, and the `/loop` orchestrator command.
 
 ## Installing the Plugin
 
