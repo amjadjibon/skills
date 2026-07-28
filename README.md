@@ -105,14 +105,27 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 cost $2.55 · time 8m · edits +185/-20 · limit 5h 21% · 7d 8%
 ```
 
-Line one is the badge, directory, branch, model, and context usage. Line two is session usage — estimated cost, wall-clock duration, lines added/removed, and rate-limit consumption for the 5-hour and 7-day windows. Every value carries a dim label so the numbers aren't ambiguous, and percentages are colour-coded: green under 50%, amber past 50%, red past 80%. Each segment is dropped when its field is absent, so line two disappears entirely on a fresh session. Claude Code plugins cannot set the main `statusLine` on their own — a plugin's `settings.json` only supports the `agent` and `subagentStatusLine` keys — so it ships as a one-command install:
+Line one is the badge, directory, branch, model, and context usage. Line two is session usage — estimated cost, wall-clock duration, lines added/removed, and rate-limit consumption for the 5-hour and 7-day windows. Every value carries a dim label so the numbers aren't ambiguous, and percentages are colour-coded: green under 50%, amber past 50%, red past 80%. Each segment is dropped when its field is absent, so line two disappears entirely on a fresh session.
+
+Claude Code plugins cannot set the main `statusLine` declaratively — a plugin's `settings.json` only supports the `agent` and `subagentStatusLine` keys — so a `SessionStart` hook (`hooks/hooks.json` → `statusline/auto-install.sh`) wires it up on the first session after install. It copies the script to `~/.claude/dev-skills.statusline.sh`, points `settings.json` at that stable path, and refreshes the copy on later sessions so plugin upgrades land.
+
+It only ever acts on its own status line:
+
+| Your `settings.json` | What the hook does |
+| -------------------- | ------------------ |
+| No `statusLine` | Installs ours, records `.dev-skills.statusline-installed` |
+| Someone else's `statusLine` | Nothing — never overwrites it |
+| Ours | Refreshes the script copy only |
+| Ours, then you delete it | Treats that as a decision: writes `.dev-skills.statusline-optout` and never reinstalls |
+
+To opt out before ever installing the plugin, `touch ~/.claude/.dev-skills.statusline-optout`. To manage it by hand:
 
 ```sh
-bash statusline/install.sh              # copies the script to ~/.claude/ and sets statusLine
-bash statusline/install.sh --uninstall  # removes it again
+bash statusline/install.sh              # install now (clears the opt-out)
+bash statusline/install.sh --uninstall  # remove it and opt out
 ```
 
-The installer is idempotent; re-run it after upgrading the plugin to pick up script changes. It honours `CLAUDE_CONFIG_DIR` and needs `jq` for everything but the badge, directory, and branch. Context numbers are absent until the first API response of a session, and again after `/compact`; `rate_limits` is Claude.ai subscriber-only. For a single-line status line, delete the trailing `printf '\n…'` from the script.
+The scripts honour `CLAUDE_CONFIG_DIR`, need `python3` to edit settings safely, and need `jq` for everything but the badge, directory, and branch. Context numbers are absent until the first API response of a session, and again after `/compact`; `rate_limits` is Claude.ai subscriber-only. For a single-line status line, delete the trailing `printf '\n…'` from the script.
 
 ## Usage
 

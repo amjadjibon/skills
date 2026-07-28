@@ -137,6 +137,19 @@ def main():
     except (OSError, json.JSONDecodeError, KeyError, IndexError) as e:
         err(plugin_path, f"manifest problem: {e}")
 
+    # hooks run on every session — a broken path or unparseable file breaks startup silently
+    hooks_path = ROOT / "hooks" / "hooks.json"
+    if hooks_path.exists():
+        try:
+            hooks = json.loads(hooks_path.read_text())
+            for event, matchers in hooks.get("hooks", {}).items():
+                for hook in (h for m in matchers for h in m.get("hooks", [])):
+                    for script in re.findall(r"\$\{CLAUDE_PLUGIN_ROOT\}/(\S+?)[\"']", hook.get("command", "")):
+                        if not (ROOT / script).exists():
+                            err(hooks_path, f"{event} hook points at `{script}` which does not exist")
+        except (OSError, json.JSONDecodeError, AttributeError) as e:
+            err(hooks_path, f"hooks problem: {e}")
+
     if errors:
         print("\n".join(errors))
         print(f"\n{len(errors)} finding(s)")

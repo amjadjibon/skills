@@ -9,6 +9,8 @@ set -euo pipefail
 config_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 settings="$config_dir/settings.json"
 target="$config_dir/dev-skills.statusline.sh"
+installed_marker="$config_dir/.dev-skills.statusline-installed"
+optout_marker="$config_dir/.dev-skills.statusline-optout"
 src="$(cd "$(dirname "$0")" && pwd)/statusline.sh"
 
 mkdir -p "$config_dir"
@@ -24,12 +26,16 @@ json.dump(s, open(p, "w"), indent=2)
 open(p, "a").write("\n")
 print("removed statusLine from", p)
 PY
-    rm -f "$target"
+    rm -f "$target" "$installed_marker"
+    touch "$optout_marker"  # stops the SessionStart hook putting it back
+    echo "opted out — delete $optout_marker to allow reinstall"
     exit 0
 fi
 
+rm -f "$optout_marker"
 cp "$src" "$target"
 chmod +x "$target"
+touch "$installed_marker"
 
 python3 - "$settings" "$target" <<'PY'
 import json, sys
