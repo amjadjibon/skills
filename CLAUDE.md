@@ -20,7 +20,13 @@ skills/
   <agent-name>.md  # Sub-agent definitions the skills spawn
 commands/
   <command-name>.md  # Slash commands (currently: loop — wraps dev-loop)
+statusline/
+  statusline.sh             # optional 2-line status line: repo/model/context + session usage
+  install.sh                # copies it to ~/.claude/ and points settings.json at it
 ```
+
+The status line is opt-in and installed by script: plugin `settings.json` only supports the
+`agent` and `subagentStatusLine` keys, so a plugin cannot set the user's main `statusLine`.
 
 Each skill lives in its own directory under `skills/dev/`. The directory name is the skill's identifier used to invoke it. Because skills are nested one level deeper than the plugin-loader default, `.claude-plugin/plugin.json` lists each skill path explicitly in its `skills` array — keep that array in sync when adding, removing, or renaming a skill directory.
 

@@ -96,6 +96,24 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 
 `loop` invokes the `dev-loop` skill with your arguments (trailing `lite|full|ultra` = mode) and runs the full plan → implement → review → fix cycle, pausing only at the approval gate before pushing.
 
+## Status Line
+
+`statusline/statusline.sh` renders two lines in the Claude Code status line:
+
+```text
+[dev-skills] skills (main) Opus 5 ctx 24.3k/200k 12%
+cost $2.55 · time 8m · edits +185/-20 · limit 5h 21% · 7d 8%
+```
+
+Line one is the badge, directory, branch, model, and context usage. Line two is session usage — estimated cost, wall-clock duration, lines added/removed, and rate-limit consumption for the 5-hour and 7-day windows. Every value carries a dim label so the numbers aren't ambiguous, and percentages are colour-coded: green under 50%, amber past 50%, red past 80%. Each segment is dropped when its field is absent, so line two disappears entirely on a fresh session. Claude Code plugins cannot set the main `statusLine` on their own — a plugin's `settings.json` only supports the `agent` and `subagentStatusLine` keys — so it ships as a one-command install:
+
+```sh
+bash statusline/install.sh              # copies the script to ~/.claude/ and sets statusLine
+bash statusline/install.sh --uninstall  # removes it again
+```
+
+The installer is idempotent; re-run it after upgrading the plugin to pick up script changes. It honours `CLAUDE_CONFIG_DIR` and needs `jq` for everything but the badge, directory, and branch. Context numbers are absent until the first API response of a session, and again after `/compact`; `rate_limits` is Claude.ai subscriber-only. For a single-line status line, delete the trailing `printf '\n…'` from the script.
+
 ## Usage
 
 See [Installing the Plugin](#installing-the-plugin) above for the recommended path (namespaced as `/dev-skills:<skill-name>`).
