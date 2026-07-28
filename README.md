@@ -98,14 +98,21 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 
 ## Status Line
 
-`statusline/statusline.sh` renders two lines in the Claude Code status line:
+`statusline/statusline.sh` renders two lines under the prompt:
 
-```text
-[dev-skills] skills (main) Opus 5 ctx 24.3k/200k 12%
-cost $2.55 · time 8m · edits +185/-20 · limit 5h 21% · 7d 8%
-```
+![The dev-skills status line: repo, branch, model and context usage on the first line; session cost, duration, edits and rate limits on the second](docs/statusline.png)
 
-Line one is the badge, directory, branch, model, and context usage. Line two is session usage — estimated cost, wall-clock duration, lines added/removed, and rate-limit consumption for the 5-hour and 7-day windows. Every value carries a dim label so the numbers aren't ambiguous, and percentages are colour-coded: green under 50%, amber past 50%, red past 80%. Each segment is dropped when its field is absent, so line two disappears entirely on a fresh session.
+| Segment | Field | Notes |
+| ------- | ----- | ----- |
+| `skills (main)` | `workspace.current_dir`, `git branch` | Directory basename and current branch |
+| `Opus 5` | `model.display_name` | |
+| `ctx 105k/1M 10%` | `context_window` | Input tokens vs. window size — the same input-only basis Claude Code uses for `used_percentage`, so the fraction and the percentage agree |
+| `cost $4.74` | `cost.total_cost_usd` | Client-side estimate, not your bill; `/clear` resets it |
+| `time 14m` | `cost.total_duration_ms` | Wall clock, shown as `45s` / `14m` / `2h5m` |
+| `edits +349/-43` | `cost.total_lines_added/removed` | Additions green, deletions red |
+| `limit 5h 25% · 7d 8%` | `rate_limits` | Claude.ai Pro/Max only, after the first API response |
+
+Every value carries a dim label so no number is ambiguous, and all three percentages share one ramp: green under 50%, amber past 50%, red past 80%. Each segment is dropped when its field is absent, so line two disappears entirely on a fresh session.
 
 Claude Code plugins cannot set the main `statusLine` declaratively — a plugin's `settings.json` only supports the `agent` and `subagentStatusLine` keys — so a `SessionStart` hook (`hooks/hooks.json` → `statusline/auto-install.sh`) wires it up on the first session after install. It copies the script to `~/.claude/dev-skills.statusline.sh`, points `settings.json` at that stable path, and refreshes the copy on later sessions so plugin upgrades land.
 
