@@ -2,6 +2,15 @@
 
 A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 24 skills, 4 sub-agents, and the `/loop` orchestrator command.
 
+> [!CAUTION]
+> **Read every skill before you install it. Nothing here is guaranteed.**
+>
+> These skills are instructions that steer an agent with real tool access — they run commands, edit files, create branches and commits, and open PRs on your behalf. A skill that reads fine can still do the wrong thing in your repo.
+>
+> Before installing, open the `SKILL.md` files (and `.agents/*.md`, `hooks/hooks.json`, `statusline/*.sh`) and check what they actually do. Note that the plugin's `SessionStart` hook writes a `statusLine` entry into your `~/.claude/settings.json` — see [Status Line](#status-line) for exactly what it touches and how to opt out.
+>
+> There is no warranty, no stability promise, and no support commitment. Try them on a scratch branch first, review every diff, and never point an autonomous mode like `/loop` at a repo you cannot afford to have edited.
+
 ## Installing the Plugin
 
 Requires the [Claude Code CLI](https://claude.ai/code).
