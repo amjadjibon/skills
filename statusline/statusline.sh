@@ -89,33 +89,60 @@ usage_color() {
 # "label value" with a dim label
 seg() { printf "${DIM}%s${OFF} \033[38;5;%sm%s${OFF}" "$1" "$2" "$3"; }
 
-line1=$(printf '\033[38;5;%sm[dev-skills]\033[0m \033[38;5;110m%s\033[0m' "$GREEN" "${dir##*/}")
-[ -n "$branch" ] && line1="$line1 $(printf '\033[38;5;180m(%s)\033[0m' "$branch")"
-# a worktree looks exactly like the real checkout otherwise — and the agents run in them
-[ -n "$worktree" ] && line1="$line1 $(seg "wt" "$YELLOW" "$worktree")"
-[ -n "$model" ] && line1="$line1 $(printf '\033[38;5;245m%s\033[0m' "$model")"
-[ -n "$ctx_size" ] && line1="$line1 $(seg "ctx" "$(usage_color "$ctx_pct")" \
-    "$(humanize "$ctx_used")/$(humanize "$ctx_size") ${ctx_pct}%")"
-# the transcript is ~/.claude/projects/<project>/<session>.jsonl, so print it whole
-[ -n "$session" ] && line1="$line1 $(seg "session" 245 "$session")"
+# Claude Code exports the terminal width, and a status line that wraps looks broken.
+# Each line is built left to right and a segment that would overrun is skipped, so
+# the rightmost — the least load-bearing — are the ones that go. 0 means unknown:
+# never truncate rather than guess.
+width=${COLUMNS:-0}
 
-sep=$(printf "${DIM} · ${OFF}")
-parts=""
+# add() appends "<plain> <coloured>" to the line named by $1 unless it overruns.
+# The plain copy exists only to measure: escape codes have no width but plenty
+# of length, so ${#…} on the coloured string would be nonsense.
+add() {  # line_var separator plain coloured
+    local var=$1 gap=$2 plain=$3 colour=$4 gapc=$gap_colour cur_p cur_c full
+    eval "cur_p=\$${var}_plain cur_c=\$$var full=\$${var}_full"
+    [ -z "$full" ] || return 0   # once one segment overruns, stop: a prefix of the
+    [ -n "$cur_p" ] || { gap="" gapc=""; }   # line beats a line with a hole in it
+    if [ "$width" -gt 0 ] && [ $((${#cur_p} + ${#gap} + ${#plain})) -gt "$width" ]; then
+        eval "${var}_full=1"
+        return 0
+    fi
+    eval "${var}_plain=\$cur_p\$gap\$plain"
+    eval "$var=\$cur_c\$gapc\$colour"
+}
+
+l1=$(printf '\033[38;5;%sm[dev-skills]\033[0m \033[38;5;110m%s\033[0m' "$GREEN" "${dir##*/}")
+l1_plain="[dev-skills] ${dir##*/}"
+gap_colour=" "
+[ -n "$branch" ] && add l1 " " "($branch)" "$(printf '\033[38;5;180m(%s)\033[0m' "$branch")"
+# a worktree looks exactly like the real checkout otherwise — and the agents run in them
+[ -n "$worktree" ] && add l1 " " "wt $worktree" "$(seg "wt" "$YELLOW" "$worktree")"
+[ -n "$model" ] && add l1 " " "$model" "$(printf '\033[38;5;245m%s\033[0m' "$model")"
+if [ -n "$ctx_size" ]; then
+    ctx="$(humanize "$ctx_used")/$(humanize "$ctx_size") ${ctx_pct}%"
+    add l1 " " "ctx $ctx" "$(seg "ctx" "$(usage_color "$ctx_pct")" "$ctx")"
+fi
+# the transcript is ~/.claude/projects/<project>/<session>.jsonl, so print it whole
+[ -n "$session" ] && add l1 " " "session $session" "$(seg "session" 245 "$session")"
+
+l2="" l2_plain="" l2_full=""
+gap_colour=$(printf "${DIM} · ${OFF}")
 if [ -n "$usd" ]; then
-    parts=$(seg "cost" 179 "$(printf '$%.2f' "$usd")")
-    parts="$parts$sep$(seg "time" 245 "$(duration "$ms")")"
-    parts="$parts$sep$(printf "${DIM}edits${OFF} \033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" \
-        "$GREEN" "$added" "$RED" "$removed")"
+    add l2 " · " "cost $(printf '$%.2f' "$usd")" "$(seg "cost" 179 "$(printf '$%.2f' "$usd")")"
+    add l2 " · " "time $(duration "$ms")" "$(seg "time" 245 "$(duration "$ms")")"
+    add l2 " · " "edits +$added/-$removed" \
+        "$(printf "${DIM}edits${OFF} \033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" \
+            "$GREEN" "$added" "$RED" "$removed")"
 fi
 # how much of each window is spent, and how long until it refills
 for window in "used 5h|$five|$five_at" "7d|$seven|$seven_at"; do
     IFS='|' read -r label pct at <<< "$window"
     [ -n "$pct" ] || continue
-    parts="${parts:+$parts$sep}$(seg "$label" "$(usage_color "$pct")" "${pct}%")"
     in=$(resets_in "$at")
-    [ -n "$in" ] && parts="$parts$(printf "${DIM} in %s${OFF}" "$in")"
+    add l2 " · " "$label ${pct}%${in:+ in $in}" \
+        "$(seg "$label" "$(usage_color "$pct")" "${pct}%")${in:+$(printf "${DIM} in %s${OFF}" "$in")}"
 done
 
-printf '%s' "$line1"
-[ -n "$parts" ] && printf '\n%s' "$parts"
+printf '%s' "$l1"
+[ -n "$l2" ] && printf '\n%s' "$l2"
 exit 0   # an empty line two must not look like a failed status line
