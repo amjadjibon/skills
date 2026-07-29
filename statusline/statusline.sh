@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
 #   [dev-skills] <dir> (<branch>) <model> <used>/<size> (<pct>%)
-#   $<cost> · <duration> · +<added>/-<removed> · 5h <pct>% · 7d <pct>%
+#   $<cost> · <duration> · +<added>/-<removed> · 5h <left>% in <reset> · 7d <left>% in <reset>
 # Claude Code passes the session JSON on stdin.
 input=$(cat)
 
@@ -24,7 +24,9 @@ if command -v jq >/dev/null 2>&1; then
     limits=$(printf '%s' "$input" | jq -r '
         select(.rate_limits != null)
         | [(.rate_limits.five_hour.used_percentage // "" | if . == "" then "" else round end),
-           (.rate_limits.seven_day.used_percentage // "" | if . == "" then "" else round end)]
+           (.rate_limits.five_hour.resets_at // ""),
+           (.rate_limits.seven_day.used_percentage // "" | if . == "" then "" else round end),
+           (.rate_limits.seven_day.resets_at // "")]
         | @tsv')
 else
     model="" dir="" ctx="" cost="" limits=""
@@ -50,6 +52,18 @@ duration() {
         if (s >= 3600) printf "%dh%dm", int(s / 3600), int((s % 3600) / 60)
         else if (s >= 60) printf "%dm", int(s / 60)
         else printf "%ds", s
+    }'
+}
+
+# epoch seconds -> how long until then: 2h5m, 45m, 3d4h. Empty once it's passed.
+resets_in() {
+    [ -n "${1:-}" ] || return 0
+    awk -v at="$1" -v now="$(date +%s)" 'BEGIN {
+        s = at - now
+        if (s <= 0) exit
+        if (s >= 86400) printf "%dd%dh", int(s / 86400), int((s % 86400) / 3600)
+        else if (s >= 3600) printf "%dh%dm", int(s / 3600), int((s % 3600) / 60)
+        else printf "%dm", int(s / 60) + 1
     }'
 }
 
@@ -86,9 +100,20 @@ if [ -n "$cost" ]; then
     parts="$parts$sep$(printf "${DIM}edits${OFF} \033[38;5;108m+%s${OFF}\033[38;5;174m/-%s${OFF}" "$added" "$removed")"
 fi
 if [ -n "$limits" ]; then
-    IFS=$'\t' read -r five seven <<< "$limits"
-    [ -n "$five" ] && parts="${parts:+$parts$sep}$(seg "limit 5h" "$(usage_color "$five")" "${five}%")"
-    [ -n "$seven" ] && parts="${parts:+$parts$sep}$(seg "7d" "$(usage_color "$seven")" "${seven}%")"
+    IFS=$'\t' read -r five five_at seven seven_at <<< "$limits"
+    # what's left of the window, and how long until it refills
+    if [ -n "$five" ]; then
+        left=$((100 - five))
+        parts="${parts:+$parts$sep}$(seg "left 5h" "$(usage_color "$five")" "${left}%")"
+        in=$(resets_in "$five_at")
+        [ -n "$in" ] && parts="$parts$(printf "${DIM} in %s${OFF}" "$in")"
+    fi
+    if [ -n "$seven" ]; then
+        left=$((100 - seven))
+        parts="${parts:+$parts$sep}$(seg "7d" "$(usage_color "$seven")" "${left}%")"
+        in=$(resets_in "$seven_at")
+        [ -n "$in" ] && parts="$parts$(printf "${DIM} in %s${OFF}" "$in")"
+    fi
 fi
 
 printf '%s' "$line1"

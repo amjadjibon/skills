@@ -117,9 +117,11 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 | `cost $4.74` | `cost.total_cost_usd` | Client-side estimate, not your bill; `/clear` resets it |
 | `time 14m` | `cost.total_duration_ms` | Wall clock, shown as `45s` / `14m` / `2h5m` |
 | `edits +349/-43` | `cost.total_lines_added/removed` | Additions green, deletions red |
-| `limit 5h 25% · 7d 8%` | `rate_limits` | Claude.ai Pro/Max only, after the first API response |
+| `left 5h 79% in 2h30m · 7d 92% in 3d5h` | `rate_limits` | Claude.ai Pro/Max only, after the first API response. Shows what's **left** of each window and when it refills |
 
-Every value carries a dim label so no number is ambiguous, and all three percentages share one ramp: green under 50%, amber past 50%, red past 80%. Each segment is dropped when its field is absent, so line two disappears entirely on a fresh session.
+Every value carries a dim label so no number is ambiguous, and the percentages share one ramp: green under 50% consumed, amber past 50%, red past 80% — so a dwindling `left` figure reddens as it falls. Each segment is dropped when its field is absent, so line two disappears entirely on a fresh session.
+
+There is no credit or dollar balance in the session payload — `cost` is a client-side estimate of what the session would cost at API rates, and the rate-limit windows are the only real quota signal Claude Code exposes.
 
 Claude Code plugins cannot set the main `statusLine` declaratively — a plugin's `settings.json` only supports the `agent` and `subagentStatusLine` keys — so a `SessionStart` hook (`hooks/hooks.json` → `statusline/auto-install.sh`) wires it up on the first session after install. It copies the script to `~/.claude/dev-skills.statusline.sh`, points `settings.json` at that stable path, and refreshes the copy on later sessions so plugin upgrades land.
 
