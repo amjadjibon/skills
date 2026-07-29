@@ -100,10 +100,12 @@ def check_statusline():
         env = {"PATH": os.environ.get("PATH", ""), "STATUSLINE_NOW": "1800000000", "COLUMNS": "0"}
         if expected and expected[0].startswith("# COLUMNS="):
             env["COLUMNS"] = expected.pop(0).split("=", 1)[1]
+        # transcript_path is absolute, so fixtures carry a placeholder instead
+        payload = fixture.read_text().replace("@TRANSCRIPT@", str(tests / "transcript.jsonl"))
         try:
             out = subprocess.run(
                 ["/bin/bash", str(script)],
-                input=fixture.read_bytes(), env=env, capture_output=True, timeout=15,
+                input=payload.encode(), env=env, capture_output=True, timeout=15,
             )
         except (OSError, subprocess.SubprocessError) as e:
             err(fixture, f"could not run statusline.sh: {e}")

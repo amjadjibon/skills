@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
 #   [dev-skills] <dir>(<branch>) · #<pr> · wt <wt> · <model> <effort> · ctx <used>/<size> <pct>% · <session>
-#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · <duration> · +<added>/-<removed>
+#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · in/out/cr/cw · <duration> · +<added>/-<removed>
 #
 # Labels only survive where the value alone is ambiguous: ctx and tok keep
 # theirs, a currency symbol and a +n/-n pair do not need one.
@@ -11,7 +11,7 @@
 # else is bash arithmetic — no awk, no basename.
 input=$(cat)
 
-# One jq pass for every field, as a fixed 19-column row. Absent values come back
+# One jq pass for every field, as a fixed 20-column row. Absent values come back
 # empty so the render below can drop the segment — which rules out @tsv, because
 # tab is IFS whitespace and bash would collapse the empty columns and shift every
 # field left. \x1f (unit separator) is non-whitespace, so empties survive.
@@ -41,12 +41,27 @@ fields=$(printf '%s' "$input" | jq -r '
         (if .fast_mode == true then "fast" else "" end),
         # present only while an open PR exists for the branch; review_state may be absent
         (.pr.number // ""),
-        (.pr.review_state // "") ]
+        (.pr.review_state // ""),
+        (.transcript_path // "") ]
     | map(tostring) | join("\u001f")' 2>/dev/null)
 
 IFS=$'\037' read -r model dir worktree ctx_used ctx_size ctx_pct \
     usd ms added removed five five_at seven seven_at session effort fast \
-    pr pr_state <<< "$fields"
+    pr pr_state transcript <<< "$fields"
+
+# The payload carries current-window state only, never session history — but it
+# points at the transcript, where every assistant message records its own usage.
+# Summing those is exactly what /usage does, and it is the only cumulative token
+# count available anywhere. ~20ms over a 3.6MB transcript, against a 300ms debounce.
+tokens=""
+[ -r "$transcript" ] && tokens=$(jq -rs '
+    map(.message.usage // empty)
+    | [ (map(.input_tokens // 0) | add // 0),
+        (map(.output_tokens // 0) | add // 0),
+        (map(.cache_read_input_tokens // 0) | add // 0),
+        (map(.cache_creation_input_tokens // 0) | add // 0) ]
+    | map(tostring) | join("\u001f")' "$transcript" 2>/dev/null)
+IFS=$'\037' read -r tok_in tok_out tok_cr tok_cw <<< "$tokens"
 
 [ -n "$dir" ] || dir="$PWD"
 branch=$(git -C "$dir" rev-parse --abbrev-ref HEAD 2>/dev/null)
@@ -186,6 +201,13 @@ done
 # subscription nothing was billed at all
 [ -n "$usd" ] && add l2 "$sep_plain" "$(printf '~$%.2f' "$usd")" \
     "$(printf '\033[38;5;%sm~$%.2f\033[0m' "$TAN" "$usd")"
+# the /usage breakdown: fresh input, output, cache read, cache write
+if [ -n "$tok_out" ]; then
+    for pair in "in|$tok_in" "out|$tok_out" "cr|$tok_cr" "cw|$tok_cw"; do
+        IFS='|' read -r label n <<< "$pair"
+        add l2 "$sep_plain" "$label $(humanize "$n")" "$(seg "$label" "$TIME" "$(humanize "$n")")"
+    done
+fi
 if [ -n "$usd" ]; then
     add l2 "$sep_plain" "$(duration "$ms")" \
         "$(printf '\033[38;5;%sm%s\033[0m' "$TIME" "$(duration "$ms")")"
