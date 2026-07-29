@@ -137,8 +137,8 @@ def check_statusline():
                 capture_output=True, timeout=15,
             )
             line = ANSI.sub("", out.stdout.decode()).split("\n")[0]
-            if f"({sha})" not in line:
-                err(script, f"detached HEAD should render ({sha}), got: {line}")
+            if sha not in line or "HEAD" in line:
+                err(script, f"detached HEAD should render {sha}, got: {line}")
 
     # {} has no current_dir, so it falls back to $PWD and cannot be a golden test —
     # but it must still render one line and exit clean rather than blowing up.

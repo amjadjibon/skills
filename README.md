@@ -111,21 +111,20 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 
 | Segment | Field | Notes |
 | ------- | ----- | ----- |
-| `skills (main)` | `workspace.current_dir`, `git branch` | Directory basename and current branch — the short commit SHA instead when HEAD is detached |
-| `pr #42 pending` | `pr.number`, `pr.review_state` | Only while an open PR exists for the branch; disappears when it merges |
+| `skills · main` | `workspace.current_dir`, `git branch` | Directory basename and current branch — the short commit SHA instead when HEAD is detached |
+| `#42 pending` | `pr.number`, `pr.review_state` | Only while an open PR exists for the branch; disappears when it merges |
 | `wt phase-2-auth` | `workspace.git_worktree` | Only inside a linked worktree — the agents run in them, and nothing else on the line distinguishes one from the real checkout |
-| `Opus 5` | `model.display_name` | |
-| `effort xhigh` | `effort.level` | Absent on models without the reasoning-effort parameter. Reflects mid-session `/effort` changes |
+| `Opus 5 xhigh` | `model.display_name`, `effort.level` | Effort reads as part of the model phrase; absent on models without the parameter |
 | `fast` | `fast_mode` | Shown only when [fast mode](https://code.claude.com/docs/en/fast-mode) is on |
 | `ctx 183k/1M 18%` | `context_window` | Input tokens vs. window size — the same input-only basis Claude Code uses for `used_percentage`, so the fraction and the percentage agree |
-| `session 45fdd1e0-af3f-…` | `session_id` | The transcript is `~/.claude/projects/<project>/<session_id>.jsonl` |
-| `est $17.80` | `cost.total_cost_usd` | Labelled `est` because it is a client-side estimate at API rates — on a subscription nothing was billed at all. `/clear` resets it |
-| `tok 183k in/4.2k out` | `context_window.total_input_tokens`, `total_output_tokens` | What that estimate is counting. Output is excluded from `used_percentage`, so `ctx` alone understates the traffic |
-| `time 14m` | `cost.total_duration_ms` | Wall clock, shown as `45s` / `14m` / `2h5m` |
-| `edits +349/-43` | `cost.total_lines_added/removed` | Additions green, deletions red |
-| `used 5h 21% in 2h30m · 7d 8% in 3d5h` | `rate_limits` | Claude.ai Pro/Max only, after the first API response. How much of each window is spent and when it refills |
+| `45fdd1e0-af3f-…` | `session_id` | The transcript is `~/.claude/projects/<project>/<session_id>.jsonl` |
+| `~$17.80` | `cost.total_cost_usd` | The `~` marks it as a client-side estimate at API rates — on a subscription nothing was billed at all. `/clear` resets it |
+| `tok 183k/4.2k` | `context_window.total_input_tokens`, `total_output_tokens` | What that estimate is counting. Output is excluded from `used_percentage`, so `ctx` alone understates the traffic |
+| `1h27m` | `cost.total_duration_ms` | Wall clock, shown as `45s` / `14m` / `2h5m` |
+| `+891/-251` | `cost.total_lines_added/removed` | Additions green, deletions red |
+| `5h 45% in 3h50m · 7d 14% in 3d22h` | `rate_limits` | Claude.ai Pro/Max only, after the first API response. How much of each window is spent and when it refills |
 
-Line two is ordered by urgency rather than convention — segments drop from the right, and on a narrow pane the window that says when you get cut off matters more than a notional cost. Both lines use the same dim `·` separator so they read as one block, and every value carries a dim label so no number is ambiguous. Values are coloured by kind — blue for the directory, gold for the branch, `146` for session state you did not measure (model, effort), tan for cost, mauve for the session id — while labels and separators stay grey, so colour always means "this is a value". and all the percentages share one traffic light: green under 50%, yellow under 80%, red at 80% and above — muted hues rather than full-intensity ones, since the line sits in peripheral vision all day and saturated green/red read as alarms. The session id is mauve — it is an identifier you copy, not a value you read.
+Line two is ordered by urgency rather than convention — segments drop from the right, and on a narrow pane the window that says when you get cut off matters more than a notional cost. Both lines use the same dim `·` separator so they read as one block. Labels survive only where the value alone is ambiguous — `ctx`, `tok`, `wt` and the two rate-limit windows keep theirs; a currency symbol, a duration, a `+n/-n` pair and a UUID do not need one. Values are coloured by kind — blue for the directory, gold for the branch, `146` for session state you did not measure (model, effort), tan for cost, mauve for the session id — while labels and separators stay grey, so colour always means "this is a value". and all the percentages share one traffic light: green under 50%, yellow under 80%, red at 80% and above — muted hues rather than full-intensity ones, since the line sits in peripheral vision all day and saturated green/red read as alarms. The session id is mauve — it is an identifier you copy, not a value you read.
 
 Each segment is dropped when its field is absent, so line two disappears entirely on a fresh session.
 

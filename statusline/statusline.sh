@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
-#   [dev-skills] · <dir> · (<branch>) · pr #<n> · wt <wt> · <model> · effort <lvl> · ctx <used>/<size> <pct>% · session <id>
-#   used 5h <pct>% in <reset> · used 7d <pct>% in <reset> · est $<cost> · tok <in>/<out> · time <d> · edits +<a>/-<r>
+#   [dev-skills] · <dir> · <branch> · #<pr> · wt <wt> · <model> <effort> · ctx <used>/<size> <pct>% · <session>
+#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · tok <in>/<out> · <duration> · +<added>/-<removed>
+#
+# Labels only survive where the value alone is ambiguous: ctx and tok keep
+# theirs, a currency symbol and a +n/-n pair do not need one.
 #
 # Claude Code passes the session JSON on stdin and re-renders constantly, so this
 # does its whole job in three subprocesses: one jq, one git, one date. Everything
@@ -147,29 +150,29 @@ gap_colour=$(printf "${DIM} · ${OFF}")
 
 l1=$(printf '\033[38;5;%sm[dev-skills]\033[0m \033[38;5;%sm%s\033[0m' "$GREEN" "$BLUE" "${dir##*/}")
 l1_plain="[dev-skills] ${dir##*/}"
-[ -n "$branch" ] && add l1 "$sep_plain" "($branch)" "$(printf '\033[38;5;%sm(%s)\033[0m' "$GOLD" "$branch")"
+[ -n "$branch" ] && add l1 "$sep_plain" "$branch" "$(printf '\033[38;5;%sm%s\033[0m' "$GOLD" "$branch")"
 # an open PR for this branch, and where its review stands
-[ -n "$pr" ] && add l1 "$sep_plain" "pr #$pr${pr_state:+ $pr_state}" \
-    "$(seg "pr" "$GOLD" "#$pr")${pr_state:+$(printf "${DIM} %s${OFF}" "$pr_state")}"
+[ -n "$pr" ] && add l1 "$sep_plain" "#$pr${pr_state:+ $pr_state}" \
+    "$(printf '\033[38;5;%sm#%s\033[0m' "$GOLD" "$pr")${pr_state:+$(printf "${DIM} %s${OFF}" "$pr_state")}"
 # a worktree looks exactly like the real checkout otherwise — and the agents run in them
 [ -n "$worktree" ] && add l1 "$sep_plain" "wt $worktree" "$(seg "wt" "$YELLOW" "$worktree")"
-[ -n "$model" ] && add l1 "$sep_plain" "$model" "$(printf '\033[38;5;%sm%s\033[0m' "$STATE" "$model")"
-# effort and fast mode qualify the model, so they sit with it
-[ -n "$effort" ] && add l1 "$sep_plain" "effort $effort" "$(seg "effort" "$STATE" "$effort")"
+# effort qualifies the model, so it reads as one phrase rather than its own segment
+[ -n "$model" ] && add l1 "$sep_plain" "$model${effort:+ $effort}" \
+    "$(printf '\033[38;5;%sm%s\033[0m' "$STATE" "$model${effort:+ $effort}")"
 [ -n "$fast" ] && add l1 "$sep_plain" "$fast" "$(printf '\033[38;5;%sm%s\033[0m' "$YELLOW" "$fast")"
 if [ -n "$ctx_size" ]; then
     ctx="$(humanize "$ctx_used")/$(humanize "$ctx_size") ${ctx_pct}%"
     add l1 "$sep_plain" "ctx $ctx" "$(seg "ctx" "$(usage_color "$ctx_pct")" "$ctx")"
 fi
 # the transcript is ~/.claude/projects/<project>/<session>.jsonl, so print it whole
-[ -n "$session" ] && add l1 "$sep_plain" "session $session" "$(seg "session" "$MAUVE" "$session")"
+[ -n "$session" ] && add l1 "$sep_plain" "$session" "$(printf '\033[38;5;%sm%s\033[0m' "$MAUVE" "$session")"
 
 # Line two is ordered by urgency, not by convention, because add() drops from the
 # right: on a narrow pane you would rather lose what a notional session cost than
 # the window that says when you get cut off.
 l2="" l2_plain="" l2_full=""
 # how much of each window is spent, and how long until it refills
-for window in "used 5h|$five|$five_at" "used 7d|$seven|$seven_at"; do
+for window in "5h|$five|$five_at" "7d|$seven|$seven_at"; do
     IFS='|' read -r label pct at <<< "$window"
     [ -n "$pct" ] || continue
     in=$(resets_in "$at")
@@ -178,18 +181,18 @@ for window in "used 5h|$five|$five_at" "used 7d|$seven|$seven_at"; do
 done
 # "est", not "cost": it is a client-side estimate at API rates, and on a
 # subscription nothing was billed at all
-[ -n "$usd" ] && add l2 "$sep_plain" "est $(printf '$%.2f' "$usd")" \
-    "$(seg "est" "$TAN" "$(printf '$%.2f' "$usd")")"
+[ -n "$usd" ] && add l2 "$sep_plain" "$(printf '~$%.2f' "$usd")" \
+    "$(printf '\033[38;5;%sm~$%.2f\033[0m' "$TAN" "$usd")"
 # what that estimate is actually counting: window input, and the last response's output
 if [ -n "$ctx_size" ]; then
-    tok="$(humanize "$ctx_used") in/$(humanize "$ctx_out") out"
+    tok="$(humanize "$ctx_used")/$(humanize "$ctx_out")"
     add l2 "$sep_plain" "tok $tok" "$(seg "tok" "$TIME" "$tok")"
 fi
 if [ -n "$usd" ]; then
-    add l2 "$sep_plain" "time $(duration "$ms")" "$(seg "time" "$TIME" "$(duration "$ms")")"
-    add l2 "$sep_plain" "edits +$added/-$removed" \
-        "$(printf "${DIM}edits${OFF} \033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" \
-            "$GREEN" "$added" "$RED" "$removed")"
+    add l2 "$sep_plain" "$(duration "$ms")" \
+        "$(printf '\033[38;5;%sm%s\033[0m' "$TIME" "$(duration "$ms")")"
+    add l2 "$sep_plain" "+$added/-$removed" \
+        "$(printf "\033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" "$GREEN" "$added" "$RED" "$removed")"
 fi
 
 printf '%s' "$l1"
