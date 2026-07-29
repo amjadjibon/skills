@@ -62,7 +62,7 @@ After editing any SKILL.md, CLAUDE.md, or README.md, run:
 python3 scripts/validate.py
 ```
 
-It checks frontmatter (skills and agents), code-fence nesting, cross-skill/agent references, doc coverage, and the canonical convention lines (commit hygiene, mode parsing) across skills/, .agents/, commands/, CLAUDE.md, and README.md. Must pass before committing.
+It checks frontmatter (skills and agents), code-fence nesting, cross-skill/agent references, doc coverage, and the canonical convention lines (commit hygiene, mode parsing) across skills/, .agents/, commands/, CLAUDE.md, and README.md. It also renders every `statusline/tests/*.json` fixture through `statusline/statusline.sh` under `/bin/bash` and diffs it against the matching `.expected` file — add a fixture pair whenever you change what the status line prints. Must pass before committing.
 
 When adding a skill, agent, or command, also bump `version` in `.claude-plugin/plugin.json` and keep its description (and marketplace.json's) in sync.
 

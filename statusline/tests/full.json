@@ -1,0 +1,22 @@
+{
+  "session_id": "45fdd1e0-af3f-46b4-be2e-9f8f802398a0",
+  "model": { "display_name": "Opus 5" },
+  "effort": { "level": "xhigh" },
+  "fast_mode": false,
+  "workspace": { "current_dir": "/nowhere/demo-project" },
+  "context_window": {
+    "total_input_tokens": 183000,
+    "context_window_size": 1000000,
+    "used_percentage": 18.4
+  },
+  "cost": {
+    "total_cost_usd": 17.8,
+    "total_duration_ms": 3540000,
+    "total_lines_added": 621,
+    "total_lines_removed": 201
+  },
+  "rate_limits": {
+    "five_hour": { "used_percentage": 30, "resets_at": 1800015480 },
+    "seven_day": { "used_percentage": 85, "resets_at": 1800338400 }
+  }
+}

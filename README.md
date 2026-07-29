@@ -149,6 +149,8 @@ bash statusline/install.sh --uninstall  # remove it and opt out
 
 Claude Code exports the terminal width, and a wrapped status line looks broken, so each line is built left to right and stops at the first segment that would overrun — you always get a prefix, never a hole. Narrow it far enough and the session id goes, then `ctx`, then the rate-limit windows, down to `[dev-skills] skills` alone. Segments are measured on an uncoloured copy of the text, since escape codes have length but no width.
 
+`statusline/tests/` holds fixture pairs — `<case>.json` in, `<case>.expected` out with the escape codes stripped. `python3 scripts/validate.py` renders each one and diffs it, under `/bin/bash` specifically, because macOS ships bash 3.2 and the bugs that only appear there are the ones that reach users. `STATUSLINE_NOW` pins the clock so the reset countdowns are reproducible, and an optional `# COLUMNS=<n>` header line on the expected file sets the terminal width for that case.
+
 The status line re-renders constantly, so it does its whole job in three subprocesses: one `jq` for every field at once, one `git` for the branch, one `date` for the reset countdowns. Formatting is bash arithmetic. The `jq` output is joined on `\x1f` rather than `@tsv`, because tab is IFS whitespace and bash would collapse the empty columns and shift every field left.
 
 The scripts honour `CLAUDE_CONFIG_DIR`, need `python3` to edit settings safely, and need `jq` for everything but the badge, directory, and branch. Context numbers are absent until the first API response of a session, and again after `/compact`; `rate_limits` is Claude.ai subscriber-only. For a single-line status line, delete the trailing `printf '\n…'` from the script.

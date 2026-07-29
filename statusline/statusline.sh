@@ -43,7 +43,8 @@ IFS=$'\037' read -r model dir worktree ctx_used ctx_size ctx_pct \
 
 [ -n "$dir" ] || dir="$PWD"
 branch=$(git -C "$dir" rev-parse --abbrev-ref HEAD 2>/dev/null)
-now=$(date +%s)
+# STATUSLINE_NOW pins the clock so the reset countdowns are reproducible under test
+now=${STATUSLINE_NOW:-$(date +%s)}
 
 # 12345 -> 12.3k, 200000 -> 200k, 1000000 -> 1M
 humanize() {
@@ -67,13 +68,16 @@ duration() {
 }
 
 # epoch seconds -> how long until then: 2h5m, 45m, 3d4h. Empty once it's passed.
+# Every branch rounds down, so the countdown only ever decreases; rounding the
+# minutes up while the hours rounded down made it jump backwards across redraws.
 resets_in() {
     [ -n "${1:-}" ] || return 0
     local s=$((${1%%.*} - now))
     if [ "$s" -le 0 ]; then return 0
     elif [ "$s" -ge 86400 ]; then printf '%dd%dh' $((s / 86400)) $((s % 86400 / 3600))
     elif [ "$s" -ge 3600 ]; then printf '%dh%dm' $((s / 3600)) $((s % 3600 / 60))
-    else printf '%dm' $((s / 60 + 1))
+    elif [ "$s" -ge 60 ]; then printf '%dm' $((s / 60))
+    else printf '<1m'
     fi
 }
 
@@ -153,7 +157,7 @@ if [ -n "$usd" ]; then
             "$GREEN" "$added" "$RED" "$removed")"
 fi
 # how much of each window is spent, and how long until it refills
-for window in "used 5h|$five|$five_at" "7d|$seven|$seven_at"; do
+for window in "used 5h|$five|$five_at" "used 7d|$seven|$seven_at"; do
     IFS='|' read -r label pct at <<< "$window"
     [ -n "$pct" ] || continue
     in=$(resets_in "$at")

@@ -5,8 +5,11 @@ Run from the repo root: python3 scripts/validate.py
 Exits non-zero on any finding.
 """
 import json
+import os
 import re
+import subprocess
 import sys
+from itertools import zip_longest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -65,6 +68,62 @@ def check_frontmatter(path, text, dirname):
         err(path, f"frontmatter name `{name.group(1)}` != directory `{dirname}`")
     if not re.search(r"^description:\s*\S", fm, re.MULTILINE):
         err(path, "frontmatter missing `description`")
+
+
+ANSI = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def check_statusline():
+    """Render each tests/*.json fixture and diff it against its .expected file.
+
+    Run under /bin/bash on purpose: macOS ships bash 3.2, and bugs that only
+    appear there (multibyte concatenation, in particular) are exactly the ones
+    that reach users. STATUSLINE_NOW pins the clock so reset countdowns are
+    reproducible; COLUMNS comes from an optional `# COLUMNS=<n>` header line.
+    """
+    script = ROOT / "statusline" / "statusline.sh"
+    tests = ROOT / "statusline" / "tests"
+    if not script.exists() or not tests.is_dir():
+        return
+    fixtures = sorted(tests.glob("*.json"))
+    if not fixtures:
+        err(tests, "no fixtures — statusline.sh would go untested")
+        return
+
+    for fixture in fixtures:
+        expected_path = fixture.with_suffix(".expected")
+        if not expected_path.exists():
+            err(fixture, f"no {expected_path.name} beside it")
+            continue
+        expected = expected_path.read_text().rstrip("\n").split("\n")
+        env = {"PATH": os.environ.get("PATH", ""), "STATUSLINE_NOW": "1800000000", "COLUMNS": "0"}
+        if expected and expected[0].startswith("# COLUMNS="):
+            env["COLUMNS"] = expected.pop(0).split("=", 1)[1]
+        try:
+            out = subprocess.run(
+                ["/bin/bash", str(script)],
+                input=fixture.read_bytes(), env=env, capture_output=True, timeout=15,
+            )
+        except (OSError, subprocess.SubprocessError) as e:
+            err(fixture, f"could not run statusline.sh: {e}")
+            continue
+        if out.returncode != 0:
+            err(fixture, f"statusline.sh exited {out.returncode}: {out.stderr.decode(errors='replace').strip()}")
+            continue
+        actual = ANSI.sub("", out.stdout.decode()).rstrip("\n").split("\n")
+        for i, (want, got) in enumerate(zip_longest(expected, actual, fillvalue=""), 1):
+            if want != got:
+                err(fixture, f"line {i} differs\n    expected: {want}\n    actual:   {got}")
+
+    # {} has no current_dir, so it falls back to $PWD and cannot be a golden test —
+    # but it must still render one line and exit clean rather than blowing up.
+    out = subprocess.run(
+        ["/bin/bash", str(script)], input=b"{}",
+        env={"PATH": os.environ.get("PATH", ""), "COLUMNS": "0"},
+        capture_output=True, timeout=15,
+    )
+    if out.returncode != 0 or not out.stdout.strip():
+        err(script, f"empty input: exited {out.returncode} with {out.stdout!r}")
 
 
 def main():
@@ -149,6 +208,8 @@ def main():
                             err(hooks_path, f"{event} hook points at `{script}` which does not exist")
         except (OSError, json.JSONDecodeError, AttributeError) as e:
             err(hooks_path, f"hooks problem: {e}")
+
+    check_statusline()
 
     if errors:
         print("\n".join(errors))

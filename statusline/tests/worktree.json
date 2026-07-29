@@ -1,0 +1,16 @@
+{
+  "model": { "display_name": "Opus 5" },
+  "fast_mode": true,
+  "workspace": {
+    "current_dir": "/nowhere/demo-project",
+    "git_worktree": "phase-2-auth"
+  },
+  "context_window": {
+    "total_input_tokens": 1234,
+    "context_window_size": 200000,
+    "used_percentage": 0.6
+  },
+  "rate_limits": {
+    "five_hour": { "used_percentage": 92, "resets_at": 1800000030 }
+  }
+}
