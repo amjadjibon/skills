@@ -112,6 +112,7 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 | Segment | Field | Notes |
 | ------- | ----- | ----- |
 | `skills (main)` | `workspace.current_dir`, `git branch` | Directory basename and current branch |
+| `wt phase-2-auth` | `workspace.git_worktree` | Only inside a linked worktree — the agents run in them, and nothing else on the line distinguishes one from the real checkout |
 | `Opus 5` | `model.display_name` | |
 | `ctx 105k/1M 10%` | `context_window` | Input tokens vs. window size — the same input-only basis Claude Code uses for `used_percentage`, so the fraction and the percentage agree |
 | `cost $4.74` | `cost.total_cost_usd` | Client-side estimate, not your bill; `/clear` resets it |
@@ -140,6 +141,8 @@ To opt out before ever installing the plugin, `touch ~/.claude/.dev-skills.statu
 bash statusline/install.sh              # install now (clears the opt-out)
 bash statusline/install.sh --uninstall  # remove it and opt out
 ```
+
+The status line re-renders constantly, so it does its whole job in three subprocesses: one `jq` for every field at once, one `git` for the branch, one `date` for the reset countdowns. Formatting is bash arithmetic. The `jq` output is joined on `\x1f` rather than `@tsv`, because tab is IFS whitespace and bash would collapse the empty columns and shift every field left.
 
 The scripts honour `CLAUDE_CONFIG_DIR`, need `python3` to edit settings safely, and need `jq` for everything but the badge, directory, and branch. Context numbers are absent until the first API response of a session, and again after `/compact`; `rate_limits` is Claude.ai subscriber-only. For a single-line status line, delete the trailing `printf '\n…'` from the script.
 
