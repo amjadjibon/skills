@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
-#   [dev-skills] <dir> (<branch>) wt <worktree> <model> effort <level> fast ctx <used>/<size> <pct>% session <id>
+#   [dev-skills] · <dir> · (<branch>) · wt <worktree> · <model> · effort <level> · ctx <used>/<size> <pct>% · session <id>
 #   $<cost> · <duration> · +<added>/-<removed> · 5h <used>% in <reset> · 7d <used>% in <reset>
 #
 # Claude Code passes the session JSON on stdin and re-renders constantly, so this
@@ -83,6 +83,10 @@ resets_in() {
 GREEN=71 YELLOW=179 RED=167
 MAUVE=140                     # identifiers you copy rather than read: the session id
 TAN=137                       # cost, kept off the traffic light so it never reads as a warning
+STATE=146                     # session state you did not measure: model, effort
+TIME=144                      # elapsed time
+BLUE=110                      # where you are: the directory
+GOLD=180                      # which branch you are on
 DIM='\033[38;5;244m'          # labels and separators
 OFF='\033[0m'
 
@@ -119,29 +123,32 @@ add() {  # line_var separator plain coloured
     eval "$var=\$cur_c\$gapc\$colour"
 }
 
-l1=$(printf '\033[38;5;%sm[dev-skills]\033[0m \033[38;5;110m%s\033[0m' "$GREEN" "${dir##*/}")
+# Both lines use the same dim separator, so they read as one block rather than
+# two formats stacked. The plain copy stays ASCII — it is only ever measured.
+sep_plain=" - "
+gap_colour=$(printf "${DIM} · ${OFF}")
+
+l1=$(printf '\033[38;5;%sm[dev-skills]\033[0m \033[38;5;%sm%s\033[0m' "$GREEN" "$BLUE" "${dir##*/}")
 l1_plain="[dev-skills] ${dir##*/}"
-gap_colour=" "
-[ -n "$branch" ] && add l1 " " "($branch)" "$(printf '\033[38;5;180m(%s)\033[0m' "$branch")"
+[ -n "$branch" ] && add l1 "$sep_plain" "($branch)" "$(printf '\033[38;5;%sm(%s)\033[0m' "$GOLD" "$branch")"
 # a worktree looks exactly like the real checkout otherwise — and the agents run in them
-[ -n "$worktree" ] && add l1 " " "wt $worktree" "$(seg "wt" "$YELLOW" "$worktree")"
-[ -n "$model" ] && add l1 " " "$model" "$(printf '\033[38;5;245m%s\033[0m' "$model")"
+[ -n "$worktree" ] && add l1 "$sep_plain" "wt $worktree" "$(seg "wt" "$YELLOW" "$worktree")"
+[ -n "$model" ] && add l1 "$sep_plain" "$model" "$(printf '\033[38;5;%sm%s\033[0m' "$STATE" "$model")"
 # effort and fast mode qualify the model, so they sit with it
-[ -n "$effort" ] && add l1 " " "effort $effort" "$(seg "effort" 245 "$effort")"
-[ -n "$fast" ] && add l1 " " "$fast" "$(printf '\033[38;5;%sm%s\033[0m' "$YELLOW" "$fast")"
+[ -n "$effort" ] && add l1 "$sep_plain" "effort $effort" "$(seg "effort" "$STATE" "$effort")"
+[ -n "$fast" ] && add l1 "$sep_plain" "$fast" "$(printf '\033[38;5;%sm%s\033[0m' "$YELLOW" "$fast")"
 if [ -n "$ctx_size" ]; then
     ctx="$(humanize "$ctx_used")/$(humanize "$ctx_size") ${ctx_pct}%"
-    add l1 " " "ctx $ctx" "$(seg "ctx" "$(usage_color "$ctx_pct")" "$ctx")"
+    add l1 "$sep_plain" "ctx $ctx" "$(seg "ctx" "$(usage_color "$ctx_pct")" "$ctx")"
 fi
 # the transcript is ~/.claude/projects/<project>/<session>.jsonl, so print it whole
-[ -n "$session" ] && add l1 " " "session $session" "$(seg "session" "$MAUVE" "$session")"
+[ -n "$session" ] && add l1 "$sep_plain" "session $session" "$(seg "session" "$MAUVE" "$session")"
 
 l2="" l2_plain="" l2_full=""
-gap_colour=$(printf "${DIM} · ${OFF}")
 if [ -n "$usd" ]; then
-    add l2 " - " "cost $(printf '$%.2f' "$usd")" "$(seg "cost" "$TAN" "$(printf '$%.2f' "$usd")")"
-    add l2 " - " "time $(duration "$ms")" "$(seg "time" 245 "$(duration "$ms")")"
-    add l2 " - " "edits +$added/-$removed" \
+    add l2 "$sep_plain" "cost $(printf '$%.2f' "$usd")" "$(seg "cost" "$TAN" "$(printf '$%.2f' "$usd")")"
+    add l2 "$sep_plain" "time $(duration "$ms")" "$(seg "time" "$TIME" "$(duration "$ms")")"
+    add l2 "$sep_plain" "edits +$added/-$removed" \
         "$(printf "${DIM}edits${OFF} \033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" \
             "$GREEN" "$added" "$RED" "$removed")"
 fi
@@ -150,7 +157,7 @@ for window in "used 5h|$five|$five_at" "7d|$seven|$seven_at"; do
     IFS='|' read -r label pct at <<< "$window"
     [ -n "$pct" ] || continue
     in=$(resets_in "$at")
-    add l2 " - " "$label ${pct}%${in:+ in $in}" \
+    add l2 "$sep_plain" "$label ${pct}%${in:+ in $in}" \
         "$(seg "$label" "$(usage_color "$pct")" "${pct}%")${in:+$(printf "${DIM} in %s${OFF}" "$in")}"
 done
 
