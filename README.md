@@ -114,14 +114,16 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 | `skills (main)` | `workspace.current_dir`, `git branch` | Directory basename and current branch |
 | `wt phase-2-auth` | `workspace.git_worktree` | Only inside a linked worktree — the agents run in them, and nothing else on the line distinguishes one from the real checkout |
 | `Opus 5` | `model.display_name` | |
-| `ctx 105k/1M 10%` | `context_window` | Input tokens vs. window size — the same input-only basis Claude Code uses for `used_percentage`, so the fraction and the percentage agree |
+| `ctx ####.... 550k/1M 55%` | `context_window` | Input tokens vs. window size — the same input-only basis Claude Code uses for `used_percentage`, so the fraction and the percentage agree |
 | `session 45fdd1e0-af3f-…` | `session_id` | The transcript is `~/.claude/projects/<project>/<session_id>.jsonl` |
 | `cost $4.74` | `cost.total_cost_usd` | Client-side estimate, not your bill; `/clear` resets it |
 | `time 14m` | `cost.total_duration_ms` | Wall clock, shown as `45s` / `14m` / `2h5m` |
 | `edits +349/-43` | `cost.total_lines_added/removed` | Additions green, deletions red |
-| `used 5h 21% in 2h30m · 7d 8% in 3d5h` | `rate_limits` | Claude.ai Pro/Max only, after the first API response. How much of each window is spent and when it refills |
+| `used 5h ##... 55% in 2h30m · 7d #.... 30% in 3d5h` | `rate_limits` | Claude.ai Pro/Max only, after the first API response. How much of each window is spent and when it refills |
 
-Every value carries a dim label so no number is ambiguous, and all the percentages share one traffic light: green under 50%, yellow under 80%, red at 80% and above. Each segment is dropped when its field is absent, so line two disappears entirely on a fresh session.
+Every value carries a dim label so no number is ambiguous, and all the percentages share one traffic light: green under 50%, yellow under 80%, red at 80% and above. `ctx` and the two rate-limit windows also get a meter — eight cells and five respectively — so the trend registers without reading the number.
+
+The meter is ASCII on purpose. macOS ships bash 3.2, which corrupts multibyte string concatenation: building the bar from `▓` and `░` there produces two stray bytes instead of eight block characters. It also keeps one cell to one byte, which the width arithmetic below depends on. Each segment is dropped when its field is absent, so line two disappears entirely on a fresh session.
 
 There is no credit or dollar balance in the session payload — `cost` is a client-side estimate of what the session would cost at API rates, and the rate-limit windows are the only real quota signal Claude Code exposes.
 

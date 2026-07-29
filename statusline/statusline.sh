@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
-#   [dev-skills] <dir> (<branch>) wt <worktree> <model> ctx <used>/<size> <pct>% session <id>
-#   $<cost> · <duration> · +<added>/-<removed> · 5h <used>% in <reset> · 7d <used>% in <reset>
+#   [dev-skills] <dir> (<branch>) wt <worktree> <model> ctx <bar> <used>/<size> <pct>% session <id>
+#   $<cost> · <duration> · +<added>/-<removed> · 5h <bar> <used>% in <reset> · 7d <bar> <used>% in <reset>
 #
 # Claude Code passes the session JSON on stdin and re-renders constantly, so this
 # does its whole job in three subprocesses: one jq, one git, one date. Everything
@@ -89,6 +89,23 @@ usage_color() {
 # "label value" with a dim label
 seg() { printf "${DIM}%s${OFF} \033[38;5;%sm%s${OFF}" "$1" "$2" "$3"; }
 
+# A meter for a percentage: 30% of 8 cells -> ##...... Sets a global rather than
+# printing, because $(…) would fork once per bar.
+#
+# Deliberately ASCII. macOS ships bash 3.2, which corrupts multibyte string
+# concatenation — building this out of ▓ and ░ there yields two stray bytes
+# instead of eight block characters. ASCII also keeps one cell one byte, so the
+# truncation arithmetic needs no separate uncoloured copy of the meter.
+bar() {  # pct cells
+    local pct=$1 cells=$2 i n=0
+    [ "$pct" -gt 0 ] 2>/dev/null && n=$((pct * cells / 100))
+    [ "$n" -gt "$cells" ] && n=$cells
+    BAR=""
+    for ((i = 0; i < cells; i++)); do
+        if [ "$i" -lt "$n" ]; then BAR="$BAR#"; else BAR="$BAR."; fi
+    done
+}
+
 # Claude Code exports the terminal width, and a status line that wraps looks broken.
 # Each line is built left to right and a segment that would overrun is skipped, so
 # the rightmost — the least load-bearing — are the ones that go. 0 means unknown:
@@ -119,8 +136,10 @@ gap_colour=" "
 [ -n "$worktree" ] && add l1 " " "wt $worktree" "$(seg "wt" "$YELLOW" "$worktree")"
 [ -n "$model" ] && add l1 " " "$model" "$(printf '\033[38;5;245m%s\033[0m' "$model")"
 if [ -n "$ctx_size" ]; then
+    bar "$ctx_pct" 8
     ctx="$(humanize "$ctx_used")/$(humanize "$ctx_size") ${ctx_pct}%"
-    add l1 " " "ctx $ctx" "$(seg "ctx" "$(usage_color "$ctx_pct")" "$ctx")"
+    add l1 " " "ctx $BAR $ctx" \
+        "$(seg "ctx" "$(usage_color "$ctx_pct")" "$BAR $ctx")"
 fi
 # the transcript is ~/.claude/projects/<project>/<session>.jsonl, so print it whole
 [ -n "$session" ] && add l1 " " "session $session" "$(seg "session" 245 "$session")"
@@ -128,9 +147,9 @@ fi
 l2="" l2_plain="" l2_full=""
 gap_colour=$(printf "${DIM} · ${OFF}")
 if [ -n "$usd" ]; then
-    add l2 " · " "cost $(printf '$%.2f' "$usd")" "$(seg "cost" 179 "$(printf '$%.2f' "$usd")")"
-    add l2 " · " "time $(duration "$ms")" "$(seg "time" 245 "$(duration "$ms")")"
-    add l2 " · " "edits +$added/-$removed" \
+    add l2 " - " "cost $(printf '$%.2f' "$usd")" "$(seg "cost" 179 "$(printf '$%.2f' "$usd")")"
+    add l2 " - " "time $(duration "$ms")" "$(seg "time" 245 "$(duration "$ms")")"
+    add l2 " - " "edits +$added/-$removed" \
         "$(printf "${DIM}edits${OFF} \033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" \
             "$GREEN" "$added" "$RED" "$removed")"
 fi
@@ -139,8 +158,9 @@ for window in "used 5h|$five|$five_at" "7d|$seven|$seven_at"; do
     IFS='|' read -r label pct at <<< "$window"
     [ -n "$pct" ] || continue
     in=$(resets_in "$at")
-    add l2 " · " "$label ${pct}%${in:+ in $in}" \
-        "$(seg "$label" "$(usage_color "$pct")" "${pct}%")${in:+$(printf "${DIM} in %s${OFF}" "$in")}"
+    bar "$pct" 5
+    add l2 " - " "$label $BAR ${pct}%${in:+ in $in}" \
+        "$(seg "$label" "$(usage_color "$pct")" "$BAR ${pct}%")${in:+$(printf "${DIM} in %s${OFF}" "$in")}"
 done
 
 printf '%s' "$l1"
