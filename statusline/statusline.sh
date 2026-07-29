@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
 #   [dev-skills] <dir> (<branch>) <model> <used>/<size> (<pct>%)
-#   $<cost> · <duration> · +<added>/-<removed> · 5h <left>% in <reset> · 7d <left>% in <reset>
+#   $<cost> · <duration> · +<added>/-<removed> · 5h <used>% in <reset> · 7d <used>% in <reset>
 # Claude Code passes the session JSON on stdin.
 input=$(cat)
 
@@ -101,16 +101,14 @@ if [ -n "$cost" ]; then
 fi
 if [ -n "$limits" ]; then
     IFS=$'\t' read -r five five_at seven seven_at <<< "$limits"
-    # what's left of the window, and how long until it refills
+    # how much of the window is spent, and how long until it refills
     if [ -n "$five" ]; then
-        left=$((100 - five))
-        parts="${parts:+$parts$sep}$(seg "left 5h" "$(usage_color "$five")" "${left}%")"
+        parts="${parts:+$parts$sep}$(seg "used 5h" "$(usage_color "$five")" "${five}%")"
         in=$(resets_in "$five_at")
         [ -n "$in" ] && parts="$parts$(printf "${DIM} in %s${OFF}" "$in")"
     fi
     if [ -n "$seven" ]; then
-        left=$((100 - seven))
-        parts="${parts:+$parts$sep}$(seg "7d" "$(usage_color "$seven")" "${left}%")"
+        parts="${parts:+$parts$sep}$(seg "7d" "$(usage_color "$seven")" "${seven}%")"
         in=$(resets_in "$seven_at")
         [ -n "$in" ] && parts="$parts$(printf "${DIM} in %s${OFF}" "$in")"
     fi
