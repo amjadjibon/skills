@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
-#   [dev-skills] <dir> (<branch>) wt <worktree> <model> ctx <used>/<size> <pct>%
+#   [dev-skills] <dir> (<branch>) wt <worktree> <model> ctx <used>/<size> <pct>% session <id>
 #   $<cost> · <duration> · +<added>/-<removed> · 5h <used>% in <reset> · 7d <used>% in <reset>
 #
 # Claude Code passes the session JSON on stdin and re-renders constantly, so this
@@ -8,7 +8,7 @@
 # else is bash arithmetic — no awk, no basename.
 input=$(cat)
 
-# One jq pass for every field, as a fixed 14-column row. Absent values come back
+# One jq pass for every field, as a fixed 15-column row. Absent values come back
 # empty so the render below can drop the segment — which rules out @tsv, because
 # tab is IFS whitespace and bash would collapse the empty columns and shift every
 # field left. \x1f (unit separator) is non-whitespace, so empties survive.
@@ -31,11 +31,12 @@ fields=$(printf '%s' "$input" | jq -r '
         ($r.five_hour.used_percentage // "" | if . == "" then "" else round end),
         ($r.five_hour.resets_at // ""),
         ($r.seven_day.used_percentage // "" | if . == "" then "" else round end),
-        ($r.seven_day.resets_at // "") ]
+        ($r.seven_day.resets_at // ""),
+        (.session_id // "") ]
     | map(tostring) | join("\u001f")' 2>/dev/null)
 
 IFS=$'\037' read -r model dir worktree ctx_used ctx_size ctx_pct \
-    usd ms added removed five five_at seven seven_at <<< "$fields"
+    usd ms added removed five five_at seven seven_at session <<< "$fields"
 
 [ -n "$dir" ] || dir="$PWD"
 branch=$(git -C "$dir" rev-parse --abbrev-ref HEAD 2>/dev/null)
@@ -95,6 +96,8 @@ line1=$(printf '\033[38;5;%sm[dev-skills]\033[0m \033[38;5;110m%s\033[0m' "$GREE
 [ -n "$model" ] && line1="$line1 $(printf '\033[38;5;245m%s\033[0m' "$model")"
 [ -n "$ctx_size" ] && line1="$line1 $(seg "ctx" "$(usage_color "$ctx_pct")" \
     "$(humanize "$ctx_used")/$(humanize "$ctx_size") ${ctx_pct}%")"
+# the first block is enough to find the transcript under ~/.claude/projects/
+[ -n "$session" ] && line1="$line1 $(seg "session" 245 "${session%%-*}")"
 
 sep=$(printf "${DIM} · ${OFF}")
 parts=""
