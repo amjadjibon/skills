@@ -53,13 +53,18 @@ cp "$src" "$target"
 chmod +x "$target"
 touch "$installed_marker"
 
-[ "$state" = "ours" ] && exit 0  # already wired up; the copy above was just a refresh
-
+# Runs for "ours" too, not just "none": refreshInterval was added after the first
+# releases, and without it the reset countdowns and elapsed time freeze at their
+# last value whenever the session sits idle — updates are otherwise event-driven.
+# An interval you set yourself is left alone.
 python3 - "$settings" "$target" <<'PY' >/dev/null 2>&1 || true
 import json, sys
 p, target = sys.argv[1], sys.argv[2]
 s = json.load(open(p))
-s["statusLine"] = {"type": "command", "command": f'bash "{target}"'}
+sl = s.get("statusLine") or {}
+sl.setdefault("refreshInterval", 10)   # seconds; minute-resolution countdowns never read stale
+sl["type"], sl["command"] = "command", f'bash "{target}"'
+s["statusLine"] = sl
 json.dump(s, open(p, "w"), indent=2)
 open(p, "a").write("\n")
 PY

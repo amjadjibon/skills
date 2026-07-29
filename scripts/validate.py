@@ -116,6 +116,26 @@ def check_statusline():
             if want != got:
                 err(fixture, f"line {i} differs\n    expected: {want}\n    actual:   {got}")
 
+    # usage_color is the only branching logic in the renderer, and the fixtures
+    # strip ANSI before diffing — so swapping GREEN and RED, or typoing a colour
+    # variable into an empty one, would leave every one of them passing. Check the
+    # escape code either side of each threshold instead.
+    for pct, expected in ((0, 71), (49, 71), (50, 179), (79, 179), (80, 167), (100, 167)):
+        payload = {"workspace": {"current_dir": "/nowhere/demo-project"},
+                   "context_window": {"total_input_tokens": 1000,
+                                      "context_window_size": 200000,
+                                      "used_percentage": pct}}
+        out = subprocess.run(
+            ["/bin/bash", str(script)], input=json.dumps(payload).encode(),
+            env={"PATH": os.environ.get("PATH", ""), "COLUMNS": "0"},
+            capture_output=True, timeout=15,
+        )
+        m = re.search(rf"\x1b\[38;5;(\d+)m1\.0k/200k {pct}%", out.stdout.decode())
+        if not m:
+            err(script, f"ctx at {pct}% did not render a coloured value")
+        elif m.group(1) != str(expected):
+            err(script, f"ctx at {pct}% should be colour {expected}, got {m.group(1)}")
+
     # A detached HEAD cannot be a fixture — it needs a real repo — but `rev-parse
     # --abbrev-ref` answers the literal "HEAD" there, which is exactly the state
     # where you most need to know which commit you are on.

@@ -41,7 +41,10 @@ python3 - "$settings" "$target" <<'PY'
 import json, sys
 p, target = sys.argv[1], sys.argv[2]
 s = json.load(open(p))
-s["statusLine"] = {"type": "command", "command": f'bash "{target}"'}
+sl = s.get("statusLine") or {}
+sl.setdefault("refreshInterval", 10)  # else the countdowns freeze while the session idles
+sl["type"], sl["command"] = "command", f'bash "{target}"'
+s["statusLine"] = sl
 json.dump(s, open(p, "w"), indent=2)
 open(p, "a").write("\n")
 print("statusLine ->", target, "in", p)
