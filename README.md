@@ -121,7 +121,7 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 | `edits +349/-43` | `cost.total_lines_added/removed` | Additions green, deletions red |
 | `used 5h 21% in 2h30m · 7d 8% in 3d5h` | `rate_limits` | Claude.ai Pro/Max only, after the first API response. How much of each window is spent and when it refills |
 
-Every value carries a dim label so no number is ambiguous, and all the percentages share one traffic light: green under 50%, yellow under 80%, red at 80% and above. The session id is mauve — it is an identifier you copy, not a value you read.
+Every value carries a dim label so no number is ambiguous, and all the percentages share one traffic light: green under 50%, yellow under 80%, red at 80% and above — muted hues rather than full-intensity ones, since the line sits in peripheral vision all day and saturated green/red read as alarms. The session id is mauve — it is an identifier you copy, not a value you read.
 
 Each segment is dropped when its field is absent, so line two disappears entirely on a fresh session.
 

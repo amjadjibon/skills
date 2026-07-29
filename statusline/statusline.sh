@@ -74,8 +74,12 @@ resets_in() {
     fi
 }
 
-GREEN=76 YELLOW=220 RED=196   # the traffic light every percentage is scored against
+# The traffic light every percentage is scored against. Muted on purpose: these
+# sit in peripheral vision all day, so they are picked for distinct hue rather
+# than saturation — full-intensity 76/220/196 read as alarms after an hour.
+GREEN=71 YELLOW=179 RED=167
 MAUVE=140                     # identifiers you copy rather than read: the session id
+TAN=137                       # cost, kept off the traffic light so it never reads as a warning
 DIM='\033[38;5;244m'          # labels and separators
 OFF='\033[0m'
 
@@ -129,7 +133,7 @@ fi
 l2="" l2_plain="" l2_full=""
 gap_colour=$(printf "${DIM} · ${OFF}")
 if [ -n "$usd" ]; then
-    add l2 " - " "cost $(printf '$%.2f' "$usd")" "$(seg "cost" 179 "$(printf '$%.2f' "$usd")")"
+    add l2 " - " "cost $(printf '$%.2f' "$usd")" "$(seg "cost" "$TAN" "$(printf '$%.2f' "$usd")")"
     add l2 " - " "time $(duration "$ms")" "$(seg "time" 245 "$(duration "$ms")")"
     add l2 " - " "edits +$added/-$removed" \
         "$(printf "${DIM}edits${OFF} \033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" \
