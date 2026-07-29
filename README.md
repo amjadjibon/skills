@@ -118,8 +118,7 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 | `fast` | `fast_mode` | Shown only when [fast mode](https://code.claude.com/docs/en/fast-mode) is on |
 | `ctx 183k/1M 18%` | `context_window` | Input tokens vs. window size — the same input-only basis Claude Code uses for `used_percentage`, so the fraction and the percentage agree |
 | `45fdd1e0-af3f-…` | `session_id` | The transcript is `~/.claude/projects/<project>/<session_id>.jsonl` |
-| `in 2.8k · out 288k · cr 60M · cw 731k` | summed from `transcript_path` | Cumulative session tokens — fresh input, output, cache read, cache write. The same four numbers `/usage` reports, because it sums the same records |
-| `~$17.80` | `cost.total_cost_usd` | The `~` marks it as a client-side estimate at API rates — on a subscription nothing was billed at all. `/clear` resets it. The token counts beside it are cumulative and come from the transcript, not from the payload — the payload only ever describes the current context window |
+| `~$17.80` | `cost.total_cost_usd` | The `~` marks it as a client-side estimate at API rates — on a subscription nothing was billed at all. `/clear` resets it. There is no token count beside it because the payload has no cumulative one: `total_input_tokens` is what is in the window right now (already shown as `ctx`) and `total_output_tokens` is only the most recent response's output |
 | `1h27m` | `cost.total_duration_ms` | Wall clock, shown as `45s` / `14m` / `2h5m` |
 | `+891/-251` | `cost.total_lines_added/removed` | Additions green, deletions red |
 | `5h 45% in 3h50m · 7d 14% in 3d22h` | `rate_limits` | Claude.ai Pro/Max only, after the first API response. How much of each window is spent and when it refills |
@@ -152,7 +151,7 @@ Claude Code exports the terminal width, and a wrapped status line looks broken, 
 
 `statusline/tests/` holds fixture pairs — `<case>.json` in, `<case>.expected` out with the escape codes stripped. `python3 scripts/validate.py` renders each one and diffs it, under `/bin/bash` specifically, because macOS ships bash 3.2 and the bugs that only appear there are the ones that reach users. `STATUSLINE_NOW` pins the clock so the reset countdowns are reproducible, and an optional `# COLUMNS=<n>` header line on the expected file sets the terminal width for that case.
 
-The status line re-renders constantly, so it keeps to four subprocesses: one `jq` for every payload field at once, a second `jq` to sum the transcript's per-message `usage` blocks, one `git` for the branch, one `date` for the reset countdowns. The transcript sum is what doubles the render — about 20 ms over a 3.6 MB file, against Claude Code's 300 ms debounce. Formatting is bash arithmetic. The `jq` output is joined on `\x1f` rather than `@tsv`, because tab is IFS whitespace and bash would collapse the empty columns and shift every field left.
+The status line re-renders constantly, so it does its whole job in three subprocesses: one `jq` for every field at once, one `git` for the branch, one `date` for the reset countdowns. Formatting is bash arithmetic. The `jq` output is joined on `\x1f` rather than `@tsv`, because tab is IFS whitespace and bash would collapse the empty columns and shift every field left.
 
 The scripts honour `CLAUDE_CONFIG_DIR`, need `python3` to edit settings safely, and need `jq` for everything but the badge, directory, and branch. Context numbers are absent until the first API response of a session, and again after `/compact`; `rate_limits` is Claude.ai subscriber-only. For a single-line status line, delete the trailing `printf '\n…'` from the script.
 
