@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
-#   [dev-skills] <dir> (<branch>) wt <worktree> <model> ctx <used>/<size> <pct>% session <id>
+#   [dev-skills] <dir> (<branch>) wt <worktree> <model> effort <level> fast ctx <used>/<size> <pct>% session <id>
 #   $<cost> · <duration> · +<added>/-<removed> · 5h <used>% in <reset> · 7d <used>% in <reset>
 #
 # Claude Code passes the session JSON on stdin and re-renders constantly, so this
@@ -8,7 +8,7 @@
 # else is bash arithmetic — no awk, no basename.
 input=$(cat)
 
-# One jq pass for every field, as a fixed 15-column row. Absent values come back
+# One jq pass for every field, as a fixed 17-column row. Absent values come back
 # empty so the render below can drop the segment — which rules out @tsv, because
 # tab is IFS whitespace and bash would collapse the empty columns and shift every
 # field left. \x1f (unit separator) is non-whitespace, so empties survive.
@@ -32,11 +32,14 @@ fields=$(printf '%s' "$input" | jq -r '
         ($r.five_hour.resets_at // ""),
         ($r.seven_day.used_percentage // "" | if . == "" then "" else round end),
         ($r.seven_day.resets_at // ""),
-        (.session_id // "") ]
+        (.session_id // ""),
+        # both change mid-session via /effort and /fast, and nothing else shows it
+        (.effort.level // ""),
+        (if .fast_mode == true then "fast" else "" end) ]
     | map(tostring) | join("\u001f")' 2>/dev/null)
 
 IFS=$'\037' read -r model dir worktree ctx_used ctx_size ctx_pct \
-    usd ms added removed five five_at seven seven_at session <<< "$fields"
+    usd ms added removed five five_at seven seven_at session effort fast <<< "$fields"
 
 [ -n "$dir" ] || dir="$PWD"
 branch=$(git -C "$dir" rev-parse --abbrev-ref HEAD 2>/dev/null)
@@ -123,6 +126,9 @@ gap_colour=" "
 # a worktree looks exactly like the real checkout otherwise — and the agents run in them
 [ -n "$worktree" ] && add l1 " " "wt $worktree" "$(seg "wt" "$YELLOW" "$worktree")"
 [ -n "$model" ] && add l1 " " "$model" "$(printf '\033[38;5;245m%s\033[0m' "$model")"
+# effort and fast mode qualify the model, so they sit with it
+[ -n "$effort" ] && add l1 " " "effort $effort" "$(seg "effort" 245 "$effort")"
+[ -n "$fast" ] && add l1 " " "$fast" "$(printf '\033[38;5;%sm%s\033[0m' "$YELLOW" "$fast")"
 if [ -n "$ctx_size" ]; then
     ctx="$(humanize "$ctx_used")/$(humanize "$ctx_size") ${ctx_pct}%"
     add l1 " " "ctx $ctx" "$(seg "ctx" "$(usage_color "$ctx_pct")" "$ctx")"

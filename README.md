@@ -114,6 +114,8 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 | `skills (main)` | `workspace.current_dir`, `git branch` | Directory basename and current branch |
 | `wt phase-2-auth` | `workspace.git_worktree` | Only inside a linked worktree — the agents run in them, and nothing else on the line distinguishes one from the real checkout |
 | `Opus 5` | `model.display_name` | |
+| `effort xhigh` | `effort.level` | Absent on models without the reasoning-effort parameter. Reflects mid-session `/effort` changes |
+| `fast` | `fast_mode` | Shown only when [fast mode](https://code.claude.com/docs/en/fast-mode) is on |
 | `ctx 183k/1M 18%` | `context_window` | Input tokens vs. window size — the same input-only basis Claude Code uses for `used_percentage`, so the fraction and the percentage agree |
 | `session 45fdd1e0-af3f-…` | `session_id` | The transcript is `~/.claude/projects/<project>/<session_id>.jsonl` |
 | `cost $4.74` | `cost.total_cost_usd` | Client-side estimate, not your bill; `/clear` resets it |
