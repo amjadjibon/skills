@@ -150,7 +150,7 @@ dev-implement-plan phases → dev-tdd (test-first), dev-e2e-testing, dev-smoke-t
   <h2>Status line</h2>
   <p class="sub">Repo, model and context on one line; what the session has cost you on the next.</p>
   <img class="shot" src="docs/statusline.png" alt="Claude Code status line reading: [dev-skills] skills (main) Opus 5 ctx 105k/1M 10%, then cost $4.74, time 14m, edits +349/-43, limit 5h 25%, 7d 8%">
-  <p class="note">Every value is labelled, and each percentage shares one ramp — green under 50%, amber past 50%, red past 80%. The rate-limit segments show how much of each window is spent and when it refills (<code>used 5h 21% in 2h30m</code>); there is no credit balance in the session payload, so those windows are the only real quota signal. Segments drop out when the data isn't there yet, so a fresh session shows just the first line.</p>
+  <p class="note">Every value is labelled, and each percentage shares one traffic light — green under 50%, yellow under 80%, red at 80% and above. The rate-limit segments show how much of each window is spent and when it refills (<code>used 5h 21% in 2h30m</code>); there is no credit balance in the session payload, so those windows are the only real quota signal. Segments drop out when the data isn't there yet, so a fresh session shows just the first line.</p>
   <p class="note">A <code>SessionStart</code> hook wires it into <code>settings.json</code> on the first session after install, because plugins can't declare a <code>statusLine</code> themselves. It never overwrites a status line you already had, and if you delete the one it installed it stays gone. Opt out up front with <code>touch ~/.claude/.dev-skills.statusline-optout</code>.</p>
 </section>
 

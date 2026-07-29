@@ -67,21 +67,22 @@ resets_in() {
     }'
 }
 
-# green under half, amber past half, red past 80%
+GREEN=76 YELLOW=220 RED=196   # the traffic light every percentage is scored against
+DIM='\033[38;5;244m'          # labels and separators
+OFF='\033[0m'
+
+# green under 50%, yellow under 80%, red at 80% and above
 usage_color() {
-    if [ "${1:-0}" -ge 80 ] 2>/dev/null; then printf '174'
-    elif [ "${1:-0}" -ge 50 ] 2>/dev/null; then printf '180'
-    else printf '108'
+    if [ "${1:-0}" -ge 80 ] 2>/dev/null; then printf '%s' "$RED"
+    elif [ "${1:-0}" -ge 50 ] 2>/dev/null; then printf '%s' "$YELLOW"
+    else printf '%s' "$GREEN"
     fi
 }
-
-DIM='\033[38;5;244m'   # labels and separators
-OFF='\033[0m'
 
 # "label value" with a dim label
 seg() { printf "${DIM}%s${OFF} \033[38;5;%sm%s${OFF}" "$1" "$2" "$3"; }
 
-line1=$(printf '\033[38;5;108m[dev-skills]\033[0m \033[38;5;110m%s\033[0m' "$(basename "$dir")")
+line1=$(printf '\033[38;5;%sm[dev-skills]\033[0m \033[38;5;110m%s\033[0m' "$GREEN" "$(basename "$dir")")
 [ -n "$branch" ] && line1="$line1 $(printf '\033[38;5;180m(%s)\033[0m' "$branch")"
 [ -n "$model" ] && line1="$line1 $(printf '\033[38;5;245m%s\033[0m' "$model")"
 
@@ -97,7 +98,7 @@ if [ -n "$cost" ]; then
     IFS=$'\t' read -r usd ms added removed <<< "$cost"
     parts=$(seg "cost" 179 "$(printf '$%.2f' "$usd")")
     parts="$parts$sep$(seg "time" 245 "$(duration "$ms")")"
-    parts="$parts$sep$(printf "${DIM}edits${OFF} \033[38;5;108m+%s${OFF}\033[38;5;174m/-%s${OFF}" "$added" "$removed")"
+    parts="$parts$sep$(printf "${DIM}edits${OFF} \033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" "$GREEN" "$added" "$RED" "$removed")"
 fi
 if [ -n "$limits" ]; then
     IFS=$'\t' read -r five five_at seven seven_at <<< "$limits"
