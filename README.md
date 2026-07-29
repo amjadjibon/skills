@@ -115,7 +115,7 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 | `wt phase-2-auth` | `workspace.git_worktree` | Only inside a linked worktree — the agents run in them, and nothing else on the line distinguishes one from the real checkout |
 | `Opus 5` | `model.display_name` | |
 | `ctx 105k/1M 10%` | `context_window` | Input tokens vs. window size — the same input-only basis Claude Code uses for `used_percentage`, so the fraction and the percentage agree |
-| `session 45fdd1e0` | `session_id` | First block of the UUID — enough to find the transcript under `~/.claude/projects/<project>/` |
+| `session 45fdd1e0-af3f-…` | `session_id` | The transcript is `~/.claude/projects/<project>/<session_id>.jsonl` |
 | `cost $4.74` | `cost.total_cost_usd` | Client-side estimate, not your bill; `/clear` resets it |
 | `time 14m` | `cost.total_duration_ms` | Wall clock, shown as `45s` / `14m` / `2h5m` |
 | `edits +349/-43` | `cost.total_lines_added/removed` | Additions green, deletions red |

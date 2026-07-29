@@ -96,8 +96,8 @@ line1=$(printf '\033[38;5;%sm[dev-skills]\033[0m \033[38;5;110m%s\033[0m' "$GREE
 [ -n "$model" ] && line1="$line1 $(printf '\033[38;5;245m%s\033[0m' "$model")"
 [ -n "$ctx_size" ] && line1="$line1 $(seg "ctx" "$(usage_color "$ctx_pct")" \
     "$(humanize "$ctx_used")/$(humanize "$ctx_size") ${ctx_pct}%")"
-# the first block is enough to find the transcript under ~/.claude/projects/
-[ -n "$session" ] && line1="$line1 $(seg "session" 245 "${session%%-*}")"
+# the transcript is ~/.claude/projects/<project>/<session>.jsonl, so print it whole
+[ -n "$session" ] && line1="$line1 $(seg "session" 245 "$session")"
 
 sep=$(printf "${DIM} · ${OFF}")
 parts=""
