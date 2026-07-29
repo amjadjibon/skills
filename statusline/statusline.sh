@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
-#   [dev-skills] · <dir> · <branch> · #<pr> · wt <wt> · <model> <effort> · ctx <used>/<size> <pct>% · <session>
+#   [dev-skills] <dir>(<branch>) · #<pr> · wt <wt> · <model> <effort> · ctx <used>/<size> <pct>% · <session>
 #   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · tok <in>/<out> · <duration> · +<added>/-<removed>
 #
 # Labels only survive where the value alone is ambiguous: ctx and tok keep
@@ -148,9 +148,14 @@ add() {  # line_var separator plain coloured
 sep_plain=" - "
 gap_colour=$(printf "${DIM} · ${OFF}")
 
+# The branch belongs to the directory, so it hangs off it rather than standing
+# as its own segment — skills(main), not skills · main.
 l1=$(printf '\033[38;5;%sm[dev-skills]\033[0m \033[38;5;%sm%s\033[0m' "$GREEN" "$BLUE" "${dir##*/}")
 l1_plain="[dev-skills] ${dir##*/}"
-[ -n "$branch" ] && add l1 "$sep_plain" "$branch" "$(printf '\033[38;5;%sm%s\033[0m' "$GOLD" "$branch")"
+if [ -n "$branch" ]; then
+    l1="$l1$(printf '\033[38;5;%sm(%s)\033[0m' "$GOLD" "$branch")"
+    l1_plain="$l1_plain($branch)"
+fi
 # an open PR for this branch, and where its review stands
 [ -n "$pr" ] && add l1 "$sep_plain" "#$pr${pr_state:+ $pr_state}" \
     "$(printf '\033[38;5;%sm#%s\033[0m' "$GOLD" "$pr")${pr_state:+$(printf "${DIM} %s${OFF}" "$pr_state")}"

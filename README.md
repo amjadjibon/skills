@@ -111,7 +111,7 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 
 | Segment | Field | Notes |
 | ------- | ----- | ----- |
-| `skills · main` | `workspace.current_dir`, `git branch` | Directory basename and current branch — the short commit SHA instead when HEAD is detached |
+| `skills(main)` | `workspace.current_dir`, `git branch` | Directory basename and current branch — the short commit SHA instead when HEAD is detached |
 | `#42 pending` | `pr.number`, `pr.review_state` | Only while an open PR exists for the branch; disappears when it merges |
 | `wt phase-2-auth` | `workspace.git_worktree` | Only inside a linked worktree — the agents run in them, and nothing else on the line distinguishes one from the real checkout |
 | `Opus 5 xhigh` | `model.display_name`, `effort.level` | Effort reads as part of the model phrase; absent on models without the parameter |
