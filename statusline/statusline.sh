@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
 #   [dev-skills] <dir>(<branch>) · #<pr> · wt <wt> · <model> <effort> · ctx <used>/<size> <pct>% · <session>
-#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · tok <in>/<out> · <duration> · +<added>/-<removed>
+#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · <duration> · +<added>/-<removed>
 #
 # Labels only survive where the value alone is ambiguous: ctx and tok keep
 # theirs, a currency symbol and a +n/-n pair do not need one.
@@ -11,7 +11,7 @@
 # else is bash arithmetic — no awk, no basename.
 input=$(cat)
 
-# One jq pass for every field, as a fixed 20-column row. Absent values come back
+# One jq pass for every field, as a fixed 19-column row. Absent values come back
 # empty so the render below can drop the segment — which rules out @tsv, because
 # tab is IFS whitespace and bash would collapse the empty columns and shift every
 # field left. \x1f (unit separator) is non-whitespace, so empties survive.
@@ -39,8 +39,6 @@ fields=$(printf '%s' "$input" | jq -r '
         # both change mid-session via /effort and /fast, and nothing else shows it
         (.effort.level // ""),
         (if .fast_mode == true then "fast" else "" end),
-        # output tokens are excluded from used_percentage, so ctx alone understates it
-        (if $c.context_window_size == null then "" else ($c.total_output_tokens // 0) end),
         # present only while an open PR exists for the branch; review_state may be absent
         (.pr.number // ""),
         (.pr.review_state // "") ]
@@ -48,7 +46,7 @@ fields=$(printf '%s' "$input" | jq -r '
 
 IFS=$'\037' read -r model dir worktree ctx_used ctx_size ctx_pct \
     usd ms added removed five five_at seven seven_at session effort fast \
-    ctx_out pr pr_state <<< "$fields"
+    pr pr_state <<< "$fields"
 
 [ -n "$dir" ] || dir="$PWD"
 branch=$(git -C "$dir" rev-parse --abbrev-ref HEAD 2>/dev/null)
@@ -188,11 +186,6 @@ done
 # subscription nothing was billed at all
 [ -n "$usd" ] && add l2 "$sep_plain" "$(printf '~$%.2f' "$usd")" \
     "$(printf '\033[38;5;%sm~$%.2f\033[0m' "$TAN" "$usd")"
-# what that estimate is actually counting: window input, and the last response's output
-if [ -n "$ctx_size" ]; then
-    tok="$(humanize "$ctx_used")/$(humanize "$ctx_out")"
-    add l2 "$sep_plain" "tok $tok" "$(seg "tok" "$TIME" "$tok")"
-fi
 if [ -n "$usd" ]; then
     add l2 "$sep_plain" "$(duration "$ms")" \
         "$(printf '\033[38;5;%sm%s\033[0m' "$TIME" "$(duration "$ms")")"

@@ -118,8 +118,7 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 | `fast` | `fast_mode` | Shown only when [fast mode](https://code.claude.com/docs/en/fast-mode) is on |
 | `ctx 183k/1M 18%` | `context_window` | Input tokens vs. window size — the same input-only basis Claude Code uses for `used_percentage`, so the fraction and the percentage agree |
 | `45fdd1e0-af3f-…` | `session_id` | The transcript is `~/.claude/projects/<project>/<session_id>.jsonl` |
-| `~$17.80` | `cost.total_cost_usd` | The `~` marks it as a client-side estimate at API rates — on a subscription nothing was billed at all. `/clear` resets it |
-| `tok 183k/4.2k` | `context_window.total_input_tokens`, `total_output_tokens` | What that estimate is counting. Output is excluded from `used_percentage`, so `ctx` alone understates the traffic |
+| `~$17.80` | `cost.total_cost_usd` | The `~` marks it as a client-side estimate at API rates — on a subscription nothing was billed at all. `/clear` resets it. There is no token count beside it because the payload has no cumulative one: `total_input_tokens` is what is in the window right now (already shown as `ctx`) and `total_output_tokens` is only the most recent response's output |
 | `1h27m` | `cost.total_duration_ms` | Wall clock, shown as `45s` / `14m` / `2h5m` |
 | `+891/-251` | `cost.total_lines_added/removed` | Additions green, deletions red |
 | `5h 45% in 3h50m · 7d 14% in 3d22h` | `rate_limits` | Claude.ai Pro/Max only, after the first API response. How much of each window is spent and when it refills |
