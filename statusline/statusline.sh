@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
-#   [dev-skills] · <dir> · (<branch>) · wt <worktree> · <model> · effort <level> · ctx <used>/<size> <pct>% · session <id>
-#   $<cost> · <duration> · +<added>/-<removed> · 5h <used>% in <reset> · 7d <used>% in <reset>
+#   [dev-skills] · <dir> · (<branch>) · pr #<n> · wt <wt> · <model> · effort <lvl> · ctx <used>/<size> <pct>% · session <id>
+#   used 5h <pct>% in <reset> · used 7d <pct>% in <reset> · est $<cost> · tok <in>/<out> · time <d> · edits +<a>/-<r>
 #
 # Claude Code passes the session JSON on stdin and re-renders constantly, so this
 # does its whole job in three subprocesses: one jq, one git, one date. Everything
 # else is bash arithmetic — no awk, no basename.
 input=$(cat)
 
-# One jq pass for every field, as a fixed 17-column row. Absent values come back
+# One jq pass for every field, as a fixed 20-column row. Absent values come back
 # empty so the render below can drop the segment — which rules out @tsv, because
 # tab is IFS whitespace and bash would collapse the empty columns and shift every
 # field left. \x1f (unit separator) is non-whitespace, so empties survive.
@@ -35,25 +35,38 @@ fields=$(printf '%s' "$input" | jq -r '
         (.session_id // ""),
         # both change mid-session via /effort and /fast, and nothing else shows it
         (.effort.level // ""),
-        (if .fast_mode == true then "fast" else "" end) ]
+        (if .fast_mode == true then "fast" else "" end),
+        # output tokens are excluded from used_percentage, so ctx alone understates it
+        (if $c.context_window_size == null then "" else ($c.total_output_tokens // 0) end),
+        # present only while an open PR exists for the branch; review_state may be absent
+        (.pr.number // ""),
+        (.pr.review_state // "") ]
     | map(tostring) | join("\u001f")' 2>/dev/null)
 
 IFS=$'\037' read -r model dir worktree ctx_used ctx_size ctx_pct \
-    usd ms added removed five five_at seven seven_at session effort fast <<< "$fields"
+    usd ms added removed five five_at seven seven_at session effort fast \
+    ctx_out pr pr_state <<< "$fields"
 
 [ -n "$dir" ] || dir="$PWD"
 branch=$(git -C "$dir" rev-parse --abbrev-ref HEAD 2>/dev/null)
+# detached HEAD reports the literal "HEAD", which says nothing at exactly the
+# moment you most need to know where you are — show the commit instead
+[ "$branch" = HEAD ] && branch=$(git -C "$dir" rev-parse --short HEAD 2>/dev/null)
 # STATUSLINE_NOW pins the clock so the reset countdowns are reproducible under test
 now=${STATUSLINE_NOW:-$(date +%s)}
 
 # 12345 -> 12.3k, 200000 -> 200k, 1000000 -> 1M
+# Every branch rounds to the nearest tenth rather than truncating, so 1999 reads
+# 2.0k and not 1.9k. `t` is the value in tenths of the unit being printed.
 humanize() {
-    local n=$1 w f
+    local n=$1 t
     if [ "$n" -ge 1000000 ]; then
-        w=$((n / 1000000)) f=$(((n % 1000000) / 100000))
-        if [ "$f" -eq 0 ]; then printf '%dM' "$w"; else printf '%d.%dM' "$w" "$f"; fi
+        t=$(((n + 50000) / 100000))
+        if [ $((t % 10)) -eq 0 ]; then printf '%dM' $((t / 10)); else printf '%d.%dM' $((t / 10)) $((t % 10)); fi
     elif [ "$n" -ge 100000 ]; then printf '%dk' $(((n + 500) / 1000))
-    elif [ "$n" -ge 1000 ]; then printf '%d.%dk' $((n / 1000)) $(((n % 1000) / 100))
+    elif [ "$n" -ge 1000 ]; then
+        t=$(((n + 50) / 100))
+        if [ "$t" -ge 1000 ]; then printf '%dk' $((t / 10)); else printf '%d.%dk' $((t / 10)) $((t % 10)); fi
     else printf '%d' "$n"
     fi
 }
@@ -135,6 +148,9 @@ gap_colour=$(printf "${DIM} · ${OFF}")
 l1=$(printf '\033[38;5;%sm[dev-skills]\033[0m \033[38;5;%sm%s\033[0m' "$GREEN" "$BLUE" "${dir##*/}")
 l1_plain="[dev-skills] ${dir##*/}"
 [ -n "$branch" ] && add l1 "$sep_plain" "($branch)" "$(printf '\033[38;5;%sm(%s)\033[0m' "$GOLD" "$branch")"
+# an open PR for this branch, and where its review stands
+[ -n "$pr" ] && add l1 "$sep_plain" "pr #$pr${pr_state:+ $pr_state}" \
+    "$(seg "pr" "$GOLD" "#$pr")${pr_state:+$(printf "${DIM} %s${OFF}" "$pr_state")}"
 # a worktree looks exactly like the real checkout otherwise — and the agents run in them
 [ -n "$worktree" ] && add l1 "$sep_plain" "wt $worktree" "$(seg "wt" "$YELLOW" "$worktree")"
 [ -n "$model" ] && add l1 "$sep_plain" "$model" "$(printf '\033[38;5;%sm%s\033[0m' "$STATE" "$model")"
@@ -148,14 +164,10 @@ fi
 # the transcript is ~/.claude/projects/<project>/<session>.jsonl, so print it whole
 [ -n "$session" ] && add l1 "$sep_plain" "session $session" "$(seg "session" "$MAUVE" "$session")"
 
+# Line two is ordered by urgency, not by convention, because add() drops from the
+# right: on a narrow pane you would rather lose what a notional session cost than
+# the window that says when you get cut off.
 l2="" l2_plain="" l2_full=""
-if [ -n "$usd" ]; then
-    add l2 "$sep_plain" "cost $(printf '$%.2f' "$usd")" "$(seg "cost" "$TAN" "$(printf '$%.2f' "$usd")")"
-    add l2 "$sep_plain" "time $(duration "$ms")" "$(seg "time" "$TIME" "$(duration "$ms")")"
-    add l2 "$sep_plain" "edits +$added/-$removed" \
-        "$(printf "${DIM}edits${OFF} \033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" \
-            "$GREEN" "$added" "$RED" "$removed")"
-fi
 # how much of each window is spent, and how long until it refills
 for window in "used 5h|$five|$five_at" "used 7d|$seven|$seven_at"; do
     IFS='|' read -r label pct at <<< "$window"
@@ -164,6 +176,21 @@ for window in "used 5h|$five|$five_at" "used 7d|$seven|$seven_at"; do
     add l2 "$sep_plain" "$label ${pct}%${in:+ in $in}" \
         "$(seg "$label" "$(usage_color "$pct")" "${pct}%")${in:+$(printf "${DIM} in %s${OFF}" "$in")}"
 done
+# "est", not "cost": it is a client-side estimate at API rates, and on a
+# subscription nothing was billed at all
+[ -n "$usd" ] && add l2 "$sep_plain" "est $(printf '$%.2f' "$usd")" \
+    "$(seg "est" "$TAN" "$(printf '$%.2f' "$usd")")"
+# what that estimate is actually counting: window input, and the last response's output
+if [ -n "$ctx_size" ]; then
+    tok="$(humanize "$ctx_used") in/$(humanize "$ctx_out") out"
+    add l2 "$sep_plain" "tok $tok" "$(seg "tok" "$TIME" "$tok")"
+fi
+if [ -n "$usd" ]; then
+    add l2 "$sep_plain" "time $(duration "$ms")" "$(seg "time" "$TIME" "$(duration "$ms")")"
+    add l2 "$sep_plain" "edits +$added/-$removed" \
+        "$(printf "${DIM}edits${OFF} \033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" \
+            "$GREEN" "$added" "$RED" "$removed")"
+fi
 
 printf '%s' "$l1"
 [ -n "$l2" ] && printf '\n%s' "$l2"

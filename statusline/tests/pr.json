@@ -1,0 +1,17 @@
+{
+  "model": { "display_name": "Opus 5" },
+  "workspace": { "current_dir": "/nowhere/demo-project" },
+  "pr": { "number": 42, "review_state": "pending" },
+  "context_window": {
+    "total_input_tokens": 1999,
+    "context_window_size": 200000,
+    "total_output_tokens": 12400,
+    "used_percentage": 1
+  },
+  "cost": {
+    "total_cost_usd": 0.4,
+    "total_duration_ms": 45000,
+    "total_lines_added": 3,
+    "total_lines_removed": 0
+  }
+}

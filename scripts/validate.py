@@ -8,6 +8,7 @@ import json
 import os
 import re
 import subprocess
+import tempfile
 import sys
 from itertools import zip_longest
 from pathlib import Path
@@ -114,6 +115,30 @@ def check_statusline():
         for i, (want, got) in enumerate(zip_longest(expected, actual, fillvalue=""), 1):
             if want != got:
                 err(fixture, f"line {i} differs\n    expected: {want}\n    actual:   {got}")
+
+    # A detached HEAD cannot be a fixture — it needs a real repo — but `rev-parse
+    # --abbrev-ref` answers the literal "HEAD" there, which is exactly the state
+    # where you most need to know which commit you are on.
+    with tempfile.TemporaryDirectory() as tmp:
+        git = ["git", "-C", tmp, "-c", "user.email=t@t", "-c", "user.name=t", "-c", "commit.gpgsign=false"]
+        try:
+            subprocess.run(git + ["init", "-q"], check=True, capture_output=True)
+            subprocess.run(git + ["commit", "-q", "--allow-empty", "-m", "x"], check=True, capture_output=True)
+            sha = subprocess.run(git + ["rev-parse", "--short", "HEAD"], check=True,
+                                 capture_output=True, text=True).stdout.strip()
+            subprocess.run(git + ["checkout", "-q", "--detach", sha], check=True, capture_output=True)
+        except (OSError, subprocess.CalledProcessError) as e:
+            err(script, f"could not build the detached-HEAD repo: {e}")
+        else:
+            out = subprocess.run(
+                ["/bin/bash", str(script)],
+                input=json.dumps({"workspace": {"current_dir": tmp}}).encode(),
+                env={"PATH": os.environ.get("PATH", ""), "COLUMNS": "0"},
+                capture_output=True, timeout=15,
+            )
+            line = ANSI.sub("", out.stdout.decode()).split("\n")[0]
+            if f"({sha})" not in line:
+                err(script, f"detached HEAD should render ({sha}), got: {line}")
 
     # {} has no current_dir, so it falls back to $PWD and cannot be a golden test —
     # but it must still render one line and exit clean rather than blowing up.
