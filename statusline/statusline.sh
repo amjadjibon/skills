@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
 #   [dev-skills] <dir>(<branch>) · #<pr> · wt <wt> · <model> <effort> · ctx <used>/<size> <pct>% · <name> · <session>
-#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · <duration>(api <duration>) · +<added>/-<removed>
+#   usage: 5h <pct>% [resets in <t>] · 7d <pct>% [resets in <t>] · cost: ~$<c> · time: <t>[api <t>] · edits: +<a>/-<r>
 #
 # Labels only survive where the value alone is ambiguous: ctx and wt keep
 # theirs, a currency symbol and a +n/-n pair do not need one.
@@ -192,29 +192,35 @@ fi
 # right: on a narrow pane you would rather lose what a notional session cost than
 # the window that says when you get cut off.
 l2="" l2_plain="" l2_full=""
-# how much of each window is spent, and how long until it refills
+# Each group on line two names itself — usage:, cost:, time:, edits: — and a
+# figure that qualifies another sits in brackets beside it rather than becoming
+# its own segment: 40% [resets in 3h53m], 13h34m[api 1h11m].
+#
+# "usage:" heads the rate-limit group, so it is attached to whichever window
+# renders first — 7d leads when the 5h window is absent.
+usage_led=""
 for window in "5h|$five|$five_at" "7d|$seven|$seven_at"; do
     IFS='|' read -r label pct at <<< "$window"
     [ -n "$pct" ] || continue
+    [ -n "$usage_led" ] || { label="usage: $label"; usage_led=1; }
     in=$(resets_in "$at")
-    add l2 "$sep_plain" "$label ${pct}%${in:+ in $in}" \
-        "$(seg "$label" "$(usage_color "$pct")" "${pct}%")${in:+$(printf "${DIM} in %s${OFF}" "$in")}"
+    add l2 "$sep_plain" "$label ${pct}%${in:+ [resets in $in]}" \
+        "$(seg "$label" "$(usage_color "$pct")" "${pct}%")${in:+$(printf "${DIM} [resets in %s]${OFF}" "$in")}"
 done
-# "est", not "cost": it is a client-side estimate at API rates, and on a
-# subscription nothing was billed at all
-[ -n "$usd" ] && add l2 "$sep_plain" "$(printf '~$%.2f' "$usd")" \
-    "$(printf '\033[38;5;%sm~$%.2f\033[0m' "$TAN" "$usd")"
+# "~", because it is a client-side estimate at API rates and on a subscription
+# nothing was billed at all
+[ -n "$usd" ] && add l2 "$sep_plain" "cost: $(printf '~$%.2f' "$usd")" \
+    "$(seg "cost:" "$TAN" "$(printf '~$%.2f' "$usd")")"
 if [ -n "$usd" ]; then
-    # Elapsed, with the share of it spent waiting on the model hanging off it as
-    # one unit: 2h15m(api 1h3m). Dim, because it qualifies the wall clock rather
-    # than standing beside it. Absent when the API duration is not reported.
+    # Elapsed, with the share spent waiting on the model bracketed beside it.
+    # Absent when the API duration is not reported.
     wall=$(duration "$ms")
     api=""
-    [ "${api_ms%%.*}" -gt 0 ] 2>/dev/null && api="(api $(duration "$api_ms"))"
-    add l2 "$sep_plain" "$wall$api" \
-        "$(printf '\033[38;5;%sm%s\033[0m' "$TIME" "$wall")${api:+$(printf "${DIM}%s${OFF}" "$api")}"
-    add l2 "$sep_plain" "+$added/-$removed" \
-        "$(printf "\033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" "$GREEN" "$added" "$RED" "$removed")"
+    [ "${api_ms%%.*}" -gt 0 ] 2>/dev/null && api="[api $(duration "$api_ms")]"
+    add l2 "$sep_plain" "time: $wall$api" \
+        "$(seg "time:" "$TIME" "$wall")${api:+$(printf "${DIM}%s${OFF}" "$api")}"
+    add l2 "$sep_plain" "edits: +$added/-$removed" \
+        "$(printf "${DIM}edits:${OFF} \033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" "$GREEN" "$added" "$RED" "$removed")"
 fi
 
 printf '%s' "$l1"
