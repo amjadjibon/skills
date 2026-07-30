@@ -15,9 +15,6 @@ a time until the route is obvious enough to phase.
 fog clears, this skill ends and `dev-design`/`dev-create-plan` take over. A wayfinder session that
 ships a feature has failed at its actual job.
 
-Adapted from the [wayfinder skill](https://github.com/mattpocock/skills/tree/main/skills/engineering/wayfinder)
-by Matt Pocock.
-
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
