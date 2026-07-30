@@ -1,6 +1,6 @@
 # skills
 
-A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 24 skills, 4 sub-agents, and the `/loop` orchestrator command.
+A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 28 skills, 4 sub-agents, and the `/loop` orchestrator command.
 
 > [!CAUTION]
 > **Read every skill before you install it. Nothing here is guaranteed.**
@@ -75,12 +75,18 @@ If a skill doesn't show up after install, run `/reload-plugins` (or restart the 
 | [dev-qa](skills/dev/dev-qa/SKILL.md) | Quality assurance — measure test coverage, identify untested paths, write missing unit/integration/e2e tests, produce a QA report with before/after coverage numbers. |
 | [dev-clean-up](skills/dev/dev-clean-up/SKILL.md) | Housekeeping — remove merged local and remote branches, prune stale tracking refs, close resolved GitHub issues, clean up leftover worktrees. |
 | [dev-release](skills/dev/dev-release/SKILL.md) | Cut a release — derive the version bump from conventional commits, generate a changelog, bump version files, tag, and publish a GitHub release. |
+| [dev-ponytail](skills/dev/dev-ponytail/SKILL.md) | Session-long minimalism overlay — climb a ladder (does it need to exist → already in the codebase → stdlib → native platform → installed dependency → one line) and ship the smallest working diff, with a short note on what was skipped and when to add it. |
+| [dev-ponytail-review](skills/dev/dev-ponytail-review/SKILL.md) | Review a diff for over-engineering only — one line per finding tagged `delete:`/`stdlib:`/`native:`/`yagni:`/`shrink:`, ending in `net: -<N> lines possible`. Correctness and security stay with `dev-code-review`. |
+| [dev-ponytail-audit](skills/dev/dev-ponytail-audit/SKILL.md) | The same pass repo-wide — dependencies and single-implementation abstractions first, callers verified before anything is called dead, ranked into `docs/<feature-name>/AUDIT.md`. Reports; applies nothing. |
+| [dev-ponytail-debt](skills/dev/dev-ponytail-debt/SKILL.md) | Harvest every `TODO: [owner]` / `FIXME: [owner]` marker into one ledger with ceiling, trigger, owner, and age — flagging the ones that name no trigger, since those are what rot. Writes `docs/<feature-name>/DEBT.md`. |
 | [brainstorming](skills/misc/brainstorming/SKILL.md) | Continuous interactive ideation partner — spreads ideas across safe/middle/bold, defaults to critical engagement over agreement, no hand-off or convergence point. |
 | [git-safe](skills/misc/git-safe/SKILL.md) | Pre-flight gate for destructive git commands (force push, reset --hard, clean -f, branch -D, rebase/amend on pushed branches) and the canonical commit hygiene/message conventions the other skills reference. |
 | [openapi-spec](skills/misc/openapi-spec/SKILL.md) | Write and validate OpenAPI 3.1 spec documents — `$ref`-based reusable components, Spectral/Redocly lint rules. No code generation; assumes `dev-api-design` already decided the shape. |
 | [mermaid-diagram](skills/misc/mermaid-diagram/SKILL.md) | Generate Mermaid diagrams (flowchart, sequence, architecture, deployment, class, state, ER) from a description or source code, with high-contrast styling and `mmdc` validation before handoff. |
 | [github-actions](skills/misc/github-actions/SKILL.md) | Create and review GitHub Actions workflows — CI, release/publish, reusable workflows, composite actions, matrix builds, caching, and security hardening. Validates with `actionlint`. |
 | [prototype](skills/misc/prototype/SKILL.md) | Build a throwaway prototype in the real codebase to answer one design question — a driveable TUI for a state/logic question, or several structurally different UI variants on a real route switchable via `?variant=`. Adapted from [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/prototype). |
+The four `dev-ponytail*` skills are inspired by the [`ponytail` skill](https://github.com/DietrichGebert/ponytail) by Dietrich Gebert.
+
 
 ## Agents
 
@@ -217,7 +223,7 @@ dev-loop
                                                                                        └──── fix agents ─────────────────┘ (parallel, per-finding)
 ```
 
-Output artifacts land in `docs/<feature>/`: `RESEARCH.md` (`dev-research`, optional pre-plan), `DESIGN.md` (`dev-design`, optional pre-plan), `prototype.html` (`dev-ui-design`, optional pre-plan), `PLAN.md` (created by `dev-create-plan`, updated by `dev-implement-plan`), `PLAN-REVIEW.md` (`dev-review-plan`), `QA.md` (`dev-qa`), `REVIEW.md` (written each pass by `dev-code-review`), and `LOOP.md` (dev-loop state).
+Output artifacts land in `docs/<feature>/`: `RESEARCH.md` (`dev-research`, optional pre-plan), `DESIGN.md` (`dev-design`, optional pre-plan), `prototype.html` (`dev-ui-design`, optional pre-plan), `PLAN.md` (created by `dev-create-plan`, updated by `dev-implement-plan`), `PLAN-REVIEW.md` (`dev-review-plan`), `QA.md` (`dev-qa`), `REVIEW.md` (written each pass by `dev-code-review`), and `LOOP.md` (dev-loop state). `AUDIT.md` (`dev-ponytail-audit`) and `DEBT.md` (`dev-ponytail-debt`) land there too, under the audited scope's name — `docs/repo/` for a whole-tree pass.
 
 ## Adding a Skill
 
