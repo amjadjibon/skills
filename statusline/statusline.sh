@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
-#   [dev-skills] <dir>(<branch>) · #<pr> · wt <wt> · <model> <effort> · ctx <used>/<size> <pct>% · <session>
-#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · <duration> · +<added>/-<removed>
+#   [dev-skills] <dir>(<branch>) · #<pr> · wt <wt> · <model> <effort> · ctx <used>/<size> <pct>% · <name|session>
+#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · <duration> · api <pct>% · +<added>/-<removed>
 #
 # Labels only survive where the value alone is ambiguous: ctx and wt keep
 # theirs, a currency symbol and a +n/-n pair do not need one.
@@ -11,7 +11,7 @@
 # else is bash arithmetic — no awk, no basename.
 input=$(cat)
 
-# One jq pass for every field, as a fixed 19-column row. Absent values come back
+# One jq pass for every field, as a fixed 21-column row. Absent values come back
 # empty so the render below can drop the segment — which rules out @tsv, because
 # tab is IFS whitespace and bash would collapse the empty columns and shift every
 # field left. \x1f (unit separator) is non-whitespace, so empties survive.
@@ -41,12 +41,16 @@ fields=$(printf '%s' "$input" | jq -r '
         (if .fast_mode == true then "fast" else "" end),
         # present only while an open PR exists for the branch; review_state may be absent
         (.pr.number // ""),
-        (.pr.review_state // "") ]
+        (.pr.review_state // ""),
+        # a name set with --name / /rename, or the AI-generated title; often absent
+        (.session_name // ""),
+        # wall clock already covers elapsed; this is the share spent waiting on the model
+        ($k.total_api_duration_ms // 0) ]
     | map(tostring) | join("\u001f")' 2>/dev/null)
 
 IFS=$'\037' read -r model dir worktree ctx_used ctx_size ctx_pct \
     usd ms added removed five five_at seven seven_at session effort fast \
-    pr pr_state <<< "$fields"
+    pr pr_state session_name api_ms <<< "$fields"
 
 
 [ -n "$dir" ] || dir="$PWD"
@@ -168,8 +172,11 @@ if [ -n "$ctx_size" ]; then
     ctx="$(humanize "$ctx_used")/$(humanize "$ctx_size") ${ctx_pct}%"
     add l1 "$sep_plain" "ctx $ctx" "$(seg "ctx" "$(usage_color "$ctx_pct")" "$ctx")"
 fi
-# the transcript is ~/.claude/projects/<project>/<session>.jsonl, so print it whole
-[ -n "$session" ] && add l1 "$sep_plain" "$session" "$(printf '\033[38;5;%sm%s\033[0m' "$MAUVE" "$session")"
+# Prefer the name — it is what you recognise the session by, and shorter than the
+# id. Falling back to the id keeps the transcript findable when there is no name:
+# it is ~/.claude/projects/<project>/<session_id>.jsonl.
+label=${session_name:-$session}
+[ -n "$label" ] && add l1 "$sep_plain" "$label" "$(printf '\033[38;5;%sm%s\033[0m' "$MAUVE" "$label")"
 
 # Line two is ordered by urgency, not by convention, because add() drops from the
 # right: on a narrow pane you would rather lose what a notional session cost than
@@ -190,6 +197,12 @@ done
 if [ -n "$usd" ]; then
     add l2 "$sep_plain" "$(duration "$ms")" \
         "$(printf '\033[38;5;%sm%s\033[0m' "$TIME" "$(duration "$ms")")"
+    # how much of that elapsed time was inference rather than you reading and typing
+    if [ "${ms%%.*}" -gt 0 ] 2>/dev/null && [ "${api_ms%%.*}" -gt 0 ] 2>/dev/null; then
+        api_pct=$(( ${api_ms%%.*} * 100 / ${ms%%.*} ))
+        [ "$api_pct" -gt 100 ] && api_pct=100
+        add l2 "$sep_plain" "api ${api_pct}%" "$(seg "api" "$TIME" "${api_pct}%")"
+    fi
     add l2 "$sep_plain" "+$added/-$removed" \
         "$(printf "\033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" "$GREEN" "$added" "$RED" "$removed")"
 fi

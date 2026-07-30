@@ -117,9 +117,10 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 | `Opus 5 xhigh` | `model.display_name`, `effort.level` | Effort reads as part of the model phrase; absent on models without the parameter |
 | `fast` | `fast_mode` | Shown only when [fast mode](https://code.claude.com/docs/en/fast-mode) is on |
 | `ctx 183k/1M 18%` | `context_window` | Input tokens vs. window size — the same input-only basis Claude Code uses for `used_percentage`, so the fraction and the percentage agree |
-| `45fdd1e0-af3f-…` | `session_id` | The transcript is `~/.claude/projects/<project>/<session_id>.jsonl` |
+| `statusline polish` | `session_name`, falling back to `session_id` | The name set with `--name` / `/rename`, or the AI-generated title. Usually shorter than the id and easier to recognise; when there is no name the id shows instead, and the transcript is `~/.claude/projects/<project>/<session_id>.jsonl` |
 | `~$17.80` | `cost.total_cost_usd` | The `~` marks it as a client-side estimate at API rates — on a subscription nothing was billed at all. `/clear` resets it. There is no token count beside it because the payload has no cumulative one: `total_input_tokens` is what is in the window right now (already shown as `ctx`) and `total_output_tokens` is only the most recent response's output |
 | `1h27m` | `cost.total_duration_ms` | Wall clock, shown as `45s` / `14m` / `2h5m` |
+| `api 47%` | `cost.total_api_duration_ms` | Share of that wall clock spent waiting on the model rather than on you — tells you whether a slow session is inference or the loop. Dropped when the field is absent, so it never reads as a measured 0% |
 | `+891/-251` | `cost.total_lines_added/removed` | Additions green, deletions red |
 | `5h 45% in 3h50m · 7d 14% in 3d22h` | `rate_limits` | Claude.ai Pro/Max only, after the first API response. How much of each window is spent and when it refills |
 
