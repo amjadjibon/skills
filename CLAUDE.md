@@ -22,10 +22,14 @@ commands/
   <command-name>.md  # Slash commands (currently: loop — wraps dev-loop)
 hooks/
   hooks.json         # SessionStart hook that wires up the status line
+scripts/
+  validate.py        # the pre-commit gate (see Validation)
+  render-statusline.py  # redraws docs/statusline.png from real output
 statusline/
   statusline.sh      # 2-line status line: repo/model/context + session usage
   auto-install.sh    # the hook body — installs on first session, refreshes after
   install.sh         # manual install/uninstall of the same thing
+  tests/             # <case>.json + <case>.expected pairs, diffed by validate.py
 ```
 
 Plugin `settings.json` only supports the `agent` and `subagentStatusLine` keys, so a plugin

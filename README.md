@@ -105,9 +105,9 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 
 ## Status Line
 
-`statusline/statusline.sh` renders two lines under the prompt:
+`statusline/statusline.sh` renders two lines under the prompt — regenerate this image with `python3 scripts/render-statusline.py` after changing the format:
 
-![The dev-skills status line, two lines. First: [dev-skills] skills(main) · Opus 5 medium · ctx 312k/1M 31% · 45fdd1e0-af3f-46b4-be2e-9f8f802398a0. Second: 5h 58% in 2h30m · 7d 16% in 3d20h · ~$52.92 · 2h15m · +954/-268](docs/statusline.png)
+![The dev-skills status line, two lines. First: [dev-skills] skills(main) · Opus 5 medium · ctx 324k/1M 32% · statusline polish · 45fdd1e0-af3f-46b4-be2e-9f8f802398a0. Second: usage: 5h 40% [resets in 3h53m] · 7d 20% [resets in 3d9h] · cost: ~$71.99 · time: 13h34m[api 1h11m] · edits: +1098/-259](docs/statusline.png)
 
 | Segment | Field | Notes |
 | ------- | ----- | ----- |
@@ -119,10 +119,10 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 | `ctx 183k/1M 18%` | `context_window` | Input tokens vs. window size — the same input-only basis Claude Code uses for `used_percentage`, so the fraction and the percentage agree |
 | `statusline polish` | `session_name` | The name set with `--name` / `/rename`, or the AI-generated title. Absent until one exists |
 | `45fdd1e0-af3f-…` | `session_id` | Always shown, after the name — the transcript is `~/.claude/projects/<project>/<session_id>.jsonl` |
-| `cost: ~$71.99` | `cost.total_cost_usd` | The `~` marks it as a client-side estimate at API rates — on a subscription nothing was billed at all. `/clear` resets it. There is no token count beside it because the payload has no cumulative one: `total_input_tokens` is what is in the window right now (already shown as `ctx`) and `total_output_tokens` is only the most recent response's output |
-| `time: 13h34m[api 1h11m]` | `cost.total_duration_ms`, `total_api_duration_ms` | Elapsed wall clock, with the part spent waiting on the model bracketed beside it — tells you whether a long session was inference or reading and typing. A zero trailing component is dropped (`4h`, not `4h0m`), and the parenthesised half is absent when the field is not reported |
-| `edits: +1098/-259` | `cost.total_lines_added/removed` | Additions green, deletions red |
 | `usage: 5h 40% [resets in 3h53m] · 7d 20% [resets in 3d9h]` | `rate_limits` | Claude.ai Pro/Max only, after the first API response. How much of each window is spent and when it refills |
+| `cost: ~$71.99` | `cost.total_cost_usd` | The `~` marks it as a client-side estimate at API rates — on a subscription nothing was billed at all. `/clear` resets it. There is no token count beside it because the payload has no cumulative one: `total_input_tokens` is what is in the window right now (already shown as `ctx`) and `total_output_tokens` is only the most recent response's output |
+| `time: 13h34m[api 1h11m]` | `cost.total_duration_ms`, `total_api_duration_ms` | Elapsed wall clock, with the part spent waiting on the model bracketed beside it — tells you whether a long session was inference or reading and typing. A zero trailing component is dropped (`4h`, not `4h0m`), and the bracketed half is absent when the field is not reported |
+| `edits: +1098/-259` | `cost.total_lines_added/removed` | Additions green, deletions red |
 
 Line two is ordered by urgency rather than convention — segments drop from the right, and on a narrow pane the window that says when you get cut off matters more than a notional cost. Both lines use the same dim `·` separator so they read as one block.
 
@@ -131,8 +131,6 @@ Line two names each group — `usage:`, `cost:`, `time:`, `edits:` — and a fig
 Colour always means "this is a value" — labels and separators stay grey. Values are coloured by kind: blue for the directory, gold for the branch and PR, `146` for session state you did not measure (model, effort), yellow for a non-default mode (`wt`, `fast`), tan for the cost estimate, mauve for the session id — an identifier you copy rather than read. The percentages share one traffic light: green under 50%, yellow under 80%, red at 80% and above, in muted hues rather than full-intensity ones, since the line sits in peripheral vision all day and saturated green/red read as alarms.
 
 Each segment is dropped when its field is absent, so line two disappears entirely on a fresh session.
-
-There is no credit or dollar balance in the session payload — `cost` is a client-side estimate of what the session would cost at API rates, and the rate-limit windows are the only real quota signal Claude Code exposes.
 
 Claude Code plugins cannot set the main `statusLine` declaratively — a plugin's `settings.json` only supports the `agent` and `subagentStatusLine` keys — so a `SessionStart` hook (`hooks/hooks.json` → `statusline/auto-install.sh`) wires it up on the first session after install. It copies the script to `~/.claude/dev-skills.statusline.sh`, points `settings.json` at that stable path, and refreshes the copy on later sessions so plugin upgrades land.
 

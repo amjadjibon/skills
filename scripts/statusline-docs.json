@@ -1,0 +1,23 @@
+{
+  "session_id": "45fdd1e0-af3f-46b4-be2e-9f8f802398a0",
+  "session_name": "statusline polish",
+  "model": { "display_name": "Opus 5" },
+  "effort": { "level": "medium" },
+  "workspace": { "current_dir": "@REPO@" },
+  "context_window": {
+    "total_input_tokens": 324000,
+    "context_window_size": 1000000,
+    "used_percentage": 32
+  },
+  "cost": {
+    "total_cost_usd": 71.99,
+    "total_duration_ms": 48840000,
+    "total_api_duration_ms": 4260000,
+    "total_lines_added": 1098,
+    "total_lines_removed": 259
+  },
+  "rate_limits": {
+    "five_hour": { "used_percentage": 40, "resets_at": 1800013980 },
+    "seven_day": { "used_percentage": 20, "resets_at": 1800291600 }
+  }
+}
