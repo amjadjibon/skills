@@ -123,7 +123,11 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 | `+891/-251` | `cost.total_lines_added/removed` | Additions green, deletions red |
 | `5h 45% in 3h50m · 7d 14% in 3d22h` | `rate_limits` | Claude.ai Pro/Max only, after the first API response. How much of each window is spent and when it refills |
 
-Line two is ordered by urgency rather than convention — segments drop from the right, and on a narrow pane the window that says when you get cut off matters more than a notional cost. Both lines use the same dim `·` separator so they read as one block. Labels survive only where the value alone is ambiguous — `ctx`, `tok`, `wt` and the two rate-limit windows keep theirs; a currency symbol, a duration, a `+n/-n` pair and a UUID do not need one. Values are coloured by kind — blue for the directory, gold for the branch, `146` for session state you did not measure (model, effort), tan for cost, mauve for the session id — while labels and separators stay grey, so colour always means "this is a value". and all the percentages share one traffic light: green under 50%, yellow under 80%, red at 80% and above — muted hues rather than full-intensity ones, since the line sits in peripheral vision all day and saturated green/red read as alarms. The session id is mauve — it is an identifier you copy, not a value you read.
+Line two is ordered by urgency rather than convention — segments drop from the right, and on a narrow pane the window that says when you get cut off matters more than a notional cost. Both lines use the same dim `·` separator so they read as one block.
+
+Labels survive only where the value alone is ambiguous: `ctx`, `wt` and the two rate-limit windows keep theirs, while a currency symbol, a duration, a `+n/-n` pair, a `#number` and a UUID do not need one.
+
+Colour always means "this is a value" — labels and separators stay grey. Values are coloured by kind: blue for the directory, gold for the branch and PR, `146` for session state you did not measure (model, effort), yellow for a non-default mode (`wt`, `fast`), tan for the cost estimate, mauve for the session id — an identifier you copy rather than read. The percentages share one traffic light: green under 50%, yellow under 80%, red at 80% and above, in muted hues rather than full-intensity ones, since the line sits in peripheral vision all day and saturated green/red read as alarms.
 
 Each segment is dropped when its field is absent, so line two disappears entirely on a fresh session.
 
