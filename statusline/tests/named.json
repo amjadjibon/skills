@@ -5,15 +5,15 @@
   "effort": { "level": "medium" },
   "workspace": { "current_dir": "/nowhere/demo-project" },
   "context_window": {
-    "total_input_tokens": 312000,
+    "total_input_tokens": 318000,
     "context_window_size": 1000000,
-    "used_percentage": 31
+    "used_percentage": 32
   },
   "cost": {
-    "total_cost_usd": 52.92,
-    "total_duration_ms": 8100000,
-    "total_api_duration_ms": 3808000,
-    "total_lines_added": 954,
-    "total_lines_removed": 268
+    "total_cost_usd": 54.1,
+    "total_duration_ms": 48660000,
+    "total_api_duration_ms": 14400000,
+    "total_lines_added": 1002,
+    "total_lines_removed": 281
   }
 }

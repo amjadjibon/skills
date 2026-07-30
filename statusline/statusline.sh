@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
-#   [dev-skills] <dir>(<branch>) · #<pr> · wt <wt> · <model> <effort> · ctx <used>/<size> <pct>% · <name|session>
-#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · <duration> · api <pct>% · +<added>/-<removed>
+#   [dev-skills] <dir>(<branch>) · #<pr> · wt <wt> · <model> <effort> · ctx <used>/<size> <pct>% · <name> · <session>
+#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · <duration>(api <duration>) · +<added>/-<removed>
 #
 # Labels only survive where the value alone is ambiguous: ctx and wt keep
 # theirs, a currency symbol and a +n/-n pair do not need one.
@@ -77,24 +77,32 @@ humanize() {
     fi
 }
 
-# 45000 -> 45s, 754000 -> 12m, 7500000 -> 2h5m
+# 45000 -> 45s, 754000 -> 12m, 7500000 -> 2h5m, 14400000 -> 4h
+# A zero trailing component is dropped: 4h, not 4h0m.
 duration() {
-    local s=$((${1%%.*} / 1000))
-    if [ "$s" -ge 3600 ]; then printf '%dh%dm' $((s / 3600)) $((s % 3600 / 60))
+    local s=$((${1%%.*} / 1000)) h m
+    if [ "$s" -ge 3600 ]; then
+        h=$((s / 3600)) m=$((s % 3600 / 60))
+        if [ "$m" -eq 0 ]; then printf '%dh' "$h"; else printf '%dh%dm' "$h" "$m"; fi
     elif [ "$s" -ge 60 ]; then printf '%dm' $((s / 60))
     else printf '%ds' "$s"
     fi
 }
 
-# epoch seconds -> how long until then: 2h5m, 45m, 3d4h. Empty once it's passed.
+# epoch seconds -> how long until then: 2h5m, 45m, 3d4h, 4h. Empty once it's passed.
 # Every branch rounds down, so the countdown only ever decreases; rounding the
 # minutes up while the hours rounded down made it jump backwards across redraws.
 resets_in() {
     [ -n "${1:-}" ] || return 0
     local s=$((${1%%.*} - now))
+    local a b
     if [ "$s" -le 0 ]; then return 0
-    elif [ "$s" -ge 86400 ]; then printf '%dd%dh' $((s / 86400)) $((s % 86400 / 3600))
-    elif [ "$s" -ge 3600 ]; then printf '%dh%dm' $((s / 3600)) $((s % 3600 / 60))
+    elif [ "$s" -ge 86400 ]; then
+        a=$((s / 86400)) b=$((s % 86400 / 3600))
+        if [ "$b" -eq 0 ]; then printf '%dd' "$a"; else printf '%dd%dh' "$a" "$b"; fi
+    elif [ "$s" -ge 3600 ]; then
+        a=$((s / 3600)) b=$((s % 3600 / 60))
+        if [ "$b" -eq 0 ]; then printf '%dh' "$a"; else printf '%dh%dm' "$a" "$b"; fi
     elif [ "$s" -ge 60 ]; then printf '%dm' $((s / 60))
     else printf '<1m'
     fi
@@ -172,11 +180,13 @@ if [ -n "$ctx_size" ]; then
     ctx="$(humanize "$ctx_used")/$(humanize "$ctx_size") ${ctx_pct}%"
     add l1 "$sep_plain" "ctx $ctx" "$(seg "ctx" "$(usage_color "$ctx_pct")" "$ctx")"
 fi
-# Prefer the name — it is what you recognise the session by, and shorter than the
-# id. Falling back to the id keeps the transcript findable when there is no name:
-# it is ~/.claude/projects/<project>/<session_id>.jsonl.
-label=${session_name:-$session}
-[ -n "$label" ] && add l1 "$sep_plain" "$label" "$(printf '\033[38;5;%sm%s\033[0m' "$MAUVE" "$label")"
+# The name is what you recognise the session by; the id is what you look it up
+# with — ~/.claude/projects/<project>/<session_id>.jsonl. Both, name first, so a
+# narrow pane drops the id and keeps the readable half.
+[ -n "$session_name" ] && add l1 "$sep_plain" "$session_name" \
+    "$(printf '\033[38;5;%sm%s\033[0m' "$MAUVE" "$session_name")"
+[ -n "$session" ] && add l1 "$sep_plain" "$session" \
+    "$(printf '\033[38;5;%sm%s\033[0m' "$MAUVE" "$session")"
 
 # Line two is ordered by urgency, not by convention, because add() drops from the
 # right: on a narrow pane you would rather lose what a notional session cost than
@@ -195,14 +205,14 @@ done
 [ -n "$usd" ] && add l2 "$sep_plain" "$(printf '~$%.2f' "$usd")" \
     "$(printf '\033[38;5;%sm~$%.2f\033[0m' "$TAN" "$usd")"
 if [ -n "$usd" ]; then
-    add l2 "$sep_plain" "$(duration "$ms")" \
-        "$(printf '\033[38;5;%sm%s\033[0m' "$TIME" "$(duration "$ms")")"
-    # how much of that elapsed time was inference rather than you reading and typing
-    if [ "${ms%%.*}" -gt 0 ] 2>/dev/null && [ "${api_ms%%.*}" -gt 0 ] 2>/dev/null; then
-        api_pct=$(( ${api_ms%%.*} * 100 / ${ms%%.*} ))
-        [ "$api_pct" -gt 100 ] && api_pct=100
-        add l2 "$sep_plain" "api ${api_pct}%" "$(seg "api" "$TIME" "${api_pct}%")"
-    fi
+    # Elapsed, with the share of it spent waiting on the model hanging off it as
+    # one unit: 2h15m(api 1h3m). Dim, because it qualifies the wall clock rather
+    # than standing beside it. Absent when the API duration is not reported.
+    wall=$(duration "$ms")
+    api=""
+    [ "${api_ms%%.*}" -gt 0 ] 2>/dev/null && api="(api $(duration "$api_ms"))"
+    add l2 "$sep_plain" "$wall$api" \
+        "$(printf '\033[38;5;%sm%s\033[0m' "$TIME" "$wall")${api:+$(printf "${DIM}%s${OFF}" "$api")}"
     add l2 "$sep_plain" "+$added/-$removed" \
         "$(printf "\033[38;5;%sm+%s${OFF}\033[38;5;%sm/-%s${OFF}" "$GREEN" "$added" "$RED" "$removed")"
 fi
