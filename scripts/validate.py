@@ -375,6 +375,18 @@ def main():
 
     # hooks run on every session — a broken path or unparseable file breaks startup silently
     hooks_path = ROOT / "hooks" / "hooks.json"
+    # ./hooks/hooks.json is loaded automatically; naming it in the manifest too makes the
+    # loader reject it as a duplicate, and the hook then never runs — silently, since the
+    # plugin itself still loads. manifest.hooks is only for *additional* hook files.
+    try:
+        declared = json.loads(plugin_path.read_text()).get("hooks")
+    except (OSError, json.JSONDecodeError):
+        declared = None
+    if declared and hooks_path.exists():
+        for ref in [declared] if isinstance(declared, str) else declared:
+            if (ROOT / str(ref).lstrip("./")).resolve() == hooks_path.resolve():
+                err(plugin_path, f"hooks declares `{ref}`, which is the auto-loaded standard path — "
+                                 "the loader rejects it as a duplicate and the hook never runs")
     if hooks_path.exists():
         try:
             hooks = json.loads(hooks_path.read_text())
