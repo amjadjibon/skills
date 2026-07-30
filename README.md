@@ -155,6 +155,8 @@ Claude Code exports the terminal width, and a wrapped status line looks broken, 
 
 The `SessionStart` hook also sets `refreshInterval: 10` on the `statusLine` entry. Updates are otherwise event-driven — prompt submitted, response finished, tool used — so an idle session leaves the reset countdowns and the elapsed time frozen at whatever they were on your last turn. An interval you set yourself is left alone.
 
+`scripts/validate.py` also exercises both installers against sandboxed `CLAUDE_CONFIG_DIR`s — one case per guarantee (foreign `statusLine` untouched, deletion honoured as a permanent opt-out, a `refreshInterval` you chose preserved), plus the fresh install, the migration, and `install.sh --uninstall`.
+
 `statusline/tests/` holds fixture pairs — `<case>.json` in, `<case>.expected` out with the escape codes stripped. `python3 scripts/validate.py` renders each one and diffs it, under `/bin/bash` specifically, because macOS ships bash 3.2 and the bugs that only appear there are the ones that reach users. Because the goldens strip ANSI before diffing, the colour thresholds get their own check either side of 50% and 80% — otherwise swapping two colour constants would leave every fixture passing. `STATUSLINE_NOW` pins the clock so the reset countdowns are reproducible, and an optional `# COLUMNS=<n>` header line on the expected file sets the terminal width for that case.
 
 The status line re-renders constantly, so it keeps to three subprocesses: one `jq` for every payload field at once, one `git` for the branch, one `date` for the reset countdowns. Formatting is bash arithmetic. The `jq` output is joined on `\x1f` rather than `@tsv`, because tab is IFS whitespace and bash would collapse the empty columns and shift every field left.

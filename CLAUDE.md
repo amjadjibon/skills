@@ -32,8 +32,9 @@ Plugin `settings.json` only supports the `agent` and `subagentStatusLine` keys, 
 cannot declare the user's main `statusLine` — the SessionStart hook writes it into their
 settings instead. That makes it the one component that mutates user state, so it is
 deliberately conservative: it never overwrites a foreign `statusLine`, and if the user deletes
-the one it installed it writes `.dev-skills.statusline-optout` and stays gone. Keep those two
-guarantees intact when changing `statusline/auto-install.sh`.
+the one it installed it writes `.dev-skills.statusline-optout` and stays gone. Keep those
+guarantees intact when changing `statusline/auto-install.sh` — `scripts/validate.py` exercises
+both installers against sandboxed `CLAUDE_CONFIG_DIR`s and asserts each one.
 
 Each skill lives in its own directory under `skills/dev/`. The directory name is the skill's identifier used to invoke it. Because skills are nested one level deeper than the plugin-loader default, `.claude-plugin/plugin.json` lists each skill path explicitly in its `skills` array — keep that array in sync when adding, removing, or renaming a skill directory.
 

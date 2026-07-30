@@ -171,6 +171,125 @@ def check_statusline():
         err(script, f"empty input: exited {out.returncode} with {out.stdout!r}")
 
 
+def check_installer():
+    """Exercise auto-install.sh / install.sh against sandboxed CLAUDE_CONFIG_DIRs.
+
+    This is the only component that writes to the user's settings.json, and
+    CLAUDE.md promises three things about it: it never overwrites a foreign
+    statusLine, it treats deletion of its own as a permanent opt-out, and it
+    never replaces a refreshInterval the user chose. Each is a case below.
+    """
+    auto = ROOT / "statusline" / "auto-install.sh"
+    manual = ROOT / "statusline" / "install.sh"
+    if not auto.exists():
+        return
+
+    def run(script, cfg, *args):
+        return subprocess.run(
+            ["/bin/bash", str(script), *args],
+            env={**os.environ, "CLAUDE_CONFIG_DIR": str(cfg)},
+            capture_output=True, timeout=30,
+        )
+
+    def settings(cfg):
+        path = cfg / "settings.json"
+        return json.loads(path.read_text()) if path.exists() else {}
+
+    def seed(cfg, sl=None, *, installed=False, optout=False, extra=None):
+        cfg.mkdir(parents=True, exist_ok=True)
+        doc = dict(extra or {})
+        if sl is not None:
+            doc["statusLine"] = sl
+        (cfg / "settings.json").write_text(json.dumps(doc))
+        if installed:
+            (cfg / ".dev-skills.statusline-installed").touch()
+        if optout:
+            (cfg / ".dev-skills.statusline-optout").touch()
+
+    def ours(cfg):
+        return {"type": "command", "command": f'bash "{cfg}/dev-skills.statusline.sh"'}
+
+    with tempfile.TemporaryDirectory() as tmp:
+        base = Path(tmp)
+
+        # 1. fresh install: wires up the statusLine, sets the interval, marks itself
+        cfg = base / "fresh"
+        run(auto, cfg)
+        sl = settings(cfg).get("statusLine", {})
+        if str(cfg) not in sl.get("command", ""):
+            err(auto, f"fresh install did not set statusLine: {sl}")
+        if sl.get("refreshInterval") != 10:
+            err(auto, f"fresh install should set refreshInterval 10, got {sl.get('refreshInterval')!r}")
+        if not (cfg / "dev-skills.statusline.sh").exists():
+            err(auto, "fresh install did not copy the script")
+        if not (cfg / ".dev-skills.statusline-installed").exists():
+            err(auto, "fresh install did not write the installed marker")
+
+        # 2. GUARANTEE: a foreign statusLine is never touched
+        cfg = base / "foreign"
+        foreign = {"type": "command", "command": "my-own-statusline"}
+        seed(cfg, foreign)
+        run(auto, cfg)
+        if settings(cfg).get("statusLine") != foreign:
+            err(auto, f"overwrote a foreign statusLine: {settings(cfg).get('statusLine')}")
+        if (cfg / "dev-skills.statusline.sh").exists():
+            err(auto, "installed its script despite a foreign statusLine")
+
+        # 3. GUARANTEE: an interval the user chose is preserved (migration adds, never replaces)
+        cfg = base / "user-interval"
+        seed(cfg, {**ours(cfg), "refreshInterval": 30}, installed=True)
+        run(auto, cfg)
+        if settings(cfg)["statusLine"].get("refreshInterval") != 30:
+            err(auto, "replaced a refreshInterval the user chose")
+
+        # 4. migration: our install predating refreshInterval gains it, keeping other keys
+        cfg = base / "migrate"
+        seed(cfg, ours(cfg), installed=True, extra={"model": "opus", "theme": "dark"})
+        run(auto, cfg)
+        after = settings(cfg)
+        if after["statusLine"].get("refreshInterval") != 10:
+            err(auto, "did not add refreshInterval to an existing install")
+        if after.get("model") != "opus" or after.get("theme") != "dark":
+            err(auto, f"clobbered unrelated settings keys: {sorted(after)}")
+
+        # 5. GUARANTEE: deleting our statusLine is a permanent opt-out, not a prompt to reinstall
+        cfg = base / "deleted"
+        seed(cfg, None, installed=True)
+        (cfg / "dev-skills.statusline.sh").touch()
+        run(auto, cfg)
+        if "statusLine" in settings(cfg):
+            err(auto, "reinstated a statusLine the user had deleted")
+        if not (cfg / ".dev-skills.statusline-optout").exists():
+            err(auto, "deletion did not write the opt-out marker")
+        run(auto, cfg)  # and it stays gone on every later session
+        if "statusLine" in settings(cfg):
+            err(auto, "reinstalled on a second run after opting out")
+
+        # 6. a pre-existing opt-out is honoured with nothing written at all
+        cfg = base / "optout"
+        seed(cfg, None, optout=True)
+        run(auto, cfg)
+        if "statusLine" in settings(cfg) or (cfg / "dev-skills.statusline.sh").exists():
+            err(auto, "ignored a pre-existing opt-out marker")
+
+        # 7. install.sh --uninstall removes the entry and opts out so the hook won't undo it
+        if manual.exists():
+            cfg = base / "manual"
+            run(manual, cfg)
+            if str(cfg) not in settings(cfg).get("statusLine", {}).get("command", ""):
+                err(manual, "install.sh did not install")
+            if settings(cfg)["statusLine"].get("refreshInterval") != 10:
+                err(manual, "install.sh did not set refreshInterval")
+            run(manual, cfg, "--uninstall")
+            if "statusLine" in settings(cfg):
+                err(manual, "--uninstall left the statusLine in place")
+            if not (cfg / ".dev-skills.statusline-optout").exists():
+                err(manual, "--uninstall did not opt out, so the hook would undo it")
+            run(auto, cfg)
+            if "statusLine" in settings(cfg):
+                err(auto, "reinstalled after install.sh --uninstall")
+
+
 def main():
     skill_dirs = sorted(d.name for d in SKILLS.iterdir() if d.is_dir())
     misc_dirs = sorted(d.name for d in MISC_SKILLS.iterdir() if d.is_dir()) if MISC_SKILLS.is_dir() else []
@@ -255,6 +374,7 @@ def main():
             err(hooks_path, f"hooks problem: {e}")
 
     check_statusline()
+    check_installer()
 
     if errors:
         print("\n".join(errors))
