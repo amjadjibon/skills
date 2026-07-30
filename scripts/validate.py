@@ -297,6 +297,7 @@ def main():
     agent_files = sorted(AGENTS.glob("*.md")) if AGENTS.is_dir() else []
     agent_names = {p.stem for p in agent_files}
     command_files = sorted(COMMANDS.glob("*.md")) if COMMANDS.is_dir() else []
+    command_names = {p.stem for p in command_files}
     skill_files = [SKILLS / d / "SKILL.md" for d in skill_dirs] + [MISC_SKILLS / d / "SKILL.md" for d in misc_dirs]
     # multi-file skills (e.g. prototype's LOGIC.md/UI.md) get their fences and refs checked too
     companions = sorted(p for f in skill_files for p in f.parent.glob("*.md") if p.name != "SKILL.md")
@@ -318,10 +319,10 @@ def main():
             if "git commit -m" in text and HYGIENE_LINE not in text:
                 err(path, "commits but missing the canonical commit-hygiene line")
 
-        # every dev-* reference must be a real skill or agent
-        for ref in set(re.findall(r"\bdev-[a-z][a-z-]*[a-z]\b", text)) - NOT_SKILLS - agent_names:
+        # every dev-* reference must be a real skill, agent, or command
+        for ref in set(re.findall(r"\bdev-[a-z][a-z-]*[a-z]\b", text)) - NOT_SKILLS - agent_names - command_names:
             if ref not in skill_dirs:
-                err(path, f"references `{ref}` but skills/dev/{ref}/ and .agents/{ref}.md do not exist")
+                err(path, f"references `{ref}` but skills/dev/{ref}/, .agents/{ref}.md, and commands/{ref}.md do not exist")
 
     # README.md is the human-facing list and must cover every skill; CLAUDE.md deliberately
     # does not repeat them (the descriptions are already in the always-loaded skill listing).

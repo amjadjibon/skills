@@ -3,7 +3,7 @@ description: Run the autonomous dev-loop orchestrator — plan → review plan �
 argument-hint: "<feature description> [lite|full|ultra]"
 ---
 
-# Loop
+# Dev Skills Loop
 
 Invoke the `dev-loop` skill with this exact input and follow it end to end:
 
