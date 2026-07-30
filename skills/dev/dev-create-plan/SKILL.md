@@ -1,6 +1,6 @@
 ---
 name: dev-create-plan
-description: Write docs/<feature-name>/PLAN.md with phased, checkbox-driven steps for a feature, refactor, upgrade, or infrastructure change. Trigger on "create/make a plan", "plan this feature/refactor/upgrade", any request to document steps or a task checklist before coding — and proactively whenever implementation complexity warrants a written plan first.
+description: Write docs/<feature-name>/PLAN.md with phased, checkbox-driven steps for a feature, refactor, upgrade, or infrastructure change. Trigger on "create/make a plan", "plan this feature/refactor/upgrade", any request to document steps before coding, and proactively when complexity warrants a written plan.
 argument-hint: "[lite|full|ultra]"
 ---
 

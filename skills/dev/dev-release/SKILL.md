@@ -1,6 +1,6 @@
 ---
 name: dev-release
-description: Cut a release — derive the version bump from conventional commits since the last tag, generate a changelog, bump version files, tag, and publish a GitHub release. Use when the user says "release", "cut a release", "ship it", "tag a version", "bump the version", "publish a release", "generate a changelog", or after merged PRs need to go out.
+description: Cut a release — derive the version bump from conventional commits since the last tag, generate a changelog, bump version files, tag, publish a GitHub release. Use on "release", "cut a release", "ship it", "tag a version", "bump the version", "publish a release", "generate a changelog".
 argument-hint: "[lite|full|ultra]"
 ---
 
@@ -86,7 +86,7 @@ git push origin vX.Y.Z
 gh release create vX.Y.Z --title "vX.Y.Z" --notes "<changelog section>"   # lite: --generate-notes is fine
 ```
 
-Per §2: skip `gh release create` when a tag-triggered workflow publishes the release; skip tagging entirely when a release-manager tool owns it. After publishing, if any workflow fired: `gh run watch` — a release whose pipeline failed isn't released.
+Per §2: skip `gh release create` when a tag-triggered workflow publishes the release; skip tagging entirely when a release-manager tool owns it. After publishing, if any workflow fired: `gh run watch` — a release whose pipeline failed isn't released. No release automation exists and the project should have some? That's `github-actions`' job, in its own PR — not something to bolt on mid-release.
 
 `ultra`: tag `vX.Y.Z-rc.1` and `gh release create --prerelease` instead; on user confirmation ("promote"), repeat with the final tag and mark the release latest.
 

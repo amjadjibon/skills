@@ -1,6 +1,6 @@
 ---
 name: prototype
-description: Build a throwaway prototype, in the real codebase, to answer a design question before writing production code. Use when the user wants to sanity-check whether a state model or piece of logic feels right ("does this state machine handle X then Y", "let me feel out this data shape"), or wants to see what a UI could look like before committing ("try a few layouts for this page", "what should this screen look like"). Trigger on "prototype this", "spike this", "quick prototype", "throwaway version", or "let me try a few variants first". Distinct from dev-ui-design (a single standalone HTML mockup written to docs/) and dev-research (verifying a technical approach) — this skill answers one design question with real, runnable, disposable code sitting next to where it'll actually be used, then captures the answer and discards the rest.
+description: Build a throwaway prototype in the real codebase to answer one design question before production code — does this state model hold up, what should this screen look like. Trigger on "prototype this", "spike this", "quick prototype", "throwaway version", "let me try a few variants first". Not `dev-ui-design` (a standalone HTML mockup) or `dev-research` (verifying an approach).
 ---
 
 # Prototype

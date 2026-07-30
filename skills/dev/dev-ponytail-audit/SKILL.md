@@ -1,11 +1,6 @@
 ---
 name: dev-ponytail-audit
-description: >
-  `dev-ponytail-review` repo-wide — scan the whole tree instead of a diff for a
-  ranked list of what to delete, simplify, or replace with a stdlib/native
-  equivalent. Use when the user says "audit this codebase", "audit for
-  over-engineering", "what can I delete from this repo", "find the bloat", "where
-  is this over-built", or names this skill. Reports; applies nothing.
+description: Repo-wide over-engineering scan — the whole tree instead of a diff, ranked by what to delete, simplify, or replace with a stdlib/native equivalent. Use on "audit this codebase", "audit for over-engineering", "what can I delete from this repo", "find the bloat", "where is this over-built". Reports; applies nothing.
 ---
 
 `dev-ponytail-review`, repo-wide. Same tags, same one-line format, ranked biggest

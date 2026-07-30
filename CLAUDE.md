@@ -42,6 +42,15 @@ both installers against sandboxed `CLAUDE_CONFIG_DIR`s and asserts each one.
 
 Each skill lives in its own directory under `skills/dev/`. The directory name is the skill's identifier used to invoke it. Because skills are nested one level deeper than the plugin-loader default, `.claude-plugin/plugin.json` lists each skill path explicitly in its `skills` array — keep that array in sync when adding, removing, or renaming a skill directory.
 
+Two costs to keep separate when editing a skill. The **`description` is always loaded** — all 29 of
+them sit in every session's context whether or not a skill is invoked, so it holds trigger phrases
+and nothing else; prose explaining what to do once invoked belongs in the body, where it is free
+until someone actually runs the skill. The **body loads only on invoke**, so repeated boilerplate
+across skills (the mode-parsing line, the git-safe pointer) costs nothing worth optimising. When one
+body grows past ~10KB, split the parts needed at one specific step into sibling `.md` files the
+skill links and reads on demand — `dev-loop`'s `LOOP-TEMPLATE.md` and `WORKTREES.md`, `prototype`'s
+`LOGIC.md` and `UI.md`. `scripts/validate.py` checks those companions' fences and references too.
+
 `.agents/` holds sub-agent definitions (same frontmatter shape: `name` matching the filename, `description`; optional `tools`). Since it isn't the plugin-loader default (`./agents`), `.claude-plugin/plugin.json` points at it explicitly via the `agents` field — an array of individual `.md` file paths, unlike `skills`, which takes directories. A bare directory path there fails manifest validation and the whole plugin refuses to load, so add the file when you add an agent; `scripts/validate.py` checks both directions. The skills reference them by name when spawning parallel workers: `dev-researcher` (scoped research questions), `dev-implementer` (one PLAN.md phase in a worktree), `dev-fixer` (a group of REVIEW.md findings in a worktree), `dev-tester` (one module's coverage gaps in a worktree). Skills must still work without them — every spawn instruction says "when available, else general-purpose".
 
 ## SKILL.md Format

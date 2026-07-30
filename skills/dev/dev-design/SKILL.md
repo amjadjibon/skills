@@ -1,6 +1,6 @@
 ---
 name: dev-design
-description: Decide a feature's shape before planning — system design, data model, API contract, UI/UX, whichever axes apply — and write docs/<feature-name>/DESIGN.md with the decisions and tradeoffs a plan builds on. Trigger on "design this feature/API/schema/UI", "how should we structure this", or between dev-research and dev-create-plan when shape needs deciding before a PLAN.md exists.
+description: Decide a feature's shape before planning — system design, data model, API contract, UI/UX, whichever apply — and write docs/<feature-name>/DESIGN.md. Trigger on "design this feature/API/schema/UI", "how should we structure this", or between dev-research and dev-create-plan.
 argument-hint: "[lite|full|ultra]"
 ---
 
@@ -31,7 +31,7 @@ Read the 3–5 files closest to where this feature will live — existing servic
 
 Not every feature touches all three. Skip an axis entirely rather than padding it — an empty "UI/UX" section on a backend-only feature is noise.
 
-**System design** — new feature touches multiple services/modules, introduces a new boundary, or changes how existing pieces talk to each other. Decide: what owns this responsibility, what calls what, sync or async, where state lives. Draw the shape as a short list of components and their relationships, not prose.
+**System design** — new feature touches multiple services/modules, introduces a new boundary, or changes how existing pieces talk to each other. Decide: what owns this responsibility, what calls what, sync or async, where state lives. Draw the shape as a short list of components and their relationships, not prose — when the relationships are hard to follow as a list, use `mermaid-diagram` and embed the diagram in DESIGN.md.
 
 **Data model** — feature adds or changes persisted state. Decide: fields, types, nullability, indexes, relationships to existing tables/structs. Call out migrations and backward compatibility explicitly — a field rename is a bigger decision than it looks.
 

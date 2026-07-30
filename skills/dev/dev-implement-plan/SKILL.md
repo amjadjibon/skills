@@ -1,6 +1,6 @@
 ---
 name: dev-implement-plan
-description: Execute an implementation plan from docs/<feature-name>/PLAN.md created by dev-create-plan — tick checkboxes, commit each phase. Trigger on "implement/execute/continue/resume the plan", "start phase 1", "go" right after a plan was created, or whenever there is a PLAN.md to build, even if the user never says "plan".
+description: Execute an implementation plan from docs/<feature-name>/PLAN.md — tick checkboxes, commit each phase. Trigger on "implement/execute/continue/resume the plan", "start phase 1", "go" right after a plan was created, or whenever there is a PLAN.md to build, even if the user never says "plan".
 argument-hint: "[lite|full|ultra]"
 ---
 

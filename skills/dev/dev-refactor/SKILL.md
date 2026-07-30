@@ -1,6 +1,6 @@
 ---
 name: dev-refactor
-description: Refactor existing code without changing behavior — extract functions, reduce duplication, simplify logic, improve naming. Establishes a test baseline before touching anything and verifies equivalence after each change. Use when the user says "refactor this", "clean up", "simplify", "extract", "reduce duplication", "improve naming", or points at code and asks for structural improvement without new features.
+description: Refactor existing code without changing behavior — extract functions, reduce duplication, simplify logic, improve naming, against a test baseline taken before and verified after. Use on "refactor this", "clean up", "simplify", "extract", "reduce duplication", "improve naming", or a request for structural improvement without new features.
 argument-hint: "[lite|full|ultra]"
 ---
 

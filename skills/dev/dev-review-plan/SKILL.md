@@ -1,6 +1,6 @@
 ---
 name: dev-review-plan
-description: Review a PLAN.md before implementation — check for vague tasks, missing completion criteria, risky assumptions, incorrect phase ordering, and scope issues. Write findings to docs/<feature-name>/PLAN-REVIEW.md with a verdict. Use when the user says "review the plan", "check the plan", "is this plan ready", "validate the plan", or before running implement-plan on a new plan.
+description: Review a PLAN.md before implementation — vague tasks, missing completion criteria, risky assumptions, wrong phase ordering, scope issues — to docs/<feature-name>/PLAN-REVIEW.md with a verdict. Use on "review the plan", "check the plan", "is this plan ready", "validate the plan".
 argument-hint: "[lite|full|ultra]"
 ---
 

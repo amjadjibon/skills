@@ -1,6 +1,6 @@
 ---
 name: dev-qa
-description: Quality assurance for a feature or codebase — analyse test coverage, identify untested paths, write missing tests (unit, integration, e2e), and produce a QA report. Use when the user says "QA this", "write tests", "improve test coverage", "add tests for", "test this feature", "what's not tested", or wants a quality gate before release.
+description: Analyse test coverage, identify untested paths, write the missing tests (unit, integration, e2e), and produce a QA report. Use on "QA this", "write tests", "improve test coverage", "add tests for", "test this feature", "what's not tested", or a quality gate before release.
 argument-hint: "[lite|full|ultra]"
 ---
 

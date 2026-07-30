@@ -1,6 +1,6 @@
 ---
 name: dev-code-review
-description: Review a diff, branch, or PR for correctness bugs, security issues, and simplification opportunities; write findings to docs/<feature-name>/REVIEW.md. Trigger on "review this", "code review", "security review", "audit this", or when something was just implemented and needs a quality check before merging.
+description: Review a diff, branch, or PR for correctness bugs, security issues, and simplification opportunities; findings to docs/<feature-name>/REVIEW.md. Trigger on "review this", "code review", "security review", "audit this", or after something is implemented and needs checking before merge.
 argument-hint: "[lite|full|ultra]"
 ---
 
@@ -50,7 +50,7 @@ Only report real issues; apply language-appropriate standards.
 
 **Performance & DB** — N+1 queries; missing indexes on `WHERE`/`JOIN`/`ORDER BY`; full table scans (`LIKE '%foo'`); `SELECT *`; unbounded results without pagination; multi-step writes without a transaction; eager loading unused relations.
 
-**Simplicity & reuse** — duplicates existing utilities; single-use abstractions; functions doing more than one thing; dead code, unused imports; missing doc comments on non-obvious functions only.
+**Simplicity & reuse** — duplicates existing utilities; single-use abstractions; functions doing more than one thing; dead code, unused imports; missing doc comments on non-obvious functions only. In `full`/`ultra`, or when the diff reads as over-built, run `dev-ponytail-review` over the same diff and fold its findings in here rather than re-deriving them.
 
 **Test quality** (only when tests exist in the diff; missing tests → Low) — tests that can't fail (asserting constants, mocking the thing under test); happy-path-only; brittle assertions (error strings, timestamps, generated IDs); testing implementation not behaviour; no boundary cases (zero/empty/null/max); order- or state-dependent tests; new code paths with no coverage.
 

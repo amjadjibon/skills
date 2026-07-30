@@ -1,12 +1,6 @@
 ---
 name: dev-ponytail-debt
-description: >
-  Harvest every `TODO: [owner]` / `FIXME: [owner]` marker into one ledger with
-  ceiling, trigger, owner, and age, flagging the ones that name no trigger — so
-  the shortcuts `dev-ponytail` defers don't rot into "later means never". Use when
-  the user says "ponytail debt", "yagni debt", "what did we defer", "list the
-  shortcuts", "collect the TODOs", "TODO ledger", or names this skill. Reports;
-  changes no code.
+description: Harvest every `TODO`/`FIXME` marker into one ledger with ceiling, trigger, owner, and age, flagging the ones that name no trigger. Use on "ponytail debt", "yagni debt", "what did we defer", "list the shortcuts", "collect the TODOs", "TODO ledger". Reports; changes no code.
 ---
 
 Every deliberate `dev-ponytail` shortcut leaves an owner-tagged comment naming

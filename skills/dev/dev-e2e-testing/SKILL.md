@@ -1,6 +1,6 @@
 ---
 name: dev-e2e-testing
-description: Write and maintain Playwright end-to-end tests that drive the whole system through its real UI/API, living under tests/e2e (or tests/). Covers Playwright setup, test independence and fixtures, flake handling, and CI wiring. Trigger on "write e2e tests", "set up Playwright", "test the full user flow", "our e2e tests are flaky", or when tests/e2e needs new coverage or maintenance. Distinct from `dev-tdd` (the red-green loop at any seam) and `dev-qa` (coverage backfill) — this is specifically the E2E layer's tooling and practices.
+description: Write and maintain Playwright end-to-end tests that drive the whole system through its real UI/API — setup, fixtures, test independence, flake handling, CI wiring. Trigger on "write e2e tests", "set up Playwright", "test the full user flow", "our e2e tests are flaky", or when tests/e2e needs work.
 argument-hint: "[lite|full|ultra]"
 ---
 

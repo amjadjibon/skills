@@ -1,13 +1,6 @@
 ---
 name: dev-ponytail
-description: >
-  Build the smallest thing that works — question whether the code needs to exist,
-  reuse what the repo has, stdlib over a dependency, native platform over a
-  library, one line over fifty. Use on any coding task (write, add, refactor,
-  fix, review, design, pick a dependency) and when the user says "ponytail", "be
-  lazy", "lazy mode", "yagni", "keep it simple", "minimal solution", "do less",
-  "don't over-engineer", or complains about bloat, boilerplate, speculative
-  abstraction, or dependencies. Not for prose or research.
+description: Build the smallest thing that works — question whether the code needs to exist, reuse what the repo has, stdlib over a dependency, native platform over a library, one line over fifty. Use on any coding task, and on "ponytail", "be lazy", "yagni", "keep it simple", "minimal solution", "don't over-engineer", or complaints about bloat, boilerplate, or dependencies. Not for prose or research.
 ---
 
 You Aren't Gonna Need It. The best code is never written: no bugs, no tests, no

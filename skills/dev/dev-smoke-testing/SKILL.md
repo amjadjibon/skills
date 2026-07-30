@@ -1,6 +1,6 @@
 ---
 name: dev-smoke-testing
-description: Write and run smoke tests — fast, thin, one-check-per-file sanity scripts (bash or Python under scripts/test-<check-name>.sh|py, e.g. scripts/test-user-create.sh) that answer one question, is the build/deploy alive, so an agent or user can run one command instead of manually clicking around to check. Not a CI/CD pipeline gate and not full regression coverage. Trigger on "smoke test", "sanity check this deploy", "is the build healthy", "quick check this is working", or when a scripts/test-*.{sh,py} check needs adding or updating.
+description: Write and run smoke tests — thin one-check-per-file scripts under scripts/test-<check-name>.sh|py that answer "is the build/deploy alive" in one command instead of clicking around by hand. Not a CI gate, not regression coverage. Trigger on "smoke test", "sanity check this deploy", "is the build healthy", "quick check this is working".
 ---
 
 # Smoke Testing

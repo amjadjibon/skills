@@ -1,6 +1,6 @@
 ---
 name: dev-ui-design
-description: Build a clickable UI prototype as one self-contained HTML file (inline CSS, no build step, no framework) to demo a screen or flow before real frontend code. Writes docs/<feature-name>/prototype.html — opens directly in a browser. Trigger on "prototype this UI", "mock up this screen", "show me what this would look like", or wanting to click through a layout first.
+description: Build a clickable UI prototype as one self-contained HTML file (inline CSS, no build step, no framework) at docs/<feature-name>/prototype.html, opened straight in a browser. Trigger on "prototype this UI", "mock up this screen", "show me what this would look like", or wanting to click through a layout first.
 argument-hint: "[lite|full|ultra]"
 ---
 

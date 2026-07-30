@@ -1,6 +1,6 @@
 ---
 name: dev-research
-description: Mostly runs as a scoped sub-agent (§6) — spawned by dev-create-plan/dev-implement-plan/dev-loop to answer one third-party API/library/doc question mid-task without the user invoking it directly. Also standalone: research a codebase/approach/technology before planning, verify with spikes and web/doc lookups, write docs/<feature-name>/RESEARCH.md. Trigger standalone on "research/investigate/spike this", "explore options", "which library should we use".
+description: Answer one scoped question before code is written — a third-party API contract, a library capability, a doc lookup, or which approach to take — verified with spikes and web/doc lookups, written to docs/<feature-name>/RESEARCH.md. Trigger on "research/investigate/spike this", "explore options", "which library should we use".
 argument-hint: "[lite|full|ultra]"
 ---
 
@@ -18,7 +18,7 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 ## 1. Frame the Question
 
-Turn the request into 1–3 answerable questions ("should we cache session lookups in-process or in Redis, given multi-instance deployment?" — not "research caching"). Named feature → kebab-case `<feature-name>`. Genuinely ambiguous → ask one focused question; in autonomous mode, state the interpretation as an assumption and proceed.
+Turn the request into 1–3 answerable questions ("should we cache session lookups in-process or in Redis, given multi-instance deployment?" — not "research caching"). Named feature → kebab-case `<feature-name>`. Genuinely ambiguous → ask one focused question; in autonomous mode, state the interpretation as an assumption and proceed. If the request has no answerable question in it yet — an open idea, not a decision — `brainstorming` comes first; research verifies a candidate, it doesn't generate the candidates.
 
 ## 2. Read the Codebase First
 

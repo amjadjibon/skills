@@ -1,6 +1,6 @@
 ---
 name: dev-debug
-description: Systematically debug a failing test, error, or unexpected behavior — reproduce, isolate root cause, fix minimally, verify. Use when the user says "debug", "fix this bug", "it's broken", "this is failing", "why is this happening", or shares an error message, stack trace, or failing test output.
+description: Systematically debug a failing test, error, or unexpected behavior — reproduce, isolate root cause, fix minimally, verify. Use on "debug", "fix this bug", "it's broken", "this is failing", "why is this happening", or a shared error message, stack trace, or failing test output.
 argument-hint: "[lite|full|ultra]"
 ---
 

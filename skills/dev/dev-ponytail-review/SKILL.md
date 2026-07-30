@@ -1,12 +1,6 @@
 ---
 name: dev-ponytail-review
-description: >
-  Review a diff or branch for over-engineering only — reinvented stdlib,
-  dependencies the platform covers, one-implementation abstractions, dead
-  flexibility, code that shrinks. One line per finding: location, what to cut,
-  what replaces it. Use when the user says "review for over-engineering", "is
-  this over-engineered", "what can we delete", "simplify review", or names this
-  skill. Correctness, security, and performance stay with `dev-code-review`.
+description: Review a diff or branch for over-engineering only — reinvented stdlib, dependencies the platform covers, one-implementation abstractions, dead flexibility, code that shrinks. Use on "review for over-engineering", "is this over-engineered", "what can we delete", "simplify review". Correctness, security, and performance stay with `dev-code-review`.
 ---
 
 Review the diff for unnecessary complexity, nothing else. Its best outcome is

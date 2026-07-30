@@ -224,6 +224,8 @@ dev-loop
                                                                                        └──── fix agents ─────────────────┘ (parallel, per-finding)
 ```
 
+Full map — every skill, overlay, agent, and artifact edge: [docs/SKILL-MAP.md](docs/SKILL-MAP.md).
+
 Output artifacts land in `docs/<feature>/`: `RESEARCH.md` (`dev-research`, optional pre-plan), `DESIGN.md` (`dev-design`, optional pre-plan), `prototype.html` (`dev-ui-design`, optional pre-plan), `PLAN.md` (created by `dev-create-plan`, updated by `dev-implement-plan`), `PLAN-REVIEW.md` (`dev-review-plan`), `QA.md` (`dev-qa`), `REVIEW.md` (written each pass by `dev-code-review`), and `LOOP.md` (dev-loop state). `AUDIT.md` (`dev-ponytail-audit`) and `DEBT.md` (`dev-ponytail-debt`) land there too, under the audited scope's name — `docs/repo/` for a whole-tree pass.
 
 ## Adding a Skill

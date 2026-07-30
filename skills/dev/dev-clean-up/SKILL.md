@@ -1,6 +1,6 @@
 ---
 name: dev-clean-up
-description: Housekeeping — remove merged local and remote branches, prune stale remote tracking refs, close resolved GitHub issues, clean up leftover worktrees. Use when the user says "clean up", "cleanup", "prune branches", "remove merged branches", "close issues", "tidy up", "housekeeping", or "delete old branches".
+description: Housekeeping — delete merged local and remote branches, prune stale tracking refs, close resolved GitHub issues, remove leftover worktrees. Use on "clean up", "prune branches", "remove merged branches", "close issues", "tidy up", "housekeeping".
 argument-hint: "[lite|full|ultra]"
 ---
 
@@ -52,5 +52,7 @@ For each worktree no longer needed (merged/abandoned): `git worktree remove <pat
 `gh issue close <number> --comment "Resolved — closing."` — only when resolution is clear: linked PR merged, labelled `resolved`/`wontfix`, or user says so. Never speculatively.
 
 ## 7. Report
+
+Deferred work is the other kind of debris: if the tree carries `TODO:`/`FIXME:` markers, `dev-ponytail-debt` collects them into a ledger — this skill deletes branches, that one surfaces the shortcuts they left behind.
 
 Local branches deleted · remote branches deleted · refs pruned · worktrees removed · issues closed (each: list or "none").
