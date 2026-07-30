@@ -1,6 +1,6 @@
 # skills
 
-A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 28 skills, 4 sub-agents, and the `/loop` orchestrator command.
+A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 29 skills, 4 sub-agents, and the `/loop` orchestrator command.
 
 > [!CAUTION]
 > **Read every skill before you install it. Nothing here is guaranteed.**
@@ -79,13 +79,14 @@ If a skill doesn't show up after install, run `/reload-plugins` (or restart the 
 | [dev-ponytail-review](skills/dev/dev-ponytail-review/SKILL.md) | Review a diff for over-engineering only — one line per finding tagged `delete:`/`stdlib:`/`native:`/`yagni:`/`shrink:`, ending in `net: -<N> lines possible`. Correctness and security stay with `dev-code-review`. |
 | [dev-ponytail-audit](skills/dev/dev-ponytail-audit/SKILL.md) | The same pass repo-wide — dependencies and single-implementation abstractions first, callers verified before anything is called dead, ranked into `docs/<feature-name>/AUDIT.md`. Reports; applies nothing. |
 | [dev-ponytail-debt](skills/dev/dev-ponytail-debt/SKILL.md) | Harvest every `TODO: [owner]` / `FIXME: [owner]` marker into one ledger with ceiling, trigger, owner, and age — flagging the ones that name no trigger, since those are what rot. Writes `docs/<feature-name>/DEBT.md`. |
+| [dev-caveman](skills/dev/dev-caveman/SKILL.md) | Session-long terseness overlay — drop articles, filler, pleasantries, hedging, and tool-call narration while keeping every technical fact, symbol, and error string verbatim. `dev-ponytail` shrinks the code; this shrinks the prose. |
 | [brainstorming](skills/misc/brainstorming/SKILL.md) | Continuous interactive ideation partner — spreads ideas across safe/middle/bold, defaults to critical engagement over agreement, no hand-off or convergence point. |
 | [git-safe](skills/misc/git-safe/SKILL.md) | Pre-flight gate for destructive git commands (force push, reset --hard, clean -f, branch -D, rebase/amend on pushed branches) and the canonical commit hygiene/message conventions the other skills reference. |
 | [openapi-spec](skills/misc/openapi-spec/SKILL.md) | Write and validate OpenAPI 3.1 spec documents — `$ref`-based reusable components, Spectral/Redocly lint rules. No code generation; assumes `dev-api-design` already decided the shape. |
 | [mermaid-diagram](skills/misc/mermaid-diagram/SKILL.md) | Generate Mermaid diagrams (flowchart, sequence, architecture, deployment, class, state, ER) from a description or source code, with high-contrast styling and `mmdc` validation before handoff. |
 | [github-actions](skills/misc/github-actions/SKILL.md) | Create and review GitHub Actions workflows — CI, release/publish, reusable workflows, composite actions, matrix builds, caching, and security hardening. Validates with `actionlint`. |
 | [prototype](skills/misc/prototype/SKILL.md) | Build a throwaway prototype in the real codebase to answer one design question — a driveable TUI for a state/logic question, or several structurally different UI variants on a real route switchable via `?variant=`. Adapted from [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/prototype). |
-The four `dev-ponytail*` skills are inspired by the [`ponytail` skill](https://github.com/DietrichGebert/ponytail) by Dietrich Gebert.
+The four `dev-ponytail*` skills are inspired by the [`ponytail` skill](https://github.com/DietrichGebert/ponytail) by Dietrich Gebert, and `dev-caveman` by the [`caveman` skill](https://github.com/JuliusBrussee/caveman) by Julius Brussee.
 
 
 ## Agents
