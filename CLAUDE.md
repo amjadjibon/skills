@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This repository is the `dev-skills` Claude Code plugin: 29 skills, 4 sub-agents, and the `/dev-skills-loop` command, distributed via the repo's own marketplace (`.claude-plugin/marketplace.json`). Skills are behavior overlays invoked via the Skill tool; agents are the parallel workers the skills spawn.
+This repository is the `dev-skills` Claude Code plugin: 30 skills, 4 sub-agents, and the `/dev-skills-loop` command, distributed via the repo's own marketplace (`.claude-plugin/marketplace.json`). Skills are behavior overlays invoked via the Skill tool; agents are the parallel workers the skills spawn.
 
 ## Structure
 
@@ -109,6 +109,8 @@ README.md carries the human-facing list.
 Skills are designed to compose:
 
 ```text
+dev-wayfinder (optional — only when the task is too undecided to phase)
+  ↓
 dev-loop
   └─ dev-research  →  dev-design   →  dev-create-plan  →  dev-review-plan  →  dev-implement-plan  →  dev-qa  →  dev-code-review
      (optional)         (optional)                                                    ↑                                 │
@@ -124,6 +126,7 @@ Artifacts produced during a dev-loop session accumulate under `docs/`. Each feat
 ```text
 docs/
   <feature-name>/
+    MAP.md         # created by dev-wayfinder (optional, pre-everything)
     RESEARCH.md    # created by dev-research (optional, pre-plan)
     DESIGN.md      # created by dev-design (optional, pre-plan)
     prototype.html # created by dev-ui-design (optional, pre-plan)

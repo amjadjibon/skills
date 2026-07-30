@@ -10,6 +10,8 @@ Create `docs/<feature-name>/PLAN.md` for autonomous execution by agents or human
 
 **Interactive** (user runs it): ask one focused question only if scope is truly ambiguous. **Autonomous** (called by `dev-loop`): never ask — research, assume, document.
 
+If the work is so undecided that phases would be guesses — the shape, the boundaries, even the goal still open — `dev-wayfinder` maps and resolves those decisions first, then hands back here. One unknown is an assumption to state; a dozen is a map.
+
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.

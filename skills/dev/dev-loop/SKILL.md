@@ -33,7 +33,7 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 - Phases run sequentially (stacked PRs require it), except `ultra`.
 - Fix agents run in parallel only for genuinely independent domains (backend + frontend, auth + notifications) — not merely different files. Shared type/interface/config/test fixture → one agent. When in doubt, one agent.
-- Limits scale with mode — set these into LOOP.md frontmatter at init (§1.5), don't hardcode one set of numbers regardless of mode:
+- Limits scale with mode — set these into LOOP.md frontmatter at init (§1.6), don't hardcode one set of numbers regardless of mode:
 
   | Mode | `max_iterations` | `max_phases` | `max_agents` | Why |
   |------|:---:|:---:|:---:|-----|
@@ -46,10 +46,11 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 ## 1. Bootstrap
 
 1. **Feature name**: kebab-case slug of the task ("Add rate limiting to /api/login" → `rate-limit-login`).
-2. **Research**: `git status && git branch --show-current`; read 3–5 key files; state assumptions in the plan's §4; never ask the user. If the task hinges on an unfamiliar third-party API/library/technology, run `dev-research` first (same mode) → `docs/<feature-name>/RESEARCH.md`. If the feature needs its shape decided (system design, data model, API contract, UI/UX) before it can be phased, run `dev-design` next (same mode) → `docs/<feature-name>/DESIGN.md` — when the API-contract axis is in play, `dev-design` defers to `dev-api-design` for the REST/GraphQL resource shape, versioning, and pagination decisions before writing them into DESIGN.md. Scoped questions surfacing later are handled by sub-skills spawning `dev-research` sub-agents (dev-research §6).
-3. **Plan**: `dev-create-plan` (autonomous) → `docs/<feature-name>/PLAN.md` on branch `<feature-name>`. Task explicitly wants TDD/test-first? Tell it to mark the affected phases `**Test-first**: yes` — `dev-implement-plan` (Step A) then builds those phases through `dev-tdd`'s red → green loop instead of implementation-then-tests.
-4. **Review plan**: `dev-review-plan`. `Ready` → proceed. `Needs Revision` → apply Revise findings in one commit (`docs: revise plan based on review`), proceed. `Blocked` → stop, report. **Small-task off-ramp**: if the plan is a single phase with ≤2 tasks, skip this review and fold `dev-qa` (Step A.5) into the implement step — the ceremony costs more than a 5-line feature; the code review (Step B) stays mandatory, it's what catches real bugs.
-5. **Init LOOP.md** from [LOOP-TEMPLATE.md](LOOP-TEMPLATE.md) — read it now, fill the mode's limits from the §0 table, commit `chore: init dev loop for <feature-name>`. The loop parses that structure to resume, so keep it exact.
+2. **Too foggy to loop?** If the task has no phaseable shape yet — the destination itself is unsettled, not just its details — stop and tell the user to run `dev-wayfinder` first; a loop that plans from guesses spends its whole iteration budget discovering them. This is a judgement call made once, at the start, and it is the one thing the loop refuses to assume its way through.
+3. **Research**: `git status && git branch --show-current`; read 3–5 key files; state assumptions in the plan's §4; never ask the user. If the task hinges on an unfamiliar third-party API/library/technology, run `dev-research` first (same mode) → `docs/<feature-name>/RESEARCH.md`. If the feature needs its shape decided (system design, data model, API contract, UI/UX) before it can be phased, run `dev-design` next (same mode) → `docs/<feature-name>/DESIGN.md` — when the API-contract axis is in play, `dev-design` defers to `dev-api-design` for the REST/GraphQL resource shape, versioning, and pagination decisions before writing them into DESIGN.md. Scoped questions surfacing later are handled by sub-skills spawning `dev-research` sub-agents (dev-research §6).
+4. **Plan**: `dev-create-plan` (autonomous) → `docs/<feature-name>/PLAN.md` on branch `<feature-name>`. Task explicitly wants TDD/test-first? Tell it to mark the affected phases `**Test-first**: yes` — `dev-implement-plan` (Step A) then builds those phases through `dev-tdd`'s red → green loop instead of implementation-then-tests.
+5. **Review plan**: `dev-review-plan`. `Ready` → proceed. `Needs Revision` → apply Revise findings in one commit (`docs: revise plan based on review`), proceed. `Blocked` → stop, report. **Small-task off-ramp**: if the plan is a single phase with ≤2 tasks, skip this review and fold `dev-qa` (Step A.5) into the implement step — the ceremony costs more than a 5-line feature; the code review (Step B) stays mandatory, it's what catches real bugs.
+6. **Init LOOP.md** from [LOOP-TEMPLATE.md](LOOP-TEMPLATE.md) — read it now, fill the mode's limits from the §0 table, commit `chore: init dev loop for <feature-name>`. The loop parses that structure to resume, so keep it exact.
 
 ## 2. Worktree Management
 

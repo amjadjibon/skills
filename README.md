@@ -1,6 +1,6 @@
 # skills
 
-A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 29 skills, 4 sub-agents, and the `/dev-skills-loop` orchestrator command.
+A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 30 skills, 4 sub-agents, and the `/dev-skills-loop` orchestrator command.
 
 > [!CAUTION]
 > **Read every skill before you install it. Nothing here is guaranteed.**
@@ -57,6 +57,7 @@ If a skill doesn't show up after install, run `/reload-plugins` (or restart the 
 
 | Skill | Description |
 | ----- | ----------- |
+| [dev-wayfinder](skills/dev/dev-wayfinder/SKILL.md) | Chart work too ambiguous to plan — name the destination, map the open questions as named tickets in `docs/<feature>/MAP.md`, and resolve them one at a time until `dev-create-plan` becomes possible. Plans decisions, never deliverables. |
 | [dev-research](skills/dev/dev-research/SKILL.md) | Research a codebase, approach, or technology before planning — compare candidates, verify claims with spikes and web/doc lookups, write `docs/<feature>/RESEARCH.md` with a recommendation. Also spawned as a scoped sub-agent by the plan/implement skills for single questions (third-party APIs, libraries, docs). |
 | [dev-design](skills/dev/dev-design/SKILL.md) | Decide a feature's shape before planning — system design, data model, API/interface contract, UI/UX, whichever axes apply. Writes `docs/<feature>/DESIGN.md` that `dev-create-plan` builds phases from. |
 | [dev-api-design](skills/dev/dev-api-design/SKILL.md) | REST and GraphQL API design principles — resource/URL design, pagination, versioning, GraphQL schema-first design, DataLoader/N+1 prevention, Relay pagination. Hands off to `openapi-spec` for the actual spec document. |
@@ -86,6 +87,7 @@ If a skill doesn't show up after install, run `/reload-plugins` (or restart the 
 | [mermaid-diagram](skills/misc/mermaid-diagram/SKILL.md) | Generate Mermaid diagrams (flowchart, sequence, architecture, deployment, class, state, ER) from a description or source code, with high-contrast styling and `mmdc` validation before handoff. |
 | [github-actions](skills/misc/github-actions/SKILL.md) | Create and review GitHub Actions workflows — CI, release/publish, reusable workflows, composite actions, matrix builds, caching, and security hardening. Validates with `actionlint`. |
 | [prototype](skills/misc/prototype/SKILL.md) | Build a throwaway prototype in the real codebase to answer one design question — a driveable TUI for a state/logic question, or several structurally different UI variants on a real route switchable via `?variant=`. Adapted from [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/prototype). |
+`dev-wayfinder` is adapted from the [`wayfinder` skill](https://github.com/mattpocock/skills/tree/main/skills/engineering/wayfinder) by Matt Pocock, same source as `prototype`.
 The four `dev-ponytail*` skills are inspired by the [`ponytail` skill](https://github.com/DietrichGebert/ponytail) by Dietrich Gebert, and `dev-caveman` by the [`caveman` skill](https://github.com/JuliusBrussee/caveman) by Julius Brussee.
 
 
@@ -218,6 +220,8 @@ Every skill accepts an optional trailing mode argument — `lite` (default, fast
 ## How Skills Compose
 
 ```text
+dev-wayfinder (optional — only when the task is too undecided to phase)
+  ↓
 dev-loop
   └─ dev-research  →  dev-design   →  dev-create-plan  →  dev-review-plan  →  dev-implement-plan  →  dev-qa  →  dev-code-review
      (optional)         (optional)                                                    ↑                                 │
@@ -226,7 +230,7 @@ dev-loop
 
 Full map — every skill, overlay, agent, and artifact edge: [docs/SKILL-MAP.md](docs/SKILL-MAP.md).
 
-Output artifacts land in `docs/<feature>/`: `RESEARCH.md` (`dev-research`, optional pre-plan), `DESIGN.md` (`dev-design`, optional pre-plan), `prototype.html` (`dev-ui-design`, optional pre-plan), `PLAN.md` (created by `dev-create-plan`, updated by `dev-implement-plan`), `PLAN-REVIEW.md` (`dev-review-plan`), `QA.md` (`dev-qa`), `REVIEW.md` (written each pass by `dev-code-review`), and `LOOP.md` (dev-loop state). `AUDIT.md` (`dev-ponytail-audit`) and `DEBT.md` (`dev-ponytail-debt`) land there too, under the audited scope's name — `docs/repo/` for a whole-tree pass.
+Output artifacts land in `docs/<feature>/`: `MAP.md` (`dev-wayfinder`, optional, before everything else), `RESEARCH.md` (`dev-research`, optional pre-plan), `DESIGN.md` (`dev-design`, optional pre-plan), `prototype.html` (`dev-ui-design`, optional pre-plan), `PLAN.md` (created by `dev-create-plan`, updated by `dev-implement-plan`), `PLAN-REVIEW.md` (`dev-review-plan`), `QA.md` (`dev-qa`), `REVIEW.md` (written each pass by `dev-code-review`), and `LOOP.md` (dev-loop state). `AUDIT.md` (`dev-ponytail-audit`) and `DEBT.md` (`dev-ponytail-debt`) land there too, under the audited scope's name — `docs/repo/` for a whole-tree pass.
 
 ## Adding a Skill
 

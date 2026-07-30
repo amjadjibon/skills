@@ -10,6 +10,10 @@ entry point that feeds it.
 flowchart TD
     task([Task])
 
+    subgraph fog["Fog — only when the task is too undecided to phase"]
+        wayfinder[dev-wayfinder<br/>MAP.md]
+    end
+
     subgraph shape["Shape — optional, skipped when obvious"]
         brainstorm[brainstorming]
         research[dev-research]
@@ -48,6 +52,12 @@ flowchart TD
         release[dev-release]
         actions[github-actions]
     end
+
+    task -->|too foggy to plan| wayfinder
+    wayfinder -->|Research ticket| research
+    wayfinder -->|Prototype ticket| proto
+    wayfinder -->|Grilling ticket| brainstorm
+    wayfinder -->|fog cleared| design
 
     task --> brainstorm --> research --> design --> create
     task --> research
@@ -116,7 +126,7 @@ All under `docs/<feature-name>/`, each written by exactly one skill and read by 
 
 ```mermaid
 flowchart LR
-    R[RESEARCH.md] --> D[DESIGN.md] --> P[PLAN.md]
+    M[MAP.md] --> R[RESEARCH.md] --> D[DESIGN.md] --> P[PLAN.md]
     P --> PR[PLAN-REVIEW.md] --> P
     P --> Q[QA.md]
     P --> V[REVIEW.md] --> L[LOOP.md]

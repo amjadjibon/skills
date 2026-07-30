@@ -1,7 +1,7 @@
 {
   "name": "dev-skills",
-  "description": "Autonomous dev workflow in one plugin: 29 skills (design, api design, openapi spec, mermaid diagrams, github actions, ui prototype, throwaway prototype, plan, implement, TDD, e2e testing, smoke testing, review, QA, debug, refactor, perf, release, clean up, git safety, brainstorming, ponytail minimalism + its review/audit/debt passes, caveman terseness), 4 sub-agents (researcher, implementer, fixer, tester), and the /dev-skills-loop orchestrator command — each skill with a lite/full/ultra delivery mode.",
-  "version": "1.36.0",
+  "description": "Autonomous dev workflow in one plugin: 30 skills (wayfinder mapping, design, api design, openapi spec, mermaid diagrams, github actions, ui prototype, throwaway prototype, plan, implement, TDD, e2e testing, smoke testing, review, QA, debug, refactor, perf, release, clean up, git safety, brainstorming, ponytail minimalism + its review/audit/debt passes, caveman terseness), 4 sub-agents (researcher, implementer, fixer, tester), and the /dev-skills-loop orchestrator command — each skill with a lite/full/ultra delivery mode.",
+  "version": "1.37.0",
   "author": {
     "name": "Amjad Hossain"
   },
@@ -16,6 +16,7 @@
   "hooks": "./hooks/hooks.json",
   "skills": [
     "./skills/dev/dev-api-design",
+    "./skills/dev/dev-caveman",
     "./skills/dev/dev-clean-up",
     "./skills/dev/dev-code-review",
     "./skills/dev/dev-create-plan",
@@ -25,6 +26,10 @@
     "./skills/dev/dev-implement-plan",
     "./skills/dev/dev-loop",
     "./skills/dev/dev-perf",
+    "./skills/dev/dev-ponytail",
+    "./skills/dev/dev-ponytail-audit",
+    "./skills/dev/dev-ponytail-debt",
+    "./skills/dev/dev-ponytail-review",
     "./skills/dev/dev-qa",
     "./skills/dev/dev-refactor",
     "./skills/dev/dev-release",
@@ -33,11 +38,7 @@
     "./skills/dev/dev-smoke-testing",
     "./skills/dev/dev-tdd",
     "./skills/dev/dev-ui-design",
-    "./skills/dev/dev-caveman",
-    "./skills/dev/dev-ponytail",
-    "./skills/dev/dev-ponytail-audit",
-    "./skills/dev/dev-ponytail-debt",
-    "./skills/dev/dev-ponytail-review",
+    "./skills/dev/dev-wayfinder",
     "./skills/misc/brainstorming",
     "./skills/misc/git-safe",
     "./skills/misc/github-actions",
