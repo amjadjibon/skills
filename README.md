@@ -107,7 +107,7 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 
 `statusline/statusline.sh` renders two lines under the prompt:
 
-![The dev-skills status line: repo, branch, model and context usage on the first line; session cost, duration, edits and rate limits on the second](docs/statusline.png)
+![The dev-skills status line, two lines. First: [dev-skills] skills(main) · Opus 5 medium · ctx 312k/1M 31% · 45fdd1e0-af3f-46b4-be2e-9f8f802398a0. Second: 5h 58% in 2h30m · 7d 16% in 3d20h · ~$52.92 · 2h15m · +954/-268](docs/statusline.png)
 
 | Segment | Field | Notes |
 | ------- | ----- | ----- |
