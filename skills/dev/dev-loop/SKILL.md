@@ -37,9 +37,9 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
   | Mode | `max_iterations` | `max_phases` | `max_agents` | Why |
   |------|:---:|:---:|:---:|-----|
-  | `lite` | 2 | 1 | 2 | Small, single-pass scope by design — a `lite` task needing more than this should have been `full` instead. |
-  | `full` | 3 | 5 | 3 | Default working budget for a multi-phase feature. |
-  | `ultra` | 3 | 8 | 5 | Built for larger decomposable work with genuine parallelism — more phases and more room for independent fix/implement agents. |
+  | `lite` | 3 | 3 | 3 | Small scope built in one pass on one branch — a `lite` task straining these should have been `full` instead. |
+  | `full` | 5 | 5 | 5 | Default working budget for a multi-phase feature. |
+  | `ultra` | 8 | 8 | 8 | Built for larger decomposable work with genuine parallelism — more phases and more room for independent fix/implement agents. |
 
   `max_iterations` is a **per-phase** budget in `full`/`ultra` (§3 Step A resets it per phase), a whole-loop budget in `lite`. `max_phases`/`max_agents` — if exceeded, stop and tell the user rather than silently merging past the limit.
 
@@ -91,7 +91,7 @@ After any fix path: increment `current_iteration`, append a new `### Iteration N
 
 **§3.C.2 — Fix agents (High):** group findings by domain (shared type/config/fixture → same group; merge smallest groups to fit `max_agents`). Per group: worktree off the branch under review, spawn agent with its finding IDs. Then merge all, remove worktrees, push. Go to Step B (no Step A.5).
 
-**§3.C.3 — Fix phase in PLAN.md:** only when a High finding needs a missing abstraction or migration, not a patch — and only if it won't exceed `max_phases` (`lite` has no phases). Append `### Phase N+1` with `TASK-NNN: Fix [HIGH-001]…`, bump version, commit `docs: add fix phase for iteration N findings`. Go to Step A (this new phase runs its own A → A.5 → B cycle). Default to §3.C.2.
+**§3.C.3 — Fix phase in PLAN.md:** only when a High finding needs a missing abstraction or migration, not a patch — and only if it won't exceed `max_phases` (`lite` gets phases too now, just built on one branch rather than a stack). Append `### Phase N+1` with `TASK-NNN: Fix [HIGH-001]…`, bump version, commit `docs: add fix phase for iteration N findings`. Go to Step A (this new phase runs its own A → A.5 → B cycle). Default to §3.C.2.
 
 ## 4. Exit Conditions
 
