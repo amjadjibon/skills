@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
 #   [dev-skills] <dir>(<branch>) · #<pr> · wt <wt> · <model> <effort> · ctx <used>/<size> <pct>% · <session>
-#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · <duration> · +<added>/-<removed>
+#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · tok <in>/<out> · cache <read>/<write> · <duration> · +<added>/-<removed>
 #
 # Labels only survive where the value alone is ambiguous: ctx and tok keep
 # theirs, a currency symbol and a +n/-n pair do not need one.
@@ -11,7 +11,7 @@
 # else is bash arithmetic — no awk, no basename.
 input=$(cat)
 
-# One jq pass for every field, as a fixed 19-column row. Absent values come back
+# One jq pass for every field, as a fixed 20-column row. Absent values come back
 # empty so the render below can drop the segment — which rules out @tsv, because
 # tab is IFS whitespace and bash would collapse the empty columns and shift every
 # field left. \x1f (unit separator) is non-whitespace, so empties survive.
@@ -41,12 +41,35 @@ fields=$(printf '%s' "$input" | jq -r '
         (if .fast_mode == true then "fast" else "" end),
         # present only while an open PR exists for the branch; review_state may be absent
         (.pr.number // ""),
-        (.pr.review_state // "") ]
+        (.pr.review_state // ""),
+        (.transcript_path // "") ]
     | map(tostring) | join("\u001f")' 2>/dev/null)
 
 IFS=$'\037' read -r model dir worktree ctx_used ctx_size ctx_pct \
     usd ms added removed five five_at seven seven_at session effort fast \
-    pr pr_state <<< "$fields"
+    pr pr_state transcript <<< "$fields"
+
+# Session token totals, summed from the transcript the payload points at — the
+# payload itself only ever describes the current context window.
+#
+# Keyed by message.id, NOT summed per line: the transcript writes the same
+# assistant message up to three times, each copy carrying an identical usage
+# block, so adding up lines overstates every figure by roughly 2x. Messages
+# without an id fall back to their line index so they are never collapsed.
+#
+# These approximate /usage rather than matching it: /usage reads a ledger this
+# file is only a partial view of (it has no record of the haiku calls at all).
+tokens=""
+[ -r "$transcript" ] && tokens=$(jq -rs '
+    reduce (to_entries[] | select(.value.message.usage != null)) as $e ({};
+      .[($e.value.message.id // ($e.key | tostring))] = $e.value.message.usage)
+    | [.[]] as $u
+    | [ ($u | map(.input_tokens // 0) | add // 0),
+        ($u | map(.output_tokens // 0) | add // 0),
+        ($u | map(.cache_read_input_tokens // 0) | add // 0),
+        ($u | map(.cache_creation_input_tokens // 0) | add // 0) ]
+    | map(tostring) | join("\u001f")' "$transcript" 2>/dev/null)
+IFS=$'\037' read -r tok_in tok_out cache_in cache_out <<< "$tokens"
 
 [ -n "$dir" ] || dir="$PWD"
 branch=$(git -C "$dir" rev-parse --abbrev-ref HEAD 2>/dev/null)
@@ -186,6 +209,13 @@ done
 # subscription nothing was billed at all
 [ -n "$usd" ] && add l2 "$sep_plain" "$(printf '~$%.2f' "$usd")" \
     "$(printf '\033[38;5;%sm~$%.2f\033[0m' "$TAN" "$usd")"
+# session tokens: fresh in/out, then the cached halves — read from cache, written to it
+if [ -n "$tok_out" ]; then
+    add l2 "$sep_plain" "tok $(humanize "$tok_in")/$(humanize "$tok_out")" \
+        "$(seg "tok" "$TIME" "$(humanize "$tok_in")/$(humanize "$tok_out")")"
+    add l2 "$sep_plain" "cache $(humanize "$cache_in")/$(humanize "$cache_out")" \
+        "$(seg "cache" "$TIME" "$(humanize "$cache_in")/$(humanize "$cache_out")")"
+fi
 if [ -n "$usd" ]; then
     add l2 "$sep_plain" "$(duration "$ms")" \
         "$(printf '\033[38;5;%sm%s\033[0m' "$TIME" "$(duration "$ms")")"

@@ -118,6 +118,8 @@ The plugin ships one slash command under `commands/` — a direct entry point to
 | `fast` | `fast_mode` | Shown only when [fast mode](https://code.claude.com/docs/en/fast-mode) is on |
 | `ctx 183k/1M 18%` | `context_window` | Input tokens vs. window size — the same input-only basis Claude Code uses for `used_percentage`, so the fraction and the percentage agree |
 | `45fdd1e0-af3f-…` | `session_id` | The transcript is `~/.claude/projects/<project>/<session_id>.jsonl` |
+| `tok 1.6k/193k` | summed from `transcript_path` | Session tokens, fresh input / output |
+| `cache 49M/1.1M` | summed from `transcript_path` | The cached halves — read from cache / written to it |
 | `~$17.80` | `cost.total_cost_usd` | The `~` marks it as a client-side estimate at API rates — on a subscription nothing was billed at all. `/clear` resets it. There is no token count beside it because the payload has no cumulative one: `total_input_tokens` is what is in the window right now (already shown as `ctx`) and `total_output_tokens` is only the most recent response's output |
 | `1h27m` | `cost.total_duration_ms` | Wall clock, shown as `45s` / `14m` / `2h5m` |
 | `+891/-251` | `cost.total_lines_added/removed` | Additions green, deletions red |
@@ -153,7 +155,9 @@ The `SessionStart` hook also sets `refreshInterval: 10` on the `statusLine` entr
 
 `statusline/tests/` holds fixture pairs — `<case>.json` in, `<case>.expected` out with the escape codes stripped. `python3 scripts/validate.py` renders each one and diffs it, under `/bin/bash` specifically, because macOS ships bash 3.2 and the bugs that only appear there are the ones that reach users. Because the goldens strip ANSI before diffing, the colour thresholds get their own check either side of 50% and 80% — otherwise swapping two colour constants would leave every fixture passing. `STATUSLINE_NOW` pins the clock so the reset countdowns are reproducible, and an optional `# COLUMNS=<n>` header line on the expected file sets the terminal width for that case.
 
-The status line re-renders constantly, so it does its whole job in three subprocesses: one `jq` for every field at once, one `git` for the branch, one `date` for the reset countdowns. Formatting is bash arithmetic. The `jq` output is joined on `\x1f` rather than `@tsv`, because tab is IFS whitespace and bash would collapse the empty columns and shift every field left.
+The token totals are summed from the transcript the payload points at, keyed on `message.id` rather than per line: the transcript writes the same assistant message up to three times, each copy carrying an identical `usage` block, so adding up lines overstates every figure by roughly 2x. They **approximate** `/usage` rather than matching it — `/usage` reads a ledger the transcript is only a partial view of, with no record of the Haiku calls at all.
+
+The status line re-renders constantly, so it keeps to four subprocesses: one `jq` for every payload field at once, a second to sum the transcript, one `git` for the branch, one `date` for the reset countdowns. Formatting is bash arithmetic. The `jq` output is joined on `\x1f` rather than `@tsv`, because tab is IFS whitespace and bash would collapse the empty columns and shift every field left.
 
 The scripts honour `CLAUDE_CONFIG_DIR`, need `python3` to edit settings safely, and need `jq` for everything but the badge, directory, and branch. Context numbers are absent until the first API response of a session, and again after `/compact`; `rate_limits` is Claude.ai subscriber-only. For a single-line status line, delete the trailing `printf '\n…'` from the script.
 

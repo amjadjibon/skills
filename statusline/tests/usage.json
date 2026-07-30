@@ -1,0 +1,16 @@
+{
+  "transcript_path": "@TRANSCRIPT@",
+  "model": { "display_name": "Opus 5" },
+  "workspace": { "current_dir": "/nowhere/demo-project" },
+  "context_window": {
+    "total_input_tokens": 303000,
+    "context_window_size": 1000000,
+    "used_percentage": 30
+  },
+  "cost": {
+    "total_cost_usd": 34.17,
+    "total_duration_ms": 6334000,
+    "total_lines_added": 918,
+    "total_lines_removed": 254
+  }
+}
