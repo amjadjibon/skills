@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # dev-skills status line, two lines:
 #   [dev-skills] <dir>(<branch>) · #<pr> · wt <wt> · <model> <effort> · ctx <used>/<size> <pct>% · <session>
-#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · tok <in>/<out> · cache <read>/<write> · <duration> · +<added>/-<removed>
+#   5h <pct>% in <reset> · 7d <pct>% in <reset> · ~$<cost> · tok in/out <i>/<o> · cache rd/wr <r>/<w> · <duration> · +<added>/-<removed>
 #
 # Labels only survive where the value alone is ambiguous: ctx and tok keep
 # theirs, a currency symbol and a +n/-n pair do not need one.
@@ -209,12 +209,14 @@ done
 # subscription nothing was billed at all
 [ -n "$usd" ] && add l2 "$sep_plain" "$(printf '~$%.2f' "$usd")" \
     "$(printf '\033[38;5;%sm~$%.2f\033[0m' "$TAN" "$usd")"
-# session tokens: fresh in/out, then the cached halves — read from cache, written to it
+# Session tokens. The two pairs are different axes, so each says which it is:
+# tok is input/output, cache is read/written — and both cache halves are input
+# too, billed at 0.1x and 1.25x. Real input is tok-in + both cache figures.
 if [ -n "$tok_out" ]; then
-    add l2 "$sep_plain" "tok $(humanize "$tok_in")/$(humanize "$tok_out")" \
-        "$(seg "tok" "$TIME" "$(humanize "$tok_in")/$(humanize "$tok_out")")"
-    add l2 "$sep_plain" "cache $(humanize "$cache_in")/$(humanize "$cache_out")" \
-        "$(seg "cache" "$TIME" "$(humanize "$cache_in")/$(humanize "$cache_out")")"
+    add l2 "$sep_plain" "tok in/out $(humanize "$tok_in")/$(humanize "$tok_out")" \
+        "$(seg "tok in/out" "$TIME" "$(humanize "$tok_in")/$(humanize "$tok_out")")"
+    add l2 "$sep_plain" "cache rd/wr $(humanize "$cache_in")/$(humanize "$cache_out")" \
+        "$(seg "cache rd/wr" "$TIME" "$(humanize "$cache_in")/$(humanize "$cache_out")")"
 fi
 if [ -n "$usd" ]; then
     add l2 "$sep_plain" "$(duration "$ms")" \
