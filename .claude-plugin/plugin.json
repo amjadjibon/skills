@@ -1,13 +1,18 @@
 {
   "name": "dev-skills",
   "description": "Autonomous dev workflow in one plugin: 29 skills (design, api design, openapi spec, mermaid diagrams, github actions, ui prototype, throwaway prototype, plan, implement, TDD, e2e testing, smoke testing, review, QA, debug, refactor, perf, release, clean up, git safety, brainstorming, ponytail minimalism + its review/audit/debt passes, caveman terseness), 4 sub-agents (researcher, implementer, fixer, tester), and the /loop orchestrator command — each skill with a lite/full/ultra delivery mode.",
-  "version": "1.35.0",
+  "version": "1.35.1",
   "author": {
     "name": "Amjad Hossain"
   },
   "homepage": "https://github.com/amjadjibon/skills",
   "repository": "https://github.com/amjadjibon/skills",
-  "agents": "./.agents",
+  "agents": [
+    "./.agents/dev-fixer.md",
+    "./.agents/dev-implementer.md",
+    "./.agents/dev-researcher.md",
+    "./.agents/dev-tester.md"
+  ],
   "hooks": "./hooks/hooks.json",
   "skills": [
     "./skills/dev/dev-api-design",

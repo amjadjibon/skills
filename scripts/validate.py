@@ -357,6 +357,18 @@ def main():
             err(plugin_path, f"skills array missing `{missing}` — it will not load")
         for stale in sorted(listed - actual):
             err(plugin_path, f"skills array lists `{stale}` but that directory does not exist")
+        # agents must be an array of individual .md files — a bare directory path
+        # fails manifest validation and takes the whole plugin down with it
+        agents = plugin.get("agents")
+        if not isinstance(agents, list):
+            err(plugin_path, f"agents must be an array of .md file paths, got {type(agents).__name__}")
+        else:
+            listed_agents = set(agents)
+            actual_agents = {f"./.agents/{f.name}" for f in AGENTS.glob("*.md")}
+            for missing in sorted(actual_agents - listed_agents):
+                err(plugin_path, f"agents array missing `{missing}` — it will not load")
+            for stale in sorted(listed_agents - actual_agents):
+                err(plugin_path, f"agents array lists `{stale}` but that file does not exist")
     except (OSError, json.JSONDecodeError, KeyError, IndexError) as e:
         err(plugin_path, f"manifest problem: {e}")
 
