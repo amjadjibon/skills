@@ -23,7 +23,7 @@ Fully autonomous. Pause only for: user approval before push/PR, an unfixable `Cr
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
-- `lite` (default) — single branch `<feature-name>`, no phase branches, one PR at the end.
+- `lite` (default) — however many phases the plan has, all on the single branch `<feature-name>`; no phase branches, one PR at the end.
 - `full` — phases sequential on stacked branches/PRs.
 - `ultra` — phases with no shared dependencies build in parallel worktrees off `main`; merge each into the stack when done.
 
@@ -35,13 +35,13 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 - Fix agents run in parallel only for genuinely independent domains (backend + frontend, auth + notifications) — not merely different files. Shared type/interface/config/test fixture → one agent. When in doubt, one agent.
 - Limits scale with mode — set these into LOOP.md frontmatter at init (§1.6), don't hardcode one set of numbers regardless of mode:
 
-  | Mode | `max_iterations` | `max_phases` | `max_agents` | Why |
-  |------|:---:|:---:|:---:|-----|
-  | `lite` | 3 | 3 | 3 | Small scope built in one pass on one branch — a `lite` task straining these should have been `full` instead. |
-  | `full` | 5 | 5 | 5 | Default working budget for a multi-phase feature. |
-  | `ultra` | 8 | 8 | 8 | Built for larger decomposable work with genuine parallelism — more phases and more room for independent fix/implement agents. |
+  | Mode | `max_iterations` | `max_agents` | Why |
+  |------|:---:|:---:|-----|
+  | `lite` | 3 | 3 | Everything lands on one branch, so fix cycles and parallel agents both stay tight. |
+  | `full` | 5 | 5 | Default working budget for a stacked multi-phase feature. |
+  | `ultra` | 8 | 8 | Built for larger decomposable work with genuine parallelism — more room for independent fix/implement agents across worktrees. |
 
-  `max_iterations` is a **per-phase** budget in `full`/`ultra` (§3 Step A resets it per phase), a whole-loop budget in `lite`. `max_phases`/`max_agents` — if exceeded, stop and tell the user rather than silently merging past the limit.
+  Phase count is not capped in any mode — it comes from the work, and mode only decides where those phases get built. `max_iterations` is a **per-phase** budget in `full`/`ultra` (§3 Step A resets it per phase), a whole-loop budget in `lite`. `max_agents` — if exceeded, stop and tell the user rather than silently merging past the limit.
 
 ## 1. Bootstrap
 
@@ -62,9 +62,9 @@ and the conflict rules — needed the moment this loop spawns its first sub-agen
 
 ## 3. The Loop
 
-Repeat until an exit condition (§4). `lite` runs the whole plan through one Implement → QA → Review → Fix cycle at a time (matches its "ignore phase boundaries" mode). `full`/`ultra` run **one phase at a time** through its own cycle before starting the next — a bug from phase 1 gets caught by phase 1's own review, not carried forward for phase 3 to build on top of.
+Repeat until an exit condition (§4). `lite` runs the whole plan through one Implement → QA → Review → Fix cycle at a time — every phase on one branch means one review of the lot, not one per phase. `full`/`ultra` run **one phase at a time** through its own cycle before starting the next — a bug from phase 1 gets caught by phase 1's own review, not carried forward for phase 3 to build on top of.
 
-**Step A — Implement.** If PLAN.md phases > `max_phases`: stop, ask user to split or raise the limit. Every implementing agent (and the orchestrator when it writes code itself) works under `dev-ponytail` — smallest thing that works, reuse before adding, stdlib before a dependency. A test or build failing for a reason nobody can name is a `dev-debug` job, not a guess-and-retry loop.
+**Step A — Implement.** Every implementing agent (and the orchestrator when it writes code itself) works under `dev-ponytail` — smallest thing that works, reuse before adding, stdlib before a dependency. A test or build failing for a reason nobody can name is a `dev-debug` job, not a guess-and-retry loop.
 
 - `lite`: implement every task across all phases in one pass on `<feature-name>`; tick `- [x] dev-implement-plan` once done.
 - `full`/`ultra`: implement **one phase** (branch + stacked PR, update the Stacked PRs table), tick that phase's checkbox — then go straight to Step A.5 for this phase. Don't start the next phase until this one clears Step C. Reset `current_iteration` to 1 when starting a new phase — `max_iterations` is a per-phase budget, so one difficult phase's fix cycles don't starve the iteration allowance for phases after it.
@@ -92,7 +92,7 @@ After any fix path: increment `current_iteration`, append a new `### Iteration N
 
 **§3.C.2 — Fix agents (High):** group findings by domain (shared type/config/fixture → same group; merge smallest groups to fit `max_agents`). Per group: worktree off the branch under review, spawn agent with its finding IDs. Then merge all, remove worktrees, push. Go to Step B (no Step A.5).
 
-**§3.C.3 — Fix phase in PLAN.md:** only when a High finding needs a missing abstraction or migration, not a patch — and only if it won't exceed `max_phases` (`lite` gets phases too now, just built on one branch rather than a stack). Append `### Phase N+1` with `TASK-NNN: Fix [HIGH-001]…`, bump version, commit `docs: add fix phase for iteration N findings`. Go to Step A (this new phase runs its own A → A.5 → B cycle). Default to §3.C.2.
+**§3.C.3 — Fix phase in PLAN.md:** only when a High finding needs a missing abstraction or migration, not a patch (`lite` gets fix phases too, just built on one branch rather than a stack). Append `### Phase N+1` with `TASK-NNN: Fix [HIGH-001]…`, bump version, commit `docs: add fix phase for iteration N findings`. Go to Step A (this new phase runs its own A → A.5 → B cycle). Default to §3.C.2.
 
 ## 4. Exit Conditions
 

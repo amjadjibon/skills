@@ -3,7 +3,7 @@
 Read this at Bootstrap step 5, and again on resume if the file's structure is unclear. The loop
 parses this file to resume from disk alone — keep the structure exact.
 
-Fill `max_iterations`/`max_phases`/`max_agents` from the §0 mode table, then commit
+Fill `max_iterations`/`max_agents` from the §0 mode table, then commit
 `chore: init dev loop for <feature-name>`.
 
 ````markdown
@@ -14,7 +14,6 @@ branch: <feature-name>
 mode: <lite|full|ultra>
 started: <YYYY-MM-DD>
 max_iterations: <3 lite | 5 full | 8 ultra>
-max_phases: <3 lite | 5 full | 8 ultra>
 max_agents: <3 lite | 5 full | 8 ultra>
 current_iteration: 1
 status: running

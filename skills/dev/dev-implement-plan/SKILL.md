@@ -12,7 +12,7 @@ Execute a `PLAN.md`: phases in order, tick checkboxes as tasks complete, commit 
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
-- `lite` (default) — ignore phase boundaries: one branch, one implementation commit (plus the plan-status docs commits), one PR at the end.
+- `lite` (default) — build every phase the plan has, but on one branch with no phase branches: one implementation commit (plus the plan-status docs commits), one PR at the end.
 - `full` — one branch + one stacked PR per phase (§3).
 - `ultra` — phases marked `**Parallel**: yes` build in separate worktrees simultaneously; merge each into the stack when its completion criteria pass.
 

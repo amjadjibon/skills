@@ -16,9 +16,11 @@ If the work is so undecided that phases would be guesses — the shape, the boun
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
-- `lite` (default) — collapse the template into a single "Phase 1"; one branch `<feature-name>`, one PR at the end.
-- `full` — one phase per unit of work; stacked branches `<feature>/phase-N` off `phase-N-1`, one PR per phase.
-- `ultra` — like `full`, but phases with no shared dependencies get `**Parallel**: yes` so implement/loop can build them in worktrees off `main`.
+Mode picks the branch topology, never the number of phases — phase count comes from the work, and every mode takes as many as the work has.
+
+- `lite` (default) — however many phases the work needs, all built on one branch `<feature-name>`, one PR at the end.
+- `full` — same phases, one branch each: stacked `<feature>/phase-N` off `phase-N-1`, one PR per phase.
+- `ultra` — like `full`, plus phases with no shared dependencies get `**Parallel**: yes` so implement/loop can build them in separate worktrees off `main` and merge each into the stack.
 
 Any phase whose tasks should be built test-first gets `**Test-first**: yes` — `dev-implement-plan` builds that phase through `dev-tdd`'s red → green loop instead of implementation-then-tests. Ask when the task doesn't say either way; default to no marker (implement, then `dev-qa`/review catch gaps) unless TDD was requested or the phase is complex enough that tests-first meaningfully reduces risk.
 
@@ -132,7 +134,7 @@ Do NOT push, open PRs, or modify PLAN.md.
 - **ASSUMPTION-001**: <assumed true without user confirmation>
 ````
 
-`lite`: one "Phase 1" covers the whole feature. `full`/`ultra`: repeat the phase block per phase.
+Repeat the phase block per phase in every mode; only the branch/base lines differ (`lite` keeps them all on `<feature-name>`).
 
 ## Process
 
