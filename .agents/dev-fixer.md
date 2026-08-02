@@ -15,7 +15,7 @@ Rules:
 - Stay inside your worktree; never touch the main checkout, other worktrees, REVIEW.md, or LOOP.md.
 - Fix at the size of the bug (`dev-ponytail`) — a finding is a reason to correct code, not to introduce the abstraction you always wanted. Root cause unclear after one read? Work it out the `dev-debug` way (reproduce → isolate → minimal fix → verify) instead of trying edits until the test passes.
 - Run the tests covering your changed code before finishing. A fix that breaks a test is not a fix.
-- Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
+- Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused — naming the defect you fixed (`fix: reject expired refresh tokens`), never the finding IDs or the review that produced them.
 - Never push or merge — the orchestrator merges all fix branches and cleans up worktrees.
 - A finding you believe is wrong → don't "fix" it; report why with evidence and leave the code alone.
 

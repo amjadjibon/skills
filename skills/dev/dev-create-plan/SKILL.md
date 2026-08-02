@@ -19,10 +19,16 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 Mode picks the branch topology, never the number of phases — phase count comes from the work, and every mode takes as many as the work has.
 
 - `lite` (default) — however many phases the work needs, all built on one branch `<feature-name>`, one PR at the end.
-- `full` — same phases, one branch each: stacked `<feature>/phase-N` off `phase-N-1`, one PR per phase.
+- `full` — same phases, one branch each: stacked `<feature-name>/<phase-slug>` off the previous phase's branch, one PR per phase (built with `gh-stack` — `git-safe` § Stacked PRs).
 - `ultra` — like `full`, plus phases with no shared dependencies get `**Parallel**: yes` so implement/loop can build them in separate worktrees off `main` and merge each into the stack.
 
 Any phase whose tasks should be built test-first gets `**Test-first**: yes` — `dev-implement-plan` builds that phase through `dev-tdd`'s red → green loop instead of implementation-then-tests. Ask when the task doesn't say either way; default to no marker (implement, then `dev-qa`/review catch gaps) unless TDD was requested or the phase is complex enough that tests-first meaningfully reduces risk.
+
+## Artifact Location
+
+Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
+`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
+artifacts are scratch — write and read them as normal, but **never commit them**.
 
 ## Step 0 — Research First
 
@@ -39,8 +45,9 @@ Read 3–5 key files (routing, middleware, error handling, tests). Record findin
 ## Git
 
 1. `git checkout -b <feature-name>`, then `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`.
-2. PR titles: imperative ≤60 chars, never prefixed with `phase N`.
-3. Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
+2. Phase branches (`full`/`ultra`): `<feature-name>/<phase-slug>` — 2–4 kebab words for what the phase does (`auth-service/token-refresh`, not `.../phase-2`), unique within the feature, written into each phase's `**Branch**` field. Order lives in PLAN.md and each branch's base, not the name.
+3. PR titles and commit subjects: imperative ≤60 chars, describing the work — never a phase number, iteration count, finding ID, or skill name. That bookkeeping stays in the artifacts.
+4. Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
 ## Status Badges & Tracker IDs
 
@@ -96,20 +103,22 @@ tags: [feature|upgrade|refactor|chore|architecture|migration|bug]
 
 **Depends on**: Phase N-1 complete (omit for Phase 1)
 
+**Branch**: `<feature-name>` (lite) or `<feature-name>/<phase-slug>` (full/ultra) — base: `main` or the previous phase's branch
+
 <!-- **Test-first**: yes — include only when this phase should be built via dev-tdd's red → green loop -->
 
 - [ ] TASK-00X: <exact action with file path, function, or command>
 
 **Completion criteria**: <measurable condition>
 
-**git commit**: `git add -u && git commit -m "<type>: <phase N summary>"`
+**git commit**: `git add -u && git commit -m "<type>: <what this phase delivers>"`
 
 **Agent Prompt**:
 ```
 You are a sub-agent implementing Phase N of <feature-name>.
 
 Context: <1-2 sentences: the feature and this phase's contribution.>
-Branch: <feature-name> (lite) or <feature-name>/phase-N (full/ultra)  |  Base: main or <feature-name>/phase-N-1
+Branch: <the phase's **Branch** value, spelled out in full>  |  Base: <the branch it forks from>
 
 Tasks:
 - TASK-00X: <exact description>
@@ -119,7 +128,7 @@ Key files:
 
 Completion criteria: <verbatim from above>
 
-When done: git add -u && git commit -m "<type>: <phase N summary>" — no Co-authored-by.
+When done: git add -u && git commit -m "<type>: <what this phase delivers>" — no Co-authored-by.
 Reply with a one-paragraph summary and commit SHA.
 Do NOT push, open PRs, or modify PLAN.md.
 ```

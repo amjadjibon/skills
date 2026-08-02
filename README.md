@@ -232,6 +232,8 @@ Full map — every skill, overlay, agent, and artifact edge: [docs/SKILL-MAP.md]
 
 Output artifacts land in `docs/<feature>/`: `MAP.md` (`dev-wayfinder`, optional, before everything else), `RESEARCH.md` (`dev-research`, optional pre-plan), `DESIGN.md` (`dev-design`, optional pre-plan), `prototype.html` (`dev-ui-design`, optional pre-plan), `PLAN.md` (created by `dev-create-plan`, updated by `dev-implement-plan`), `PLAN-REVIEW.md` (`dev-review-plan`), `QA.md` (`dev-qa`), `REVIEW.md` (written each pass by `dev-code-review`), and `LOOP.md` (dev-loop state). `AUDIT.md` (`dev-ponytail-audit`) and `DEBT.md` (`dev-ponytail-debt`) land there too, under the audited scope's name — `docs/repo/` for a whole-tree pass.
 
+`docs/` is only the default root. Say where you want them instead — `.dev/`, a scratch directory, any gitignored or out-of-repo path — and every skill writes there for that feature; `dev-loop` resolves the root once and passes it to the skills it calls. When the root is gitignored, the artifacts are treated as scratch: still written and still read on resume, just never committed, so a temporary run leaves nothing but the work commits behind.
+
 ## Adding a Skill
 
 Use the `skill-creator` skill to build and iterate on new skills with guided evals:

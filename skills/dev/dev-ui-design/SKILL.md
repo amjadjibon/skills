@@ -18,6 +18,12 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 - `full` — the flow's key states too (empty, loading, error, filled) as separate views the user can jump between (anchor links or a simple tab toggle — still no framework).
 - `ultra` — light and dark variants, plus a couple of viewport breakpoints (mobile/desktop) demoed via CSS `@media`, not separate files.
 
+## Artifact Location
+
+Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
+`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
+artifacts are scratch — write and read them as normal, but **never commit them**.
+
 ## 1. Ground It in the Real Product
 
 A prototype that looks like nothing else in the app is a worse prototype, not a bolder one.

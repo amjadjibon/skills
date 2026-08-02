@@ -18,6 +18,12 @@ Applies only if asked to also apply fixes; the review pass itself is unaffected.
 - `full` — fixes grouped by category (security, correctness, simplicity) into stacked branches/PRs.
 - `ultra` — one fix agent per independent finding cluster in its own worktree, in parallel (dev-loop §3.C.2 mechanism), merged after.
 
+## Artifact Location
+
+Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
+`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
+artifacts are scratch — write and read them as normal, but **never commit them**.
+
 ## 1. Identify What to Review
 
 Review **one file at a time** — never load the full diff in one shot.

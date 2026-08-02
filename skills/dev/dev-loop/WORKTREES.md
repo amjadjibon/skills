@@ -11,7 +11,7 @@ All worktrees live under `.worktrees/` (gitignore it once: `grep -qx '.worktrees
 git worktree add .worktrees/<feature-name>-<slot> -b <feature-name>-<slot> <feature-name>
 ```
 
-`<slot>`: `phase-2`, `fix-HIGH-001`, `fix-cluster-auth`. Add a LOOP.md Active Worktrees row before handoff; track `assigned → running → merged → removed`.
+`<slot>`: 2–4 kebab-case words naming the work — the phase slug, or what the fix repairs (`session-expiry`, `upload-validation`). Never a finding ID or iteration number; the branch outlives the loop, and the Active Worktrees table already maps slot → findings. Add its row before handoff; track `assigned → running → merged → removed`.
 
 **Assign** — spawn with the plugin's agent types when available (`dev-implementer` for phases, `dev-fixer` for fixes, `dev-researcher` for research questions), else general-purpose. Implementation phases: use the phase's `**Agent Prompt**` from PLAN.md verbatim, prepend `Worktree path: .worktrees/<feature-name>-<slot>`. Fix agents:
 
@@ -26,7 +26,8 @@ Findings to fix:
 - [HIGH-001] <title> — <file:line> — <what to change>
 
 Rules: stay inside the worktree; `git add -u` (explicit paths for new files) and
-commit "fix: <slot description>" — no Co-authored-by; reply with a one-paragraph
+commit "fix: <what was wrong, in plain terms>" — never finding IDs or iteration
+numbers in the subject, no Co-authored-by; reply with a one-paragraph
 summary + commit SHA; do NOT push, open PRs, or modify LOOP.md.
 ```
 
@@ -34,7 +35,7 @@ summary + commit SHA; do NOT push, open PRs, or modify LOOP.md.
 
 ```bash
 git checkout <feature-name>
-git merge --no-ff <feature-name>-<slot> -m "merge: <slot description> into <feature-name>"
+git merge --no-ff <feature-name>-<slot> -m "merge: <what the slot did> into <feature-name>"
 git worktree remove .worktrees/<feature-name>-<slot>
 git branch -d <feature-name>-<slot>
 ```

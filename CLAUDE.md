@@ -121,7 +121,7 @@ Plans live in `docs/<feature-name>/PLAN.md`; reviews in `docs/<feature-name>/REV
 
 ## docs/ Artifacts
 
-Artifacts produced during a dev-loop session accumulate under `docs/`. Each feature gets its own subdirectory:
+Artifacts produced during a dev-loop session accumulate under the artifact root — `docs/` by default, or wherever the user pointed it (a scratch or gitignored directory, for work whose paper trail is temporary; a gitignored root means the artifacts are written and read but never committed). Every artifact-producing skill carries the same `## Artifact Location` block stating this, so keep them identical when editing one. Each feature gets its own subdirectory:
 
 ```text
 docs/

@@ -17,6 +17,12 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 `<feature-name>` is the audited scope — the module named in the invocation, or
 `repo` for a whole-tree pass.
 
+## Artifact Location
+
+Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
+`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
+artifacts are scratch — write and read them as normal, but **never commit them**.
+
 ## Scope
 
 Skip what isn't yours to cut: `node_modules`, `vendor`, build output, generated

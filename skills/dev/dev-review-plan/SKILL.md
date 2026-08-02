@@ -14,6 +14,12 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 No-op — this skill only writes `PLAN-REVIEW.md`; present for consistency.
 
+## Artifact Location
+
+Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
+`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
+artifacts are scratch — write and read them as normal, but **never commit them**.
+
 ## 1. Locate the Plan
 
 Named feature → `docs/<feature-name>/PLAN.md`; else `ls docs/*/PLAN.md` (prefer `status: Planned`). None → offer `dev-create-plan`.

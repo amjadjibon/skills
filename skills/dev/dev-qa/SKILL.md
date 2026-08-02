@@ -13,8 +13,14 @@ Systematic coverage analysis + writing the missing tests. Distinct from `dev-deb
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
 - `lite` (default) — one commit, one branch, one PR for all new tests.
-- `full` — one branch per module (`<feature-name>/qa-<module>`), stacked PRs.
+- `full` — one branch per module (`<feature-name>/<module>-tests`), stacked PRs.
 - `ultra` — independent test suites written in parallel worktrees (subagent type `dev-tester` when available, else general-purpose — one per module, briefed with its worktree path, branch, and §3 gaps), merged and reported together.
+
+## Artifact Location
+
+Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
+`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
+artifacts are scratch — write and read them as normal, but **never commit them**.
 
 ## 1. Scope
 
@@ -53,7 +59,7 @@ Re-run §2, compare (`Before: 61% | auth/handler.go: 34%` → `After: 78% | 89%`
 
 Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
-**`lite`**: `git add <test files> && git commit -m "test: add QA coverage for <feature>"`, push, `gh pr create --base main`. **`full`**: per module on its own stacked branch `<feature-name>/qa-<module>`. **Called by `dev-loop`**: commit only — the loop pushes and opens the PR after user approval.
+**`lite`**: `git add <test files> && git commit -m "test: cover <what the tests exercise>"`, push, `gh pr create --base main`. **`full`**: per module on its own stacked branch `<feature-name>/<module>-tests` via `gh stack add` + `gh stack submit --auto` (`git-safe` § Stacked PRs). **Called by `dev-loop`**: commit only — the loop pushes and opens the PR after user approval.
 
 ## 7. QA Report
 

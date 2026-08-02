@@ -23,6 +23,12 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 - `full` — same map, mirrored to GitHub issues (`gh issue create --label wayfinder`), the map itself an issue labelled `wayfinder:map`. Use when the work outlives one session or more than one person is charting.
 - `ultra` — `full`, plus every open Research ticket fans out to a parallel `dev-researcher` sub-agent (else general-purpose) at once instead of one at a time.
 
+## Artifact Location
+
+Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
+`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
+artifacts are scratch — write and read them as normal, but **never commit them**.
+
 ## 1. Name the Destination
 
 One sentence describing what "done" looks like — a written spec, a made decision, or a shipped

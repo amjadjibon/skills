@@ -16,6 +16,12 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 - `full` — one branch + one stacked PR per phase (§3).
 - `ultra` — phases marked `**Parallel**: yes` build in separate worktrees simultaneously; merge each into the stack when its completion criteria pass.
 
+## Artifact Location
+
+Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
+`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
+artifacts are scratch — write and read them as normal, but **never commit them**.
+
 ## Execution Principles
 
 **Simplicity ladder** — stop at the first rung that satisfies the task: (1) doesn't need to exist → skip, note why; (2) stdlib/platform covers it; (3) already-installed dependency; (4) one function or one line; (5) only then minimum custom code.
@@ -42,7 +48,7 @@ Named feature → `docs/<feature-name>/PLAN.md`; else `ls docs/*/PLAN.md` (prefe
 Read the entire plan first.
 
 1. **`status`**: `Planned` → fresh start · `In progress` → resume (§5) · `Completed`/`Deprecated` → stop and confirm · `On Hold` → ask.
-2. **Sync** (only if a remote exists): `git fetch origin`, rebase onto `origin/main`. **Never rebase when phase branches are already pushed** (`git ls-remote --heads origin '<feature-name>/phase-*'` returns anything) — that rewrites the stacked PRs; warn and continue unrebased.
+2. **Sync** (only if a remote exists): `git fetch origin`, rebase onto `origin/main`. **Never rebase by hand when phase branches are already pushed** (`git ls-remote --heads origin '<feature-name>/*'` returns anything) — that rewrites the stacked PRs; use `gh stack sync`, or warn and continue unrebased.
 3. **Working copy clean?** Uncommitted unrelated changes contaminate phase commits — warn.
 4. **Mark started** in its own commit: `status: 'In progress'`, `last_updated`, badge → `docs: start <feature-name> implementation`.
 
@@ -51,15 +57,15 @@ Read the entire plan first.
 `lite` (default): stay on one branch `<feature-name>`, tick checkboxes and run completion criteria per phase, but commit and push once at the end (§8). `full`: per phase —
 
 ```
-1. git checkout -b <feature-name>/phase-<N>      # base = previous phase or main
+1. gh stack init <feature-name>/<phase-slug>   # first phase; later phases: gh stack add <...>
 2. Execute each task; tick its checkbox immediately (same phase commit)
 3. Verify completion criteria — run the command, don't assume
 4. git add -u && git commit -m "<type>: <phase summary>"   # new files: explicit paths
-5. git push -u origin <feature-name>/phase-<N>
-    gh pr create --base <previous-branch-or-main> --title "<imperative ≤60 chars>" \
-      --body "<phase Goal + task list + completion criteria>"
-6. Next phase branches off this one
+5. gh stack submit --auto                      # pushes the stack, opens/updates each PR on the right base
+6. Next phase: back to 1 — gh stack add stacks it on this one
 ```
+
+The stack is managed by the `gh-stack` skill (see `git-safe` § Stacked PRs for the non-interactive command set and the fallback when the extension isn't installed) — don't hand-chain `gh pr create --base`, and fix a lower layer by navigating down to it, not by patching at the top.
 
 Rules:
 - Never tick a box for unverified work. Completion criteria are gates — fix before committing.
@@ -92,6 +98,6 @@ All boxes ticked (or blocked with user sign-off):
 1. `status: 'Completed'`, `last_updated`, badge.
 2. `full`: commit `docs: complete <feature-name> plan` on the last phase branch (PRs already open). `lite`: same commit on `<feature-name>`, then `git push -u origin <feature-name> && gh pr create --base main --title "<imperative ≤60 chars>" --body "<summary + tasks + criteria>"`.
 
-Report: plan path, phase count, PR URL(s) (`full`: one per phase with bases — merge phase-1 first, GitHub auto-retargets), deviations, what was run to verify.
+Report: plan path, phase count, PR URL(s) (`full`: one per phase with bases — merge in plan order, first phase first, GitHub auto-retargets), deviations, what was run to verify.
 
 No remote → skip pushes, say the branch is ready locally. Interrupted → leave `In progress`, tick finished tasks, commit partial work, say where to resume.

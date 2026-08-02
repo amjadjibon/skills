@@ -18,6 +18,12 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 `<feature-name>` is the scanned scope — the module named in the invocation, or
 `repo` for a whole-tree scan.
 
+## Artifact Location
+
+Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
+`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
+artifacts are scratch — write and read them as normal, but **never commit them**.
+
 ## Scan
 
 ```sh

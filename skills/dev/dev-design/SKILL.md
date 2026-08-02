@@ -16,6 +16,12 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 - `full` — same axes, plus 2–3 sentences per axis on the alternative considered and why it lost.
 - `ultra` — one research sub-agent per open question (existing API conventions, a library's capabilities, a platform's UI guidelines), parallel, merged into one DESIGN.md; use when an axis hinges on something unverified from reading the repo alone.
 
+## Artifact Location
+
+Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
+`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
+artifacts are scratch — write and read them as normal, but **never commit them**.
+
 ## 1. Frame the Feature
 
 Named feature → kebab-case `<feature-name>`. If `docs/<feature-name>/RESEARCH.md` exists, read it — the design follows its recommendation and inherits its assumptions rather than re-deciding approach.

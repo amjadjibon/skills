@@ -16,6 +16,12 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 - `full` — spike each candidate; keep spikes in `docs/<feature-name>/spikes/`.
 - `ultra` — one agent per independent question, in parallel (plain sub-agents — worktree only for a candidate needing a spike); orchestrator merges into one RESEARCH.md.
 
+## Artifact Location
+
+Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
+`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
+artifacts are scratch — write and read them as normal, but **never commit them**.
+
 ## 1. Frame the Question
 
 Turn the request into 1–3 answerable questions ("should we cache session lookups in-process or in Redis, given multi-instance deployment?" — not "research caching"). Named feature → kebab-case `<feature-name>`. Genuinely ambiguous → ask one focused question; in autonomous mode, state the interpretation as an assumption and proceed. If the request has no answerable question in it yet — an open idea, not a decision — `brainstorming` comes first; research verifies a candidate, it doesn't generate the candidates.

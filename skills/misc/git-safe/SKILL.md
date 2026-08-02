@@ -41,7 +41,20 @@ Every `git commit` in this repo's skills follows this, no exceptions:
 - Subject line ≤72 chars, imperative mood, why-focused not what-focused (e.g. `fix: prevent double-charge on retry`, not `fix: added a check`).
 - Conventional type prefix matching the change: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `plan:`, `chore:`.
 - One logical change per commit — a plan phase, a review-finding fix, a doc update — not a grab-bag.
+- **Nothing git-visible names the tooling.** Subjects, branch names, and PR titles never mention a skill, loop, iteration, phase number, finding ID, or workflow status: `fix: reject expired refresh tokens`, not `fix: address HIGH-002 from iteration 3`. That bookkeeping stays in the artifacts, where it's still findable; history reads the same whether a human or this plugin wrote it.
 - This is the canonical convention other skills point to instead of restating it; see `skills/dev/dev-implement-plan/SKILL.md` §3 and `skills/dev/dev-create-plan/SKILL.md` for it applied to phase commits and plan-status commits.
+
+## Stacked PRs
+
+`full`/`ultra` stacks are built with the **`gh-stack`** skill (`gh extension install github/gh-stack`), not hand-chained `gh pr create --base` — it owns the bases, the rebases, and the GitHub stack object. Invoke that skill for the full command set; the essentials, always non-interactive:
+
+- `gh stack init <feature-name>/<first-slug>`, then `gh stack add <feature-name>/<next-slug>` from the top branch for each later phase. Names are used verbatim, so pass the full branch name.
+- `gh stack submit --auto` after each phase commit — pushes every branch, opens/updates each PR against the right base (`--open` for ready-for-review instead of draft).
+- `gh stack sync` after anything merges (`--prune` to drop merged locals); `gh stack view --json` to read state — never bare, it opens a TUI; `gh stack merge --yes` to land the stack, since `gh pr merge` can't.
+- Need a change in a lower layer: `gh stack down` (or `checkout`), commit it there, `gh stack rebase --upstack`, then back up. Never patch it at the top.
+- Extension unavailable → fall back to `git push -u origin <branch>` + `gh pr create --base <previous-branch>` per phase.
+
+The gated commands above still apply inside a stack: `gh stack` rebases and force-with-lease pushes branches, so it is safe on your own stack and dangerous on one someone else is reviewing.
 
 ## What this skill does not gate
 
