@@ -1,6 +1,6 @@
 # skills
 
-A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 30 skills, 4 sub-agents, and the `/dev-skills-loop` orchestrator command.
+A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 31 skills, 4 sub-agents, and the `/dev-skills-loop` orchestrator command.
 
 > [!CAUTION]
 > **Read every skill before you install it. Nothing here is guaranteed.**
@@ -74,6 +74,7 @@ If a skill doesn't show up after install, run `/reload-plugins` (or restart the 
 | [dev-perf](skills/dev/dev-perf/SKILL.md) | Profile, optimize, and benchmark — measure baseline first, find the real bottleneck, optimize one thing at a time, confirm improvement with numbers. |
 | [dev-review-plan](skills/dev/dev-review-plan/SKILL.md) | Review a PLAN.md before implementation — catch vague tasks, missing completion criteria, risky assumptions, and scope issues. Writes findings to `docs/<feature>/PLAN-REVIEW.md`. |
 | [dev-qa](skills/dev/dev-qa/SKILL.md) | Quality assurance — measure test coverage, identify untested paths, write missing unit/integration/e2e tests, produce a QA report with before/after coverage numbers. |
+| [dev-docs](skills/dev/dev-docs/SKILL.md) | Write documentation someone will actually read — one reader, one shape, working example first, examples verified by running them, then a deletion pass that cuts the preambles, the marketing words, and everything kept "for completeness". |
 | [dev-clean-up](skills/dev/dev-clean-up/SKILL.md) | Housekeeping — remove merged local and remote branches, prune stale tracking refs, close resolved GitHub issues, clean up leftover worktrees. |
 | [dev-release](skills/dev/dev-release/SKILL.md) | Cut a release — derive the version bump from conventional commits, generate a changelog, bump version files, tag, and publish a GitHub release. |
 | [dev-ponytail](skills/dev/dev-ponytail/SKILL.md) | Session-long minimalism overlay — climb a ladder (does it need to exist → already in the codebase → stdlib → native platform → installed dependency → one line) and ship the smallest working diff, with a short note on what was skipped and when to add it. |

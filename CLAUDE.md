@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This repository is the `dev-skills` Claude Code plugin: 30 skills, 4 sub-agents, and the `/dev-skills-loop` command, distributed via the repo's own marketplace (`.claude-plugin/marketplace.json`). Skills are behavior overlays invoked via the Skill tool; agents are the parallel workers the skills spawn.
+This repository is the `dev-skills` Claude Code plugin: 31 skills, 4 sub-agents, and the `/dev-skills-loop` command, distributed via the repo's own marketplace (`.claude-plugin/marketplace.json`). Skills are behavior overlays invoked via the Skill tool; agents are the parallel workers the skills spawn.
 
 ## Structure
 
@@ -121,7 +121,7 @@ Plans live in `docs/<feature-name>/PLAN.md`; reviews in `docs/<feature-name>/REV
 
 ## docs/ Artifacts
 
-Artifacts produced during a dev-loop session accumulate under the artifact root — `docs/` by default, or wherever the user pointed it (a scratch or gitignored directory, for work whose paper trail is temporary; a gitignored root means the artifacts are written and read but never committed). Every artifact-producing skill carries the same `## Artifact Location` block stating this, so keep them identical when editing one. Each feature gets its own subdirectory:
+Artifacts produced during a dev-loop session accumulate under the artifact root — `docs/` by default, or wherever the user pointed it (a scratch or gitignored directory, for work whose paper trail is temporary; a gitignored root means the artifacts are written and read but never committed). The eleven skills writing `docs/<feature-name>/` artifacts carry the same `## Artifact Location` block stating this, so keep them identical when editing one (`dev-docs` deliberately differs — its output is the project's published docs, which follow the repo's own convention). Each feature gets its own subdirectory:
 
 ```text
 docs/
