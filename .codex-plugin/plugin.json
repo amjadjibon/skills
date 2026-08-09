@@ -1,0 +1,36 @@
+{
+  "name": "dev-skills",
+  "version": "1.39.1",
+  "description": "Autonomous development workflow for Codex with 31 composable engineering skills.",
+  "author": {
+    "name": "Amjad Hossain",
+    "url": "https://github.com/amjadjibon"
+  },
+  "homepage": "https://github.com/amjadjibon/skills",
+  "repository": "https://github.com/amjadjibon/skills",
+  "keywords": [
+    "development",
+    "workflow",
+    "testing",
+    "code-review",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Dev Skills",
+    "shortDescription": "Plan, build, test, and review with Codex",
+    "longDescription": "Research, design, planning, implementation, TDD, QA, review, debugging, release, and cleanup workflows for Codex.",
+    "developerName": "Amjad Hossain",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/amjadjibon/skills",
+    "defaultPrompt": [
+      "Plan and implement this feature with dev-loop",
+      "Review my current changes for correctness",
+      "Debug this failure and add a regression test"
+    ]
+  }
+}

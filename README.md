@@ -53,6 +53,35 @@ claude --plugin-dir /path/to/skills
 
 If a skill doesn't show up after install, run `/reload-plugins` (or restart the session) and re-check with `claude plugin list`.
 
+## Installing the Plugin in Codex
+
+Requires the [Codex CLI](https://developers.openai.com/codex/cli/).
+
+1. Add this repository as a plugin marketplace:
+
+   ```sh
+   codex plugin marketplace add amjadjibon/skills
+   ```
+
+2. Install the plugin:
+
+   ```sh
+   codex plugin add dev-skills@amjadjibon-skills
+   ```
+
+3. Confirm that it is installed and enabled:
+
+   ```sh
+   codex plugin list
+   ```
+
+Invoke a skill using its `dev-skills:` namespace:
+
+```text
+/dev-skills:dev-create-plan add rate limiting to the API
+/dev-skills:dev-loop add rate limiting to the API
+```
+
 ## Skills
 
 | Skill | Description |
