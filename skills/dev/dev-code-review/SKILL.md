@@ -1,12 +1,12 @@
 ---
 name: dev-code-review
-description: Review a diff, branch, or PR for correctness bugs, security issues, and simplification opportunities; findings to docs/<feature-name>/REVIEW.md. Trigger on "review this", "code review", "security review", "audit this", or after something is implemented and needs checking before merge.
+description: Review a diff, branch, or PR for correctness bugs, security issues, and simplification opportunities; findings to .spec/<feature-name>/REVIEW.md. Trigger on "review this", "code review", "security review", "audit this", or after something is implemented and needs checking before merge.
 argument-hint: "[lite|full|ultra]"
 ---
 
 # Code Review
 
-Review changes — correctness, security, simplicity — and write findings to `docs/<feature-name>/REVIEW.md`.
+Review changes — correctness, security, simplicity — and write findings to `.spec/<feature-name>/REVIEW.md`.
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
@@ -20,9 +20,11 @@ Applies only if asked to also apply fixes; the review pass itself is unaffected.
 
 ## Artifact Location
 
-Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
-`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
-artifacts are scratch — write and read them as normal, but **never commit them**.
+Artifact paths below use `.spec/` as the default root. Only a custom root explicitly named by the
+user overrides it; replace the `.spec/` prefix in every path and command below with that root.
+`dev-loop` passes the resolved root to the skills it invokes. Never discover, migrate, or fall back to
+legacy `docs/` artifacts. A gitignored or out-of-repo custom root means the artifacts are scratch —
+write and read them as normal, but **never commit them**.
 
 ## 1. Identify What to Review
 
@@ -40,7 +42,7 @@ Scope ambiguous (no branch, PR, or files named)? Ask first.
 
 ## 2. Feature Name
 
-Branch name, PR title, or ask → `<feature-name>` for `docs/<feature-name>/REVIEW.md`.
+Branch name, PR title, or ask → `<feature-name>` for `.spec/<feature-name>/REVIEW.md`.
 
 ## 3. Review Checklist
 
@@ -72,7 +74,7 @@ Only report real issues; apply language-appropriate standards.
 
 ## 5. Write REVIEW.md
 
-Save to `docs/<feature-name>/REVIEW.md`. Overwriting a previous pass is intentional — REVIEW.md is always the latest review; per-iteration history lives in dev-loop's LOOP.md.
+Save to `.spec/<feature-name>/REVIEW.md`. Overwriting a previous pass is intentional — REVIEW.md is always the latest review; per-iteration history lives in dev-loop's LOOP.md.
 
 ````markdown
 ---
@@ -133,7 +135,7 @@ The Machine-Readable Verdict block is **always** last — dev-loop parses it. `A
 ## 6. Report to Caller
 
 ```
-Review written to docs/<feature-name>/REVIEW.md
+Review written to .spec/<feature-name>/REVIEW.md
 Verdict: <Approve | Request Changes | Block>
 Findings: <N> critical, <N> high, <N> medium, <N> low
 ```

@@ -11,7 +11,7 @@ cut first.
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
 - `lite` (default) — the ten biggest cuts, inline. Dependencies and the largest files first; that's where the mass is.
-- `full` — whole tree, every finding, ranked. Writes `docs/<feature-name>/AUDIT.md`.
+- `full` — whole tree, every finding, ranked. Writes `.spec/<feature-name>/AUDIT.md`.
 - `ultra` — `full` fanned out: one read-only sub-agent per top-level module in parallel (`dev-researcher` when available, else general-purpose), each returning the format below. Merge, de-duplicate, rank, write the same file.
 
 `<feature-name>` is the audited scope — the module named in the invocation, or
@@ -19,9 +19,11 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 ## Artifact Location
 
-Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
-`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
-artifacts are scratch — write and read them as normal, but **never commit them**.
+Artifact paths below use `.spec/` as the default root. Only a custom root explicitly named by the
+user overrides it; replace the `.spec/` prefix in every path and command below with that root.
+`dev-loop` passes the resolved root to the skills it invokes. Never discover, migrate, or fall back to
+legacy `docs/` artifacts. A gitignored or out-of-repo custom root means the artifacts are scratch —
+write and read them as normal, but **never commit them**.
 
 ## Scope
 

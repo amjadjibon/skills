@@ -117,19 +117,26 @@ dev-loop
                                                                                        └──── fix agents ─────────────────┘ (parallel, per-finding)
 ```
 
-Plans live in `docs/<feature-name>/PLAN.md`; reviews in `docs/<feature-name>/REVIEW.md`.
+Plans live in `.spec/<feature-name>/PLAN.md`; reviews in `.spec/<feature-name>/REVIEW.md`.
 
-## docs/ Artifacts
+## `.spec/` Workflow Artifacts
 
-Artifacts produced during a dev-loop session accumulate under the artifact root — `docs/` by default, or wherever the user pointed it (a scratch or gitignored directory, for work whose paper trail is temporary; a gitignored root means the artifacts are written and read but never committed). The eleven skills writing `docs/<feature-name>/` artifacts carry the same `## Artifact Location` block stating this, so keep them identical when editing one (`dev-docs` deliberately differs — its output is the project's published docs, which follow the repo's own convention). Each feature gets its own subdirectory:
+Artifacts produced during a dev-loop session accumulate under the artifact root — `.spec/` by default, or an explicit custom root supplied by the user (a scratch or gitignored directory, for work whose paper trail is temporary; a gitignored root means the artifacts are written and read but never committed). The workflow never discovers, migrates, or falls back to legacy artifacts under `docs/`. The eleven skills writing `.spec/<feature-name>/` artifacts carry the same `## Artifact Location` block stating this, so keep them identical when editing one (`dev-docs` deliberately differs — its output is the project's published docs, which follow the repo's own convention). Each feature gets its own subdirectory:
 
 ```text
-docs/
+.spec/
   <feature-name>/
     MAP.md         # created by dev-wayfinder (optional, pre-everything)
     RESEARCH.md    # created by dev-research (optional, pre-plan)
     DESIGN.md      # created by dev-design (optional, pre-plan)
     prototype.html # created by dev-ui-design (optional, pre-plan)
     PLAN.md        # created by dev-create-plan, mutated by dev-implement-plan
-    REVIEW.md   # created/overwritten each review pass by dev-code-review
+    PLAN-REVIEW.md # created by dev-review-plan
+    QA.md          # created by dev-qa
+    REVIEW.md      # created/overwritten each review pass by dev-code-review
+    LOOP.md        # created/updated by dev-loop
+    AUDIT.md       # created by dev-ponytail-audit
+    DEBT.md        # created by dev-ponytail-debt
+    research/      # scoped research notes
+    spikes/        # full-mode research spikes
 ```

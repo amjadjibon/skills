@@ -1,12 +1,12 @@
 ---
 name: dev-ui-design
-description: Build a clickable UI prototype as one self-contained HTML file (inline CSS, no build step, no framework) at docs/<feature-name>/prototype.html, opened straight in a browser. Trigger on "prototype this UI", "mock up this screen", "show me what this would look like", or wanting to click through a layout first.
+description: Build a clickable UI prototype as one self-contained HTML file (inline CSS, no build step, no framework) at .spec/<feature-name>/prototype.html, opened straight in a browser. Trigger on "prototype this UI", "mock up this screen", "show me what this would look like", or wanting to click through a layout first.
 argument-hint: "[lite|full|ultra]"
 ---
 
 # UI Prototype
 
-A prototype answers "does this layout/flow feel right?" faster than real components can — no build step, no routing, no state library, just one HTML file someone opens in a browser and clicks through. If `dev-design` already wrote a UI/UX axis in `docs/<feature-name>/DESIGN.md`, this skill turns that text wireframe into something clickable; if not, it starts fresh from the request.
+A prototype answers "does this layout/flow feel right?" faster than real components can — no build step, no routing, no state library, just one HTML file someone opens in a browser and clicks through. If `dev-design` already wrote a UI/UX axis in `.spec/<feature-name>/DESIGN.md`, this skill turns that text wireframe into something clickable; if not, it starts fresh from the request.
 
 **Throwaway by design.** Nothing here becomes production code — inline styles, no components, no build tooling, copy-pasted markup over reusable abstractions. The moment it's approved, real implementation starts from scratch using the project's actual stack; the prototype's job is to be looked at and clicked, not maintained.
 
@@ -20,16 +20,18 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 ## Artifact Location
 
-Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
-`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
-artifacts are scratch — write and read them as normal, but **never commit them**.
+Artifact paths below use `.spec/` as the default root. Only a custom root explicitly named by the
+user overrides it; replace the `.spec/` prefix in every path and command below with that root.
+`dev-loop` passes the resolved root to the skills it invokes. Never discover, migrate, or fall back to
+legacy `docs/` artifacts. A gitignored or out-of-repo custom root means the artifacts are scratch —
+write and read them as normal, but **never commit them**.
 
 ## 1. Ground It in the Real Product
 
 A prototype that looks like nothing else in the app is a worse prototype, not a bolder one.
 
 ```bash
-ls docs/<feature-name>/DESIGN.md 2>/dev/null
+ls .spec/<feature-name>/DESIGN.md 2>/dev/null
 grep -rln "<related component/screen name>" --include="*.css" --include="*.tsx" --include="*.html" | head
 ```
 
@@ -50,10 +52,10 @@ Open the mental checklist, not the file: does every interactive element look cli
 
 ## 4. Save and Report
 
-Save to `docs/<feature-name>/prototype.html`. Report the file path and how to view it (`open docs/<feature-name>/prototype.html` or equivalent for the user's OS), which states/variants it covers, and one line on what it was matched against in §1.
+Save to `.spec/<feature-name>/prototype.html`. Report the file path and how to view it (`open .spec/<feature-name>/prototype.html` or equivalent for the user's OS), which states/variants it covers, and one line on what it was matched against in §1.
 
 ## 5. Commit
 
 Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
-`git add docs/<feature-name>/prototype.html && git commit -m "prototype: <feature-name> UI"`. No push, no PR — the prototype travels with the feature branch, same as research and design.
+`git add .spec/<feature-name>/prototype.html && git commit -m "prototype: <feature-name> UI"`. No push, no PR — the prototype travels with the feature branch, same as research and design.

@@ -12,7 +12,7 @@ become permanent.
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
 - `lite` (default) — the ledger inline, grouped by file.
-- `full` — plus `git blame` age per row, oldest first. Writes `docs/<feature-name>/DEBT.md`.
+- `full` — plus `git blame` age per row, oldest first. Writes `.spec/<feature-name>/DEBT.md`.
 - `ultra` — `full`, then read the code around each row and mark whether the stated trigger has already fired (`FIRED` / `not yet` / `unclear`). A shortcut whose condition is already true is the point of the whole ledger.
 
 `<feature-name>` is the scanned scope — the module named in the invocation, or
@@ -20,9 +20,11 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 ## Artifact Location
 
-Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
-`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
-artifacts are scratch — write and read them as normal, but **never commit them**.
+Artifact paths below use `.spec/` as the default root. Only a custom root explicitly named by the
+user overrides it; replace the `.spec/` prefix in every path and command below with that root.
+`dev-loop` passes the resolved root to the skills it invokes. Never discover, migrate, or fall back to
+legacy `docs/` artifacts. A gitignored or out-of-repo custom root means the artifacts are scratch —
+write and read them as normal, but **never commit them**.
 
 ## Scan
 

@@ -1,7 +1,7 @@
 # LOOP.md Template
 
 Read this at Bootstrap step 7, and again on resume if the file's structure is unclear. It lives at
-`<artifact_root>/<feature-name>/LOOP.md` — `docs/` unless §1.2 resolved somewhere else. The loop
+`<artifact_root>/<feature-name>/LOOP.md` — `.spec/` unless §1.2 records an explicit custom root. The loop
 parses this file to resume from disk alone — keep the structure exact.
 
 Fill `max_iterations` from the §0 mode table, then commit
@@ -13,7 +13,7 @@ feature: <feature-name>
 task: <original task description>
 branch: <feature-name>
 mode: <lite|full|ultra>
-artifact_root: docs/   # or wherever §1.2 resolved; gitignored root → never commit these files
+artifact_root: .spec/   # or an explicit custom root from §1.2; gitignored root → never commit these files
 started: <YYYY-MM-DD>
 max_iterations: <3 lite | 5 full | 8 ultra>
 current_iteration: 1

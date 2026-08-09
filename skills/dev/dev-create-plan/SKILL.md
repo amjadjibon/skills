@@ -1,12 +1,12 @@
 ---
 name: dev-create-plan
-description: Write docs/<feature-name>/PLAN.md with phased, checkbox-driven steps for a feature, refactor, upgrade, or infrastructure change. Trigger on "create/make a plan", "plan this feature/refactor/upgrade", any request to document steps before coding, and proactively when complexity warrants a written plan.
+description: Write .spec/<feature-name>/PLAN.md with phased, checkbox-driven steps for a feature, refactor, upgrade, or infrastructure change. Trigger on "create/make a plan", "plan this feature/refactor/upgrade", any request to document steps before coding, and proactively when complexity warrants a written plan.
 argument-hint: "[lite|full|ultra]"
 ---
 
 # Create Implementation Plan
 
-Create `docs/<feature-name>/PLAN.md` for autonomous execution by agents or humans.
+Create `.spec/<feature-name>/PLAN.md` for autonomous execution by agents or humans.
 
 **Interactive** (user runs it): ask one focused question only if scope is truly ambiguous. **Autonomous** (called by `dev-loop`): never ask — research, assume, document.
 
@@ -26,25 +26,27 @@ Any phase whose tasks should be built test-first gets `**Test-first**: yes` — 
 
 ## Artifact Location
 
-Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
-`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
-artifacts are scratch — write and read them as normal, but **never commit them**.
+Artifact paths below use `.spec/` as the default root. Only a custom root explicitly named by the
+user overrides it; replace the `.spec/` prefix in every path and command below with that root.
+`dev-loop` passes the resolved root to the skills it invokes. Never discover, migrate, or fall back to
+legacy `docs/` artifacts. A gitignored or out-of-repo custom root means the artifacts are scratch —
+write and read them as normal, but **never commit them**.
 
 ## Step 0 — Research First
 
 ```bash
 git branch --show-current
 find . -type f -name "*.go" | head -20   # or *.ts, *.py
-ls docs/ 2>/dev/null
+ls .spec/ 2>/dev/null
 ```
 
-Read 3–5 key files (routing, middleware, error handling, tests). Record findings as `ASSUMPTION-*` in §4. If `docs/<feature-name>/RESEARCH.md` or `docs/<feature-name>/DESIGN.md` exists, read them — the plan follows the recommendation/shape they settled and inherits their assumptions.
+Read 3–5 key files (routing, middleware, error handling, tests). Record findings as `ASSUMPTION-*` in §4. If `.spec/<feature-name>/RESEARCH.md` or `.spec/<feature-name>/DESIGN.md` exists, read them — the plan follows the recommendation/shape they settled and inherits their assumptions.
 
 **Unknown externals → research sub-agents, not guesses.** If the plan hinges on a third-party API, unfamiliar library, or anything a doc/internet lookup can settle, spawn one research sub-agent per question (subagent type `dev-researcher` when available, else general-purpose with the template in dev-research §6; parallel when independent). Reference answers as `research/<topic-slug>.md`; commit the topic files with the plan.
 
 ## Git
 
-1. `git checkout -b <feature-name>`, then `git add docs/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`.
+1. `git checkout -b <feature-name>`, then `git add .spec/<feature-name>/PLAN.md && git commit -m "plan: <feature-name>"`.
 2. Phase branches (`full`/`ultra`): `<feature-name>/<phase-slug>` — 2–4 kebab words for what the phase does (`auth-service/token-refresh`, not `.../phase-2`), unique within the feature, written into each phase's `**Branch**` field. Order lives in PLAN.md and each branch's base, not the name.
 3. PR titles and commit subjects: imperative ≤60 chars, describing the work — never a phase number, iteration count, finding ID, or skill name. That bookkeeping stays in the artifacts.
 4. Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
@@ -147,4 +149,4 @@ Repeat the phase block per phase in every mode; only the branch/base lines diffe
 
 ## Process
 
-Research (Step 0) → `git checkout -b <feature-name>` → write PLAN.md from the template (Agent Prompt in every phase) → commit → report: "Plan created at `docs/<feature-name>/PLAN.md` on branch `<feature-name>`."
+Research (Step 0) → `git checkout -b <feature-name>` → write PLAN.md from the template (Agent Prompt in every phase) → commit → report: "Plan created at `.spec/<feature-name>/PLAN.md` on branch `<feature-name>`."

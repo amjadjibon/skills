@@ -1,26 +1,28 @@
 ---
 name: dev-research
-description: Answer one scoped question before code is written — a third-party API contract, a library capability, a doc lookup, or which approach to take — verified with spikes and web/doc lookups, written to docs/<feature-name>/RESEARCH.md. Trigger on "research/investigate/spike this", "explore options", "which library should we use".
+description: Answer one scoped question before code is written — a third-party API contract, a library capability, a doc lookup, or which approach to take — verified with spikes and web/doc lookups, written to .spec/<feature-name>/RESEARCH.md. Trigger on "research/investigate/spike this", "explore options", "which library should we use".
 argument-hint: "[lite|full|ultra]"
 ---
 
 # Research
 
-Answer a question before code gets written. Output: `docs/<feature-name>/RESEARCH.md` — a recommendation `dev-create-plan` consumes directly. Research is read-mostly; the only code written is throwaway spikes, never merged.
+Answer a question before code gets written. Output: `.spec/<feature-name>/RESEARCH.md` — a recommendation `dev-create-plan` consumes directly. Research is read-mostly; the only code written is throwaway spikes, never merged.
 
 ## Delivery Mode (`lite | full | ultra`, default `lite`)
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
 - `lite` (default) — answer from reading code and docs; spike only when nothing else can verify a claim.
-- `full` — spike each candidate; keep spikes in `docs/<feature-name>/spikes/`.
+- `full` — spike each candidate; keep spikes in `.spec/<feature-name>/spikes/`.
 - `ultra` — one agent per independent question, in parallel (plain sub-agents — worktree only for a candidate needing a spike); orchestrator merges into one RESEARCH.md.
 
 ## Artifact Location
 
-Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
-`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
-artifacts are scratch — write and read them as normal, but **never commit them**.
+Artifact paths below use `.spec/` as the default root. Only a custom root explicitly named by the
+user overrides it; replace the `.spec/` prefix in every path and command below with that root.
+`dev-loop` passes the resolved root to the skills it invokes. Never discover, migrate, or fall back to
+legacy `docs/` artifacts. A gitignored or out-of-repo custom root means the artifacts are scratch —
+write and read them as normal, but **never commit them**.
 
 ## 1. Frame the Question
 
@@ -32,7 +34,7 @@ The answer is usually constrained by what exists:
 
 ```bash
 git log --oneline -15
-ls docs/*/PLAN.md docs/*/RESEARCH.md 2>/dev/null        # prior art — don't re-research
+ls .spec/*/PLAN.md .spec/*/RESEARCH.md 2>/dev/null        # prior art — don't re-research
 grep -rn "<relevant term>" --include="*.go" -l | head   # or *.ts, *.py
 ```
 
@@ -48,7 +50,7 @@ Every load-bearing claim is verified or marked as an assumption:
 
 - **Code behaviour** — read the source, not the README.
 - **Performance** — a 10-line benchmark beats a blog post.
-- **API/library capability** — a spike that compiles and runs (`docs/<feature-name>/spikes/<candidate>/` in `full`; scratch dir deleted after in `lite`).
+- **API/library capability** — a spike that compiles and runs (`.spec/<feature-name>/spikes/<candidate>/` in `full`; scratch dir deleted after in `lite`).
 - **Third-party contracts/docs** — WebFetch the official docs or WebSearch; prefer official docs, record the version — API answers rot.
 - **Unverifiable** (needs prod data, third-party account, load) — `ASSUMPTION-*` with how to verify later.
 
@@ -90,7 +92,7 @@ recommendation: <one line>
 
 ## 6. Sub-Agent Mode (called by another skill)
 
-`dev-create-plan`, `dev-implement-plan`, and `dev-loop` spawn research sub-agents for one scoped question (third-party API contract, library capability, doc lookup, internet search). In this mode: one question, one answer — skip §3 unless the question is itself "which of these"; never ask the user; write to `docs/<feature-name>/research/<topic-slug>.md` (same template — topic files so parallel agents never clobber each other); don't commit, push, or touch PLAN.md/LOOP.md — the caller owns git. Return: the answer (2–3 sentences), the file path, sources (doc URL + version, file path, or spike), surviving `ASSUMPTION-*`.
+`dev-create-plan`, `dev-implement-plan`, and `dev-loop` spawn research sub-agents for one scoped question (third-party API contract, library capability, doc lookup, internet search). In this mode: one question, one answer — skip §3 unless the question is itself "which of these"; never ask the user; write to `.spec/<feature-name>/research/<topic-slug>.md` (same template — topic files so parallel agents never clobber each other); don't commit, push, or touch PLAN.md/LOOP.md — the caller owns git. Return: the answer (2–3 sentences), the file path, sources (doc URL + version, file path, or spike), surviving `ASSUMPTION-*`.
 
 Briefing template for callers:
 
@@ -103,7 +105,7 @@ Context: <1-2 sentences on why the answer is needed>
 
 Verify per dev-research §4: read source/official docs (WebFetch/WebSearch),
 spike only if docs can't settle it. Record doc versions.
-Write findings to docs/<feature-name>/research/<topic-slug>.md.
+Write findings to .spec/<feature-name>/research/<topic-slug>.md.
 Do NOT commit, push, or modify PLAN.md/LOOP.md.
 Reply with: the answer (2-3 sentences), the file path, sources, remaining assumptions.
 ```
@@ -112,6 +114,6 @@ Reply with: the answer (2-3 sentences), the file path, sources, remaining assump
 
 Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
-`git add docs/<feature-name>/RESEARCH.md && git commit -m "research: <feature-name>"` (`full`: include `spikes/`). No push, no PR — research travels with the feature branch.
+`git add .spec/<feature-name>/RESEARCH.md && git commit -m "research: <feature-name>"` (`full`: include `spikes/`). No push, no PR — research travels with the feature branch.
 
 Report: file path, status, one-line recommendation, assumption count. `Inconclusive` → list what's blocking and what input resolves it. "Do nothing" is a valid conclusion — say it plainly.

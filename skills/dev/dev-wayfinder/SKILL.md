@@ -1,6 +1,6 @@
 ---
 name: dev-wayfinder
-description: Map a large, ambiguous project into a decision graph before planning — open questions resolved one ticket at a time in docs/<feature-name>/MAP.md until a PLAN.md is finally possible. Trigger on "this is too big to plan", "I don't know where to start", "chart this out", "map this project", "what do we need to decide first", or a request too undecided to phase.
+description: Map a large, ambiguous project into a decision graph before planning — open questions resolved one ticket at a time in .spec/<feature-name>/MAP.md until a PLAN.md is finally possible. Trigger on "this is too big to plan", "I don't know where to start", "chart this out", "map this project", "what do we need to decide first", or a request too undecided to phase.
 argument-hint: "[lite|full|ultra]"
 ---
 
@@ -19,15 +19,17 @@ ships a feature has failed at its actual job.
 
 Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; everything else is the task/feature description. No mode given → `lite`.
 
-- `lite` (default) — the map is `docs/<feature-name>/MAP.md` and nothing else; tickets are sections in it, resolved in this session.
+- `lite` (default) — the map is `.spec/<feature-name>/MAP.md` and nothing else; tickets are sections in it, resolved in this session.
 - `full` — same map, mirrored to GitHub issues (`gh issue create --label wayfinder`), the map itself an issue labelled `wayfinder:map`. Use when the work outlives one session or more than one person is charting.
 - `ultra` — `full`, plus every open Research ticket fans out to a parallel `dev-researcher` sub-agent (else general-purpose) at once instead of one at a time.
 
 ## Artifact Location
 
-Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
-`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
-artifacts are scratch — write and read them as normal, but **never commit them**.
+Artifact paths below use `.spec/` as the default root. Only a custom root explicitly named by the
+user overrides it; replace the `.spec/` prefix in every path and command below with that root.
+`dev-loop` passes the resolved root to the skills it invokes. Never discover, migrate, or fall back to
+legacy `docs/` artifacts. A gitignored or out-of-repo custom root means the artifacts are scratch —
+write and read them as normal, but **never commit them**.
 
 ## 1. Name the Destination
 
@@ -38,7 +40,7 @@ rather than guessing, because everything downstream inherits this sentence.
 Then kebab-case it into `<feature-name>` and check for prior art:
 
 ```bash
-ls docs/<feature-name>/ 2>/dev/null      # an existing MAP.md means resume, don't re-chart
+ls .spec/<feature-name>/ 2>/dev/null      # an existing MAP.md means resume, don't re-chart
 git log --oneline -15
 ```
 
@@ -62,7 +64,7 @@ when a neighbouring answer makes it askable.
 
 ## 3. Write MAP.md
 
-`docs/<feature-name>/MAP.md`. This file is the single source of truth — a wayfinder session that
+`.spec/<feature-name>/MAP.md`. This file is the single source of truth — a wayfinder session that
 ends without updating it has produced nothing.
 
 ````markdown
@@ -91,7 +93,7 @@ mode: <lite|full|ultra>
 **Blocks**: <…>
 
 ## Decisions So Far
-- **<Ticket Name>** — <one-line gist of the answer> (`docs/<feature-name>/research/<slug>.md`)
+- **<Ticket Name>** — <one-line gist of the answer> (`.spec/<feature-name>/research/<slug>.md`)
 
 ## Not Yet Specified
 - <question too foggy to ticket, and what would make it askable>
@@ -124,7 +126,7 @@ start has usually answered two of them wrong.
 Wayfinder is done when Open Tickets and Not Yet Specified are both empty, or when what remains no
 longer blocks a decision. Set `status: cleared` and hand off, saying which:
 
-- Shape still undecided (services, data model, contract) → `dev-design` → `docs/<feature-name>/DESIGN.md`
+- Shape still undecided (services, data model, contract) → `dev-design` → `.spec/<feature-name>/DESIGN.md`
 - Shape already settled by the decisions → `dev-create-plan` directly
 - Destination was itself a spec or a decision → the map *is* the deliverable; report it and stop
 
@@ -134,7 +136,7 @@ Never roll straight into implementation from here. The handoff is the point.
 
 Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
-`git add docs/<feature-name>/MAP.md && git commit -m "map: resolve <Ticket Name>"` — charting the
+`git add .spec/<feature-name>/MAP.md && git commit -m "map: resolve <Ticket Name>"` — charting the
 map for the first time is `map: chart <feature-name>`. No push, no PR; the map travels with the
 feature branch like RESEARCH.md and DESIGN.md. `full`/`ultra`: close the mirrored issue in the same
 step, so the tracker and the map never disagree.

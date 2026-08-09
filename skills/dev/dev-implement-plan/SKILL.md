@@ -1,6 +1,6 @@
 ---
 name: dev-implement-plan
-description: Execute an implementation plan from docs/<feature-name>/PLAN.md — tick checkboxes, commit each phase. Trigger on "implement/execute/continue/resume the plan", "start phase 1", "go" right after a plan was created, or whenever there is a PLAN.md to build, even if the user never says "plan".
+description: Execute an implementation plan from .spec/<feature-name>/PLAN.md — tick checkboxes, commit each phase. Trigger on "implement/execute/continue/resume the plan", "start phase 1", "go" right after a plan was created, or whenever there is a PLAN.md to build, even if the user never says "plan".
 argument-hint: "[lite|full|ultra]"
 ---
 
@@ -18,9 +18,11 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 ## Artifact Location
 
-Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
-`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
-artifacts are scratch — write and read them as normal, but **never commit them**.
+Artifact paths below use `.spec/` as the default root. Only a custom root explicitly named by the
+user overrides it; replace the `.spec/` prefix in every path and command below with that root.
+`dev-loop` passes the resolved root to the skills it invokes. Never discover, migrate, or fall back to
+legacy `docs/` artifacts. A gitignored or out-of-repo custom root means the artifacts are scratch —
+write and read them as normal, but **never commit them**.
 
 ## Execution Principles
 
@@ -30,7 +32,7 @@ artifacts are scratch — write and read them as normal, but **never commit them
 
 **Surgical changes.** Touch only what the task requires; match existing style; mention unrelated issues, don't fix them. Every changed line traces to the current task.
 
-**Don't guess at externals.** Blocked on how a third-party API/library actually behaves → check `docs/<feature-name>/research/`, else spawn a research sub-agent (subagent type `dev-researcher` when available, else general-purpose with the template in dev-research §6) and implement from its findings; commit the topic file with the phase.
+**Don't guess at externals.** Blocked on how a third-party API/library actually behaves → check `.spec/<feature-name>/research/`, else spawn a research sub-agent (subagent type `dev-researcher` when available, else general-purpose with the template in dev-research §6) and implement from its findings; commit the topic file with the phase.
 
 **Test-first phases.** A phase marked `**Test-first**: yes` in PLAN.md (or requested as test-first/TDD even without the marker) builds its tasks through `dev-tdd`'s red → green loop instead of writing the implementation first and tests after — same phase-commit rules from §3 apply, the loop just runs inside each task rather than test-then-code being a separate step.
 
@@ -41,7 +43,7 @@ artifacts are scratch — write and read them as normal, but **never commit them
 
 ## 1. Locate the Plan
 
-Named feature → `docs/<feature-name>/PLAN.md`; else `ls docs/*/PLAN.md` (prefer `status: 'In progress'`; several candidates → ask). None → offer `dev-create-plan`.
+Named feature → `.spec/<feature-name>/PLAN.md`; else `ls .spec/*/PLAN.md` (prefer `status: 'In progress'`; several candidates → ask). Do not search or fall back to `docs/`. None → offer `dev-create-plan`.
 
 ## 2. Pre-flight
 

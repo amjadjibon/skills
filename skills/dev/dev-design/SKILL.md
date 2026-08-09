@@ -1,6 +1,6 @@
 ---
 name: dev-design
-description: Decide a feature's shape before planning — system design, data model, API contract, UI/UX, whichever apply — and write docs/<feature-name>/DESIGN.md. Trigger on "design this feature/API/schema/UI", "how should we structure this", or between dev-research and dev-create-plan.
+description: Decide a feature's shape before planning — system design, data model, API contract, UI/UX, whichever apply — and write .spec/<feature-name>/DESIGN.md. Trigger on "design this feature/API/schema/UI", "how should we structure this", or between dev-research and dev-create-plan.
 argument-hint: "[lite|full|ultra]"
 ---
 
@@ -18,16 +18,18 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 ## Artifact Location
 
-Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
-`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
-artifacts are scratch — write and read them as normal, but **never commit them**.
+Artifact paths below use `.spec/` as the default root. Only a custom root explicitly named by the
+user overrides it; replace the `.spec/` prefix in every path and command below with that root.
+`dev-loop` passes the resolved root to the skills it invokes. Never discover, migrate, or fall back to
+legacy `docs/` artifacts. A gitignored or out-of-repo custom root means the artifacts are scratch —
+write and read them as normal, but **never commit them**.
 
 ## 1. Frame the Feature
 
-Named feature → kebab-case `<feature-name>`. If `docs/<feature-name>/RESEARCH.md` exists, read it — the design follows its recommendation and inherits its assumptions rather than re-deciding approach.
+Named feature → kebab-case `<feature-name>`. If `.spec/<feature-name>/RESEARCH.md` exists, read it — the design follows its recommendation and inherits its assumptions rather than re-deciding approach.
 
 ```bash
-ls docs/<feature-name>/ 2>/dev/null
+ls .spec/<feature-name>/ 2>/dev/null
 grep -rln "<related term>" --include="*.go" --include="*.ts" --include="*.tsx" --include="*.py" | head
 ```
 
@@ -43,7 +45,7 @@ Not every feature touches all three. Skip an axis entirely rather than padding i
 
 **API / interface contract** — feature adds or changes something other code or another team calls: HTTP endpoints, RPC methods, CLI flags, public function signatures, event schemas. Decide: request/response shape, error cases, versioning if it's public. Write the contract as a signature or schema snippet, not a description of one. For a REST/GraphQL HTTP API specifically, defer the resource shape, versioning strategy, and pagination style to `dev-api-design` first, then write the result into this axis.
 
-**UI/UX** — feature has a user-facing screen or component. Decide: what the user sees and does, states (empty/loading/error), and which existing component/pattern in the codebase this should match — reuse an existing design pattern before inventing one. A wireframe as an indented text sketch is enough here; if the user wants something clickable to look at, hand off to `dev-ui-design` to turn this axis into `docs/<feature-name>/prototype.html`.
+**UI/UX** — feature has a user-facing screen or component. Decide: what the user sees and does, states (empty/loading/error), and which existing component/pattern in the codebase this should match — reuse an existing design pattern before inventing one. A wireframe as an indented text sketch is enough here; if the user wants something clickable to look at, hand off to `dev-ui-design` to turn this axis into `.spec/<feature-name>/prototype.html`.
 
 For each axis used, name the alternative that was rejected and why in one line — the plan reviewer and implementer both need to know a choice was made on purpose, not defaulted into.
 
@@ -101,12 +103,12 @@ axes: [system, data-model, api, ui-ux]  # only the ones actually used
 
 ## 5. Sub-Agent Mode (`ultra`, called by another skill)
 
-Same contract as `dev-research` §6: one question, one answer, write to `docs/<feature-name>/research/<topic-slug>.md`, never ask the user, don't commit or touch DESIGN.md/PLAN.md — the caller owns git and merges the answer into the relevant axis.
+Same contract as `dev-research` §6: one question, one answer, write to `.spec/<feature-name>/research/<topic-slug>.md`, never ask the user, don't commit or touch DESIGN.md/PLAN.md — the caller owns git and merges the answer into the relevant axis.
 
 ## 6. Commit & Report
 
 Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
 
-`git add docs/<feature-name>/DESIGN.md && git commit -m "design: <feature-name>"`. No push, no PR — design travels with the feature branch, same as research.
+`git add .spec/<feature-name>/DESIGN.md && git commit -m "design: <feature-name>"`. No push, no PR — design travels with the feature branch, same as research.
 
 Report: file path, axes used, one-line summary, assumption count, then hand off to `dev-create-plan`.

@@ -1,6 +1,6 @@
 ---
 name: dev-review-plan
-description: Review a PLAN.md before implementation — vague tasks, missing completion criteria, risky assumptions, wrong phase ordering, scope issues — to docs/<feature-name>/PLAN-REVIEW.md with a verdict. Use on "review the plan", "check the plan", "is this plan ready", "validate the plan".
+description: Review a PLAN.md before implementation — vague tasks, missing completion criteria, risky assumptions, wrong phase ordering, scope issues — to .spec/<feature-name>/PLAN-REVIEW.md with a verdict. Use on "review the plan", "check the plan", "is this plan ready", "validate the plan".
 argument-hint: "[lite|full|ultra]"
 ---
 
@@ -16,13 +16,15 @@ No-op — this skill only writes `PLAN-REVIEW.md`; present for consistency.
 
 ## Artifact Location
 
-Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
-`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
-artifacts are scratch — write and read them as normal, but **never commit them**.
+Artifact paths below use `.spec/` as the default root. Only a custom root explicitly named by the
+user overrides it; replace the `.spec/` prefix in every path and command below with that root.
+`dev-loop` passes the resolved root to the skills it invokes. Never discover, migrate, or fall back to
+legacy `docs/` artifacts. A gitignored or out-of-repo custom root means the artifacts are scratch —
+write and read them as normal, but **never commit them**.
 
 ## 1. Locate the Plan
 
-Named feature → `docs/<feature-name>/PLAN.md`; else `ls docs/*/PLAN.md` (prefer `status: Planned`). None → offer `dev-create-plan`.
+Named feature → `.spec/<feature-name>/PLAN.md`; else `ls .spec/*/PLAN.md` (prefer `status: Planned`). Do not search or fall back to `docs/`. None → offer `dev-create-plan`.
 
 ## 2. Review Checklist
 
@@ -44,12 +46,12 @@ Only raise real issues.
 
 ## 4. Write PLAN-REVIEW.md
 
-Save to `docs/<feature-name>/PLAN-REVIEW.md`:
+Save to `.spec/<feature-name>/PLAN-REVIEW.md`:
 
 ````markdown
 ---
 date: <YYYY-MM-DD>
-plan: docs/<feature-name>/PLAN.md
+plan: .spec/<feature-name>/PLAN.md
 plan_version: <version from frontmatter>
 reviewer: Claude
 verdict: <Ready | Needs Revision | Blocked>

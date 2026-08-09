@@ -112,7 +112,7 @@ flowchart LR
 
 | Agent | Spawned by | Owns |
 |-------|-----------|------|
-| `dev-researcher` | dev-create-plan, dev-implement-plan, dev-loop | one scoped research question → `docs/<feature>/research/<topic>.md` |
+| `dev-researcher` | dev-create-plan, dev-implement-plan, dev-loop | one scoped research question → `.spec/<feature>/research/<topic>.md` |
 | `dev-implementer` | dev-implement-plan, dev-loop | one PLAN.md phase in its own worktree |
 | `dev-fixer` | dev-loop after a failing review | one group of REVIEW.md findings |
 | `dev-tester` | dev-qa (ultra), dev-loop | one module's coverage gaps |
@@ -122,7 +122,7 @@ plugin's agents absent.
 
 ## Artifacts
 
-All under `docs/<feature-name>/`, each written by exactly one skill and read by the next:
+All under `.spec/<feature-name>/`, each written by exactly one skill and read by the next:
 
 ```mermaid
 flowchart LR

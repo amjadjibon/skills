@@ -18,9 +18,11 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 ## Artifact Location
 
-Artifact paths below are relative to the artifact root: `docs/` by default, or wherever the user (or
-`dev-loop`, which passes the one it resolved) points it. A gitignored or out-of-repo root means the
-artifacts are scratch — write and read them as normal, but **never commit them**.
+Artifact paths below use `.spec/` as the default root. Only a custom root explicitly named by the
+user overrides it; replace the `.spec/` prefix in every path and command below with that root.
+`dev-loop` passes the resolved root to the skills it invokes. Never discover, migrate, or fall back to
+legacy `docs/` artifacts. A gitignored or out-of-repo custom root means the artifacts are scratch —
+write and read them as normal, but **never commit them**.
 
 ## 1. Scope
 
@@ -63,7 +65,7 @@ Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`
 
 ## 7. QA Report
 
-Write `docs/<feature-name>/QA.md`:
+Write `.spec/<feature-name>/QA.md`:
 
 ```markdown
 ---

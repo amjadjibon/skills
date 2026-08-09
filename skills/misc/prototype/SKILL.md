@@ -15,7 +15,7 @@ Skip straight past this skill when:
 
 - **The answer is already known** and the work is just writing it properly → build the real thing.
 - **The question is "which library / API / approach should we use"** and it's answered by reading docs and running a small spike → `dev-research`.
-- **The question is "what should this look like" but there's no app to host it** — no route, no running frontend, and the point is a shareable static mockup → `dev-ui-design`, which writes one self-contained `docs/<feature>/prototype.html`.
+- **The question is "what should this look like" but there's no app to host it** — no route, no running frontend, and the point is a shareable static mockup → `dev-ui-design`, which writes one self-contained `.spec/<feature>/prototype.html`.
 
 ## Pick a branch
 
@@ -36,7 +36,7 @@ If it's genuinely ambiguous and the user isn't reachable, default to whichever b
 4. **Skip the polish.** No tests, no error handling beyond what makes the prototype _runnable_, no abstractions. The point is to learn something fast.
 5. **Surface the state.** After every action (logic) or on every variant switch (UI), print or render the full relevant state so the user can see what changed.
 6. **Capture it when done.** A prototype that ends without a written verdict was a spike the team will re-run in six months. Two separate things get captured:
-   - **The answer** — the question and what it settled, in one short paragraph. It belongs wherever the follow-up work is tracked (the issue, the PR description, or the commit that folds the decision in). If a `docs/<feature-name>/` directory already exists for this work, that's the natural home.
+   - **The answer** — the question and what it settled, in one short paragraph. It belongs wherever the follow-up work is tracked (the issue, the PR description, or the commit that folds the decision in). If a `.spec/<feature-name>/` directory already exists for this work, that's the natural home.
    - **The prototype** — as a **primary source**, on a throwaway branch out of main (`prototype/<question-slug>`), with a pointer to it next to the answer. Main keeps the validated decision and none of the scaffolding; the switcher, the TUI shell, and the losing variants rot fast and confuse the next reader.
 
 Commit hygiene and message style: see the `git-safe` skill (no `Co-authored-by:`, `git add -u` not `-A`, imperative why-focused subject).
