@@ -22,7 +22,9 @@ Artifact paths below use `.spec/` as the default root. Only a custom root explic
 user overrides it; replace the `.spec/` prefix in every path and command below with that root.
 `dev-loop` passes the resolved root to the skills it invokes. Never discover, migrate, or fall back to
 legacy `docs/` artifacts. A gitignored or out-of-repo custom root means the artifacts are scratch —
-write and read them as normal, but **never commit them**.
+write and read them as normal, but **never commit them**. Application code must never reference,
+import, or link to `.spec/` artifacts — they are workflow scratch, not part of the product, and may
+be gitignored or deleted by the time anyone else reads the code.
 
 ## 1. Scope
 
@@ -51,6 +53,7 @@ High → Low:
 - Unhappy paths matter as much as happy — an untested error handler is an untested promise.
 - Real dependencies where fast enough; mock only system boundaries (external HTTP, email, payments).
 - Run each new test as written — confirm it passes, and fails when it should.
+- File naming follows the language/repo convention.
 - Gap is E2E-shaped (a full user flow, not a single function/module)? Use `dev-e2e-testing` for the tooling/fixture/flake practices, not ad-hoc Playwright/Cypress.
 
 ## 5. Verify Improvement

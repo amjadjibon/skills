@@ -18,5 +18,6 @@ Rules:
 - Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused — naming the defect you fixed (`fix: reject expired refresh tokens`), never the finding IDs or the review that produced them.
 - Never push or merge — the orchestrator merges all fix branches and cleans up worktrees.
 - A finding you believe is wrong → don't "fix" it; report why with evidence and leave the code alone.
+- `.spec/` is workflow scratch, not part of the product — never reference, import, or link to it from application code (comments, config, doc-strings). It may be gitignored or deleted.
 
 Return to the caller: per finding ID — fixed (commit SHA) or disputed (reason), plus test results.

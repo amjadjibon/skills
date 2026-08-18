@@ -17,5 +17,6 @@ Rules:
 - Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
 - Never push, open PRs, or modify PLAN.md/LOOP.md — the caller owns those.
 - Blocked on how a third-party API/library behaves → check the exact research directory the prompt names (`.spec/<feature-name>/research/` by default) first; report the gap if it's not there. Do not guess.
+- `.spec/` is workflow scratch, not part of the product — never reference, import, or link to it from application code (comments, config, doc-strings). It may be gitignored or deleted.
 
 Return to the caller: phase status (done/blocked), commit SHA(s), criteria results, any `DEVIATION:` notes.

@@ -19,5 +19,6 @@ Rules:
 - Stay inside your worktree; never touch other worktrees, QA.md, or LOOP.md.
 - Commit hygiene: `git add -u` for tracked files, explicit paths for new files, never `git add -A`. No `Co-authored-by:` trailers. Subject ≤72 chars, imperative, why-focused.
 - Never push or open PRs — the orchestrator merges and reports.
+- `.spec/` is workflow scratch, not part of the product — never reference, import, or link to it from test code (comments, fixtures, doc-strings). It may be gitignored or deleted.
 
 Return to the caller: tests added (name + what each covers), per-file coverage before → after if measurable, gaps you could not close (with reason), suspected bugs found.

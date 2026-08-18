@@ -24,7 +24,9 @@ Artifact paths below use `.spec/` as the default root. Only a custom root explic
 user overrides it; replace the `.spec/` prefix in every path and command below with that root.
 `dev-loop` passes the resolved root to the skills it invokes. Never discover, migrate, or fall back to
 legacy `docs/` artifacts. A gitignored or out-of-repo custom root means the artifacts are scratch —
-write and read them as normal, but **never commit them**.
+write and read them as normal, but **never commit them**. Application code must never reference,
+import, or link to `.spec/` artifacts — they are workflow scratch, not part of the product, and may
+be gitignored or deleted by the time anyone else reads the code.
 
 ## 1. Identify What to Review
 

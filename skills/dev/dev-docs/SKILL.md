@@ -22,7 +22,7 @@ Mode is the trailing argument when it is exactly `lite`, `full`, or `ultra`; eve
 
 Docs go where the project already keeps them — `README.md` at the root, `docs/`, a wiki directory. Nothing new gets invented; if the repo has no convention, `docs/` and say so. A gitignored root means the doc is scratch: write it, don't commit it.
 
-These are published docs for the product's readers, so `docs/` remains a valid destination. Internal workflow artifacts such as PLAN.md and REVIEW.md belong under `.spec/<feature-name>/` instead; `dev-docs` must not place them in the published documentation tree.
+These are published docs for the product's readers, so `docs/` remains a valid destination. Internal workflow artifacts such as PLAN.md and REVIEW.md belong under `.spec/<feature-name>/` instead; `dev-docs` must not place them in the published documentation tree, nor reference, import, or link to them from published docs or application code — `.spec/` is workflow scratch that may be gitignored or deleted.
 
 ## 1. Name the Reader and the Job
 
