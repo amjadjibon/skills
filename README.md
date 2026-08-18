@@ -82,6 +82,15 @@ Invoke a skill using its `dev-skills:` namespace:
 /dev-skills:dev-loop add rate limiting to the API
 ```
 
+**Update or remove:** `codex plugin add` reuses whatever the marketplace has already cloned — it will not
+pull new commits on its own. Refresh the marketplace snapshot first, then reinstall:
+
+```sh
+codex plugin marketplace upgrade amjadjibon-skills
+codex plugin add dev-skills@amjadjibon-skills
+codex plugin remove dev-skills@amjadjibon-skills
+```
+
 ## Skills
 
 | Skill | Description |
