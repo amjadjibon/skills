@@ -351,6 +351,12 @@ def main():
         market = json.loads(market_path.read_text())
         if plugin.get("description") != market["plugins"][0].get("description"):
             err(market_path, "plugin description out of sync with plugin.json")
+        # .codex-plugin/plugin.json is a separate manifest for the Codex install path —
+        # its version must track .claude-plugin/plugin.json or Codex installs report a stale number
+        codex_path = ROOT / ".codex-plugin" / "plugin.json"
+        codex = json.loads(codex_path.read_text())
+        if codex.get("version") != plugin.get("version"):
+            err(codex_path, f"version `{codex.get('version')}` out of sync with .claude-plugin/plugin.json `{plugin.get('version')}`")
         # the skills array is the load path — a skill missing from it silently never loads
         listed = set(plugin.get("skills", []))
         actual = {f"./skills/dev/{d}" for d in skill_dirs} | {f"./skills/misc/{d}" for d in misc_dirs}
