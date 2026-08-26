@@ -1,7 +1,7 @@
 {
   "name": "dev-skills",
-  "description": "Autonomous dev workflow in one plugin: 31 skills (wayfinder mapping, design, api design, openapi spec, human-friendly docs, mermaid diagrams, github actions, ui prototype, throwaway prototype, plan, implement, TDD, e2e testing, smoke testing, review, QA, debug, refactor, perf, release, clean up, git safety, brainstorming, ponytail minimalism + its review/audit/debt passes, caveman terseness), 4 sub-agents (researcher, implementer, fixer, tester), and the /dev-skills-loop orchestrator command — each skill with a lite/full/ultra delivery mode.",
-  "version": "1.40.1",
+  "description": "Autonomous dev workflow in one plugin: 32 skills (wayfinder mapping, design, api design, openapi spec, human-friendly docs, mermaid diagrams, github actions, ui prototype, throwaway prototype, plan, implement, TDD, e2e testing, smoke testing, review, QA, debug, refactor, perf, release, clean up, git safety, conventional commits, brainstorming, ponytail minimalism + its review/audit/debt passes, caveman terseness), 4 sub-agents (researcher, implementer, fixer, tester), and the /dev-skills-loop orchestrator command — each skill with a lite/full/ultra delivery mode.",
+  "version": "1.41.0",
   "author": {
     "name": "Amjad Hossain"
   },
@@ -40,6 +40,7 @@
     "./skills/dev/dev-ui-design",
     "./skills/dev/dev-wayfinder",
     "./skills/misc/brainstorming",
+    "./skills/misc/git-commit",
     "./skills/misc/git-safe",
     "./skills/misc/github-actions",
     "./skills/misc/mermaid-diagram",

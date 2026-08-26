@@ -1,6 +1,6 @@
 # skills
 
-A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 31 skills, 4 sub-agents, and the `/dev-skills-loop` orchestrator command.
+A collection of custom [Claude Code](https://claude.ai/code) skills, packaged as the `dev-skills` plugin — one install delivers 32 skills, 4 sub-agents, and the `/dev-skills-loop` orchestrator command.
 
 > [!CAUTION]
 > **Read every skill before you install it. Nothing here is guaranteed.**
@@ -121,7 +121,8 @@ codex plugin remove dev-skills@amjadjibon-skills
 | [dev-ponytail-debt](skills/dev/dev-ponytail-debt/SKILL.md) | Harvest every `TODO: [owner]` / `FIXME: [owner]` marker into one ledger with ceiling, trigger, owner, and age — flagging the ones that name no trigger, since those are what rot. Writes `.spec/<feature-name>/DEBT.md`. |
 | [dev-caveman](skills/dev/dev-caveman/SKILL.md) | Session-long terseness overlay — drop articles, filler, pleasantries, hedging, and tool-call narration while keeping every technical fact, symbol, and error string verbatim. `dev-ponytail` shrinks the code; this shrinks the prose. |
 | [brainstorming](skills/misc/brainstorming/SKILL.md) | Continuous interactive ideation partner — spreads ideas across safe/middle/bold, defaults to critical engagement over agreement, no hand-off or convergence point. |
-| [git-safe](skills/misc/git-safe/SKILL.md) | Pre-flight gate for destructive git commands (force push, reset --hard, clean -f, branch -D, rebase/amend on pushed branches) and the canonical commit hygiene/message conventions the other skills reference. |
+| [git-commit](skills/misc/git-commit/SKILL.md) | Write a conventional commit message following [qoomon's cheat sheet](https://gist.github.com/qoomon/5dfcdf8eec66a051ecd85625518cfd13) — picking the type from the diff, scope rules, the `!` breaking-change marker, and body/footer conventions. Staging and destructive-op safety stay with `git-safe`. |
+| [git-safe](skills/misc/git-safe/SKILL.md) | Pre-flight gate for destructive git commands (force push, reset --hard, clean -f, branch -D, rebase/amend on pushed branches) and the canonical staging/commit-hygiene rules the other skills reference. Hands the message format itself to `git-commit`. |
 | [openapi-spec](skills/misc/openapi-spec/SKILL.md) | Write and validate OpenAPI 3.1 spec documents — `$ref`-based reusable components, Spectral/Redocly lint rules. No code generation; assumes `dev-api-design` already decided the shape. |
 | [mermaid-diagram](skills/misc/mermaid-diagram/SKILL.md) | Generate Mermaid diagrams (flowchart, sequence, architecture, deployment, class, state, ER) from a description or source code, with high-contrast styling and `mmdc` validation before handoff. |
 | [github-actions](skills/misc/github-actions/SKILL.md) | Create and review GitHub Actions workflows — CI, release/publish, reusable workflows, composite actions, matrix builds, caching, and security hardening. Validates with `actionlint`. |

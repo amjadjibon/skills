@@ -1,7 +1,7 @@
 {
   "name": "dev-skills",
-  "version": "1.40.1",
-  "description": "Autonomous development workflow for Codex with 31 composable engineering skills.",
+  "version": "1.41.0",
+  "description": "Autonomous development workflow for Codex with 32 composable engineering skills.",
   "author": {
     "name": "Amjad Hossain",
     "url": "https://github.com/amjadjibon"

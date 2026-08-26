@@ -1,6 +1,6 @@
 ---
 name: git-safe
-description: Safety rules for destructive/history-rewriting git ops (force push, reset --hard, clean -f, branch -D, checkout over uncommitted changes, rebase/amend of pushed work) plus this repo's canonical commit hygiene. Trigger before any such command, or before any skill runs `git commit`.
+description: Safety rules for destructive/history-rewriting git ops (force push, reset --hard, clean -f, branch -D, checkout over uncommitted changes, rebase/amend of pushed work) plus this repo's staging and commit-hygiene rules. Trigger before any such command, or before any skill runs `git commit`. Writing the message itself is `git-commit`'s job.
 ---
 
 # Git Guardrails
@@ -36,13 +36,12 @@ For each, check state first, then confirm with the user before running — unles
 
 Every `git commit` in this repo's skills follows this, no exceptions:
 
+- **The message is `git-commit`'s** — conventional form, type choice, breaking-change marker, body and footer. What follows is only what that skill doesn't own: what gets staged, and what history must never say.
 - `git add -u` for tracked files, explicit paths for new files. Never `git add -A` — review `git status` first, stage only what the task touched.
 - **No `Co-authored-by:` trailer, ever** — not even when a sub-agent or the harness did the work.
-- Subject line ≤72 chars, imperative mood, why-focused not what-focused (e.g. `fix: prevent double-charge on retry`, not `fix: added a check`).
-- Conventional type prefix matching the change: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `plan:`, `chore:`.
 - One logical change per commit — a plan phase, a review-finding fix, a doc update — not a grab-bag.
 - **Nothing git-visible names the tooling.** Subjects, branch names, and PR titles never mention a skill, loop, iteration, phase number, finding ID, or workflow status: `fix: reject expired refresh tokens`, not `fix: address HIGH-002 from iteration 3`. That bookkeeping stays in the artifacts, where it's still findable; history reads the same whether a human or this plugin wrote it.
-- This is the canonical convention other skills point to instead of restating it; see `skills/dev/dev-implement-plan/SKILL.md` §3 and `skills/dev/dev-create-plan/SKILL.md` for it applied to phase commits and plan-status commits.
+- With `git-commit`, this is the convention other skills point to instead of restating; `dev-implement-plan` §3 and `dev-create-plan` apply it to phase and plan-status commits (`plan:` being this repo's added type).
 
 ## Stacked PRs
 
