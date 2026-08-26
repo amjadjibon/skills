@@ -91,6 +91,20 @@ codex plugin add dev-skills@amjadjibon-skills
 codex plugin remove dev-skills@amjadjibon-skills
 ```
 
+## Installing the Plugin in Cursor
+
+Requires [Cursor](https://cursor.com/docs/plugins) 2.4 or newer. Cursor installs marketplaces from
+the dashboard rather than a CLI:
+
+1. Open **Dashboard → Plugins**.
+2. Under **Team Marketplaces**, choose **Add Marketplace → Import from Repo**, and point it at
+   `amjadjibon/skills`.
+3. Review the plugins it finds, then install `dev-skills` from **Customize**.
+
+Skills, sub-agents, and the `/dev-skills-loop` command are picked up from `.cursor-plugin/plugin.json`.
+The `SessionStart` hook in `hooks/hooks.json` is Claude Code-specific — it installs the Claude status
+line and is not declared in the Cursor manifest.
+
 ## Skills
 
 | Skill | Description |

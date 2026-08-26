@@ -12,6 +12,11 @@ This repository is the `dev-skills` Claude Code plugin: 32 skills, 4 sub-agents,
 .claude-plugin/
   plugin.json        # Plugin manifest (name, description, version)
   marketplace.json   # Makes the repo installable: /plugin marketplace add amjadjibon/skills
+.codex-plugin/
+  plugin.json        # Same plugin, Codex install path (version must match .claude-plugin's)
+.cursor-plugin/
+  plugin.json        # Same plugin, Cursor install path (version must match .claude-plugin's)
+  marketplace.json   # Cursor "Import from Repo" marketplace entry
 skills/
   dev/
     <skill-name>/
@@ -78,7 +83,9 @@ python3 scripts/validate.py
 
 It checks frontmatter (skills and agents), code-fence nesting, cross-skill/agent references, doc coverage, and the canonical convention lines (commit hygiene, mode parsing) across skills/, .agents/, commands/, CLAUDE.md, and README.md. It also renders every `statusline/tests/*.json` fixture through `statusline/statusline.sh` under `/bin/bash` and diffs it against the matching `.expected` file — add a fixture pair whenever you change what the status line prints. Must pass before committing.
 
-When adding a skill, agent, or command, also bump `version` in `.claude-plugin/plugin.json` and keep its description (and marketplace.json's) in sync. `.codex-plugin/plugin.json` is a second manifest for the Codex install path — its `version` must always match `.claude-plugin/plugin.json`'s; `scripts/validate.py` enforces this.
+When adding a skill, agent, or command, also bump `version` in `.claude-plugin/plugin.json` and keep its description (and marketplace.json's) in sync. `.codex-plugin/plugin.json` and `.cursor-plugin/plugin.json` are further manifests for the Codex and Cursor install paths — their `version` must always match `.claude-plugin/plugin.json`'s; `scripts/validate.py` enforces this.
+
+The Cursor manifest needs no per-skill upkeep: Cursor resolves `skills` to the *parent* of the skill directories, so `["./skills/dev/", "./skills/misc/"]` covers every skill, and `agents`/`commands` are plain directories. `scripts/validate.py` checks those paths resolve, since a typo there ships a plugin containing nothing while still parsing. `hooks/hooks.json` is deliberately not declared there — its `SessionStart` event is Claude Code's, and the script behind it installs a Claude status line.
 
 ## Adding a New Skill
 

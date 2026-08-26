@@ -337,7 +337,8 @@ def main():
                 err(ROOT / doc, f"does not mention agent `{a}`")
 
     # every "<N> skills" claim across the docs and manifests must match reality
-    for doc in ("CLAUDE.md", "README.md", "index.html", ".claude-plugin/plugin.json", ".claude-plugin/marketplace.json"):
+    for doc in ("CLAUDE.md", "README.md", "index.html", ".claude-plugin/plugin.json", ".claude-plugin/marketplace.json",
+                ".codex-plugin/plugin.json", ".cursor-plugin/plugin.json", ".cursor-plugin/marketplace.json"):
         path = ROOT / doc
         for m in re.finditer(r"(\d+) skills", path.read_text()):
             if int(m.group(1)) != len(all_skills):
@@ -351,12 +352,31 @@ def main():
         market = json.loads(market_path.read_text())
         if plugin.get("description") != market["plugins"][0].get("description"):
             err(market_path, "plugin description out of sync with plugin.json")
-        # .codex-plugin/plugin.json is a separate manifest for the Codex install path —
-        # its version must track .claude-plugin/plugin.json or Codex installs report a stale number
-        codex_path = ROOT / ".codex-plugin" / "plugin.json"
-        codex = json.loads(codex_path.read_text())
-        if codex.get("version") != plugin.get("version"):
-            err(codex_path, f"version `{codex.get('version')}` out of sync with .claude-plugin/plugin.json `{plugin.get('version')}`")
+        # .codex-plugin/ and .cursor-plugin/ are separate manifests for the Codex and Cursor
+        # install paths — their versions must track .claude-plugin/plugin.json, or those
+        # installs report a stale number
+        for other in (".codex-plugin", ".cursor-plugin"):
+            other_path = ROOT / other / "plugin.json"
+            other_manifest = json.loads(other_path.read_text())
+            if other_manifest.get("version") != plugin.get("version"):
+                err(other_path, f"version `{other_manifest.get('version')}` out of sync with "
+                                f".claude-plugin/plugin.json `{plugin.get('version')}`")
+
+        # Cursor resolves `skills` to the *parent* of the skill directories (our skills nest one
+        # level deeper than its default), and `agents`/`commands` to a directory of .md files.
+        # A path that doesn't resolve ships a plugin with nothing in it — silently, since the
+        # manifest itself still parses.
+        cursor_path = ROOT / ".cursor-plugin" / "plugin.json"
+        cursor = json.loads(cursor_path.read_text())
+        for field in ("skills", "agents", "commands"):
+            value = cursor.get(field)
+            for ref in [value] if isinstance(value, str) else (value or []):
+                if not (ROOT / str(ref).removeprefix("./")).is_dir():
+                    err(cursor_path, f"{field} path `{ref}` is not a directory — Cursor would load none")
+        cursor_market_path = ROOT / ".cursor-plugin" / "marketplace.json"
+        cursor_market = json.loads(cursor_market_path.read_text())
+        if cursor.get("description") != cursor_market["plugins"][0].get("description"):
+            err(cursor_market_path, "plugin description out of sync with .cursor-plugin/plugin.json")
         # the skills array is the load path — a skill missing from it silently never loads
         listed = set(plugin.get("skills", []))
         actual = {f"./skills/dev/{d}" for d in skill_dirs} | {f"./skills/misc/{d}" for d in misc_dirs}
